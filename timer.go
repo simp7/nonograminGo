@@ -18,7 +18,7 @@ func NewPlaytime() *Playtime {
 	return &p
 }
 
-func (p *Playtime) timePassed() { //would be go routine
+func (p *Playtime) timePassed() { //would be goroutine
 	present := 0
 
 	select {
@@ -31,5 +31,8 @@ func (p *Playtime) timePassed() { //would be go routine
 
 func (p *Playtime) timeResult() float64 {
 	result := time.Now().Sub(p.startTime)
+	if result < 0 {
+		checkErr(timeBelowZero)
+	}
 	return result.Seconds()
 }

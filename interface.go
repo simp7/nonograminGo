@@ -1,11 +1,23 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+)
 
 func showMenu() {
+	fmt.Println("1. Start")
+	fmt.Println("2. Random")
+	fmt.Println("3. Hall of Honor")
+	fmt.Println("4. Exit")
 }
 
 func showMapList() {
+	files, err := ioutil.ReadDir("./maps")
+	checkErr(err)
+	for n, file := range files {
+		fmt.Printf("%d. %s\n", n, file.Name())
+	}
 }
 
 func showInGame() {
