@@ -37,7 +37,7 @@ func (p *Playtime) timePassed() { //would be goroutine
 func (p *Playtime) timeResult() float64 {
 	result := time.Now().Sub(p.startTime)
 	if result < 0 {
-		checkErr(timeBelowZero)
+		CheckErr(timeBelowZero)
 	}
 	close(p.stop)
 	close(p.clock)

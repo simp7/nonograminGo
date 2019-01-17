@@ -7,9 +7,10 @@ import (
 
 var (
 	timeBelowZero = errors.New("The value of time is less than 0.")
+	invalidMap    = errors.New("Map file has been broken.")
 )
 
-func checkErr(e error) {
+func CheckErr(e error) {
 	if e != nil {
 		log.Fatal(e)
 	}

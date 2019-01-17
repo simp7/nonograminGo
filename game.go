@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -18,31 +19,46 @@ func newNonomap(fileName string) *nonomap {
 	var imported nonomap
 
 	file, err := ioutil.ReadFile(fmt.Sprintf("%s.nm", fileName))
-	checkErr(err)
-
+	CheckErr(err)
 	elements := strings.Split(string(file), "/")
+	//Extract all data from wanted file.
 
 	imported.width, err = strconv.Atoi(elements[0])
 	imported.height, err = strconv.Atoi(elements[1])
-	checkErr(err)
+	CheckErr(err)
+	//Extract map's size from file
 
 	for _, v := range elements[2:] {
 		temp, err := strconv.Atoi(v)
 		imported.mapdata = append(imported.mapdata, temp)
-		checkErr(err)
+		CheckErr(err)
 	}
+	//Extract map's answer from file.
 
+	for _, v := range imported.mapdata {
+		if float64(v) >= math.Pow(2, float64(imported.width)) {
+			CheckErr(invalidMap)
+		}
+	}
+	if len(imported.mapdata) != imported.height {
+		CheckErr(invalidMap)
+	}
+	//Check validity of file.
+	
 	return &imported
 
+}
+
+func (nm * nonomap) showMap() {
+	
 }
 
 func (nm *nonomap) oneGame() {
 	timer := NewPlaytime()
 	go timer.showTime()
-	go check()
 	estimatedTime := timer.timeResult()
 	fmt.Println(estimatedTime)
 }
 
-func check() {
+func checkMark() {
 }

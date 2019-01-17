@@ -14,7 +14,7 @@ func showMenu() {
 
 func showMapList() {
 	files, err := ioutil.ReadDir("./maps")
-	checkErr(err)
+	CheckErr(err)
 	for n, file := range files {
 		fmt.Printf("%d. %s\n", n, file.Name())
 	}
