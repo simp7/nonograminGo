@@ -44,13 +44,13 @@ func newNonomap(fileName string) *nonomap {
 		CheckErr(invalidMap)
 	}
 	//Check validity of file.
-	
+
 	return &imported
 
 }
 
-func (nm * nonomap) showMap() {
-	
+func (nm *nonomap) showMap() {
+
 }
 
 func (nm *nonomap) oneGame() {
@@ -58,6 +58,10 @@ func (nm *nonomap) oneGame() {
 	go timer.showTime()
 	estimatedTime := timer.timeResult()
 	fmt.Println(estimatedTime)
+}
+
+func KeyStroke() {
+
 }
 
 func checkMark() {
