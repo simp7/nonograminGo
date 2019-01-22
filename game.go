@@ -11,8 +11,19 @@ import (
 type nonomap struct {
 	width   int
 	height  int
-	mapdata []int //each elements of mapdata contains data of 32 blocks. It is designated by bitmap, which 1 is filled and 0 is blank
+	mapdata []int
 }
+
+/*
+	nonomap is devided into 3 parts and has arguments equal or more than 3.
+
+	First two elements indicates width and height respectively.
+
+	Rest elements indicates actual map which player has to solve.
+	Each elements indicates map data of each line.
+	is designated by bitmap, which 1 is filled and 0 is blank.
+	Because the size of int is 32bits, width of maps can't be more than 32 bits.
+*/
 
 func newNonomap(fileName string) *nonomap {
 
@@ -53,7 +64,13 @@ func (nm *nonomap) showMap() {
 
 }
 
-func (nm *nonomap) oneGame() {
+func (nm *nonomap) compareMap(nm2 nonomap) {
+
+}
+
+func OneGame(nm nonomap) {
+
+	newNonomap()
 	timer := NewPlaytime()
 	go timer.showTime()
 	estimatedTime := timer.timeResult()
