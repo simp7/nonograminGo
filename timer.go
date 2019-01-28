@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//This file deals with timer.
 type Playtime struct {
 	ticker    time.Ticker
 	startTime time.Time

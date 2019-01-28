@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+//This file deals with algoritms of whole game of nonogram.
+//User's control or display should be seperated from this file.
+
 type nonomap struct {
 	width   int
 	height  int
@@ -75,10 +78,6 @@ func OneGame(nm nonomap) {
 	go timer.showTime()
 	estimatedTime := timer.timeResult()
 	fmt.Println(estimatedTime)
-}
-
-func KeyStroke() {
-
 }
 
 func checkMark() {
