@@ -18,7 +18,7 @@ type nonomap struct {
 }
 
 /*
-	nonomap is devided into 3 parts and has arguments equal or more than 3.
+	nonomap is devided into 3 parts and has arguments equal or more than 3, which is seperated by '/'.
 
 	First two elements indicates width and height respectively.
 
@@ -26,6 +26,8 @@ type nonomap struct {
 	Each elements indicates map data of each line.
 	is designated by bitmap, which 1 is filled and 0 is blank.
 	Because the size of int is 32bits, width of maps can't be more than 32 bits.
+
+The extention of file is nm(*.nm)
 */
 
 func newNonomap(fileName string) *nonomap {
@@ -63,21 +65,18 @@ func newNonomap(fileName string) *nonomap {
 
 }
 
-func (nm *nonomap) showMap() {
-
-}
-
 func (nm *nonomap) compareMap(nm2 nonomap) {
 
 }
 
 func OneGame(nm nonomap) {
 
-	newNonomap()
+	newNonomap("Player")
 	timer := NewPlaytime()
 	go timer.showTime()
 	estimatedTime := timer.timeResult()
 	fmt.Println(estimatedTime)
+
 }
 
 func checkMark() {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"github.com/nsf/termbox-go"
 	"os"
 )
 
@@ -9,26 +10,31 @@ import (
 
 type keyStroker struct {
 	reader *bufio.Reader
-	key    int
+	key    byte
+	err    error
 }
 
 func NewKeyStroker() *keyStroker {
 	rd := keyStroker{}
 	rd.reader = bufio.NewReader(os.Stdin)
 	rd.key = 0
+	rd.err = nil
 	return &rd
 }
 
 func (rd *keyStroker) ControlMenu() {
 	for {
-		rd.key, _ = rd.reader.ReadByte()
-		switch key {
+		rd.key, rd.err = rd.reader.ReadByte()
+		CheckErr(rd.err)
+		switch rd.key {
 		case '1':
 			ShowMapList()
+			rd.SelectMap()
 		case '2':
 
 		case '3':
 			ShowResult()
+			rd.PressAnyKey()
 		case '4':
 			return
 		}
@@ -36,9 +42,20 @@ func (rd *keyStroker) ControlMenu() {
 }
 
 func (rd *keyStroker) SelectMap() {
+	var mapName []byte
+	for {
+		mapName, _, rd.err = rd.reader.ReadLine()
+		CheckErr(rd.err)
+		targetMap := newNonomap(string(mapName))
+	}
 }
 
 func (rd *keyStroker) ControlGame() {
+	for {
+		rd.key, rd.err = rd.reader.ReadByte()
+		CheckErr(rd.err)
+
+	}
 }
 
 func (rd *keyStroker) PressAnyKey() { //calls when entering hall of honor
