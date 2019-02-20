@@ -24,10 +24,12 @@ type nonomap struct {
 
 	Rest elements indicates actual map which player has to solve.
 	Each elements indicates map data of each line.
-	is designated by bitmap, which 1 is filled and 0 is blank.
+	is designated by bitmap, which 0 is blank and 1 is filled one.
 	Because the size of int is 32bits, width of maps can't be more than 32 bits.
 
-The extention of file is nm(*.nm)
+	When it comes to player's map, 2 is checked one where player thinks that cell is blank.
+
+	The extention of file is nm(*.nm)
 */
 
 func newNonomap(fileName string) *nonomap {
@@ -42,7 +44,7 @@ func newNonomap(fileName string) *nonomap {
 	imported.width, err = strconv.Atoi(elements[0])
 	imported.height, err = strconv.Atoi(elements[1])
 	CheckErr(err)
-	//Extract map's size from file
+	//Extract map's size from file.
 
 	for _, v := range elements[2:] {
 		temp, err := strconv.Atoi(v)
@@ -51,23 +53,33 @@ func newNonomap(fileName string) *nonomap {
 	}
 	//Extract map's answer from file.
 
+	if imported.height > 30 || imported.width > 30 {
+		CheckErr(invalidMap)
+	} //Check if height and width meets criteria of size.
+
 	for _, v := range imported.mapdata {
 		if float64(v) >= math.Pow(2, float64(imported.width)) {
 			CheckErr(invalidMap)
-		}
+		} //Check whether height matches mapdata.
 	}
 	if len(imported.mapdata) != imported.height {
 		CheckErr(invalidMap)
-	}
+	} //Check whether height matches mapdata.
+
 	//Check validity of file.
 
 	return &imported
 
 }
 
-func (nm *nonomap) compareMap(nm2 nonomap) {
+func (nm *nonomap) compareMap(answer nonomap, int x, int y) {
 
-}
+	if nm.mapdata[x][y] == answer[x][y] {
+		return
+	} else {
+
+	}
+} //Would be called when user paint cell.
 
 func OneGame(nm nonomap) {
 

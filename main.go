@@ -1,6 +1,8 @@
 package main
 
-import "github.com/nsf/termbox-go"
+import (
+	"github.com/nsf/termbox-go"
+)
 
 func main() {
 	err := termbox.Init()
@@ -11,7 +13,6 @@ func main() {
 
 	termbox.HideCursor()
 	termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
-
 	ShowMenu()
 	rd.ControlMenu()
 }

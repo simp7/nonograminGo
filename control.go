@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"github.com/nsf/termbox-go"
 	"os"
 )
 
