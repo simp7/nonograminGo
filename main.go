@@ -1,6 +1,8 @@
 package main
 
 import (
+	"./control"
+	"./view"
 	"github.com/nsf/termbox-go"
 )
 
@@ -9,10 +11,10 @@ func main() {
 	CheckErr(err)
 	defer termbox.Close()
 
-	rd := NewKeyStroker()
+	rd := control.NewKeyStroker()
 
 	termbox.HideCursor()
 	termbox.Clear(termbox.ColorWhite, termbox.ColorBlack)
-	ShowMenu()
+	view.ShowMenu()
 	rd.ControlMenu()
 }

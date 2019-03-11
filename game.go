@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./util/util"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -83,9 +84,8 @@ func (nm *nonomap) compareMap(answer nonomap, int x, int y) {
 
 func OneGame(nm nonomap) {
 
-	newNonomap("Player")
-	timer := NewPlaytime()
-	go timer.showTime()
+	player = newNonomap("Player")
+	timer := util.NewPlaytime()
 	estimatedTime := timer.timeResult()
 	fmt.Println(estimatedTime)
 

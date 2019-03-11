@@ -1,6 +1,7 @@
-package main
+package view
 
 import (
+	"../util"
 	"fmt"
 	"io/ioutil"
 )

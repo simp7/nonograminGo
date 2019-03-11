@@ -1,5 +1,6 @@
-package main
+package control
 
+/*
 import (
 	"bufio"
 	"os"
@@ -60,3 +61,4 @@ func (rd *keyStroker) ControlGame() {
 func (rd *keyStroker) PressAnyKey() { //calls when entering hall of honor
 	rd.reader.ReadByte()
 }
+*/

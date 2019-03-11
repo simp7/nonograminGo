@@ -1,6 +1,8 @@
-package main
+package control
 
 import (
+	"../util"
+	"../view"
 	"bufio"
 	"github.com/nsf/termbox-go"
 	"os"
@@ -32,16 +34,13 @@ func (rd *keyReader) ControlMenu() {
 		rd.poll()
 		switch rd.currentEvent.Ch {
 		case '1':
-			showMapList()
+			view.showMapList()
 			rd.SelectMap()
 		case '2':
 
 		case '3':
-			showResult()
-			rd.PressAnyKey()
 		case '4':
 			return
-
 		}
 	}
 
@@ -52,8 +51,8 @@ func (rd *keyReader) SelectMap() {
 	nameReader := bufio.NewReader(os.Stdin)
 
 	for {
-		mapName, _, err := rd.reader.ReadLine()
-		CheckErr(err)
+		mapName, _, err := nameReader.ReadLine()
+		util.CheckErr(err)
 		targetMap := newNonomap(string(mapName))
 	}
 

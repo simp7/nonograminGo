@@ -1,7 +1,6 @@
-package main
+package util
 
 import (
-	"fmt"
 	"time"
 )
 
