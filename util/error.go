@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	invalidMap = errors.New("Map file has been broken.")
+	InvalidMap = errors.New("Map file has been broken.")
 )
 
 func CheckErr(e error) {

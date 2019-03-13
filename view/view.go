@@ -1,6 +1,7 @@
 package view
 
 import (
+	"../model"
 	"../util"
 	"fmt"
 	"io/ioutil"
@@ -13,7 +14,7 @@ This should be performed with control together.
 
 // This function will enumerate elements in the list
 
-func showByList(list ...string) {
+func showByList(list []string) {
 	for n := 1; n < (len(list) + 1); n++ {
 		fmt.Printf("%d. %s\n", n, list[n-1])
 	}
@@ -22,7 +23,7 @@ func showByList(list ...string) {
 // This function will show main menu when program starts.
 
 func ShowMenu() {
-	list := [4]string{"Start", "Load", "Create", "Exit"}
+	list := []string{"Start", "Load", "Create", "Exit"}
 	showByList(list)
 }
 
@@ -31,7 +32,7 @@ func ShowMenu() {
 
 func ShowMapList() {
 	files, err := ioutil.ReadDir("./maps")
-	CheckErr(err)
+	util.CheckErr(err)
 	for n, file := range files {
 		fmt.Printf("%d. %s\n", n, file.Name())
 	}
@@ -40,7 +41,7 @@ func ShowMapList() {
 //This function shows display of gameplay.
 //This function will be called when player select map in map list or select 'load' in main menu.
 
-func ShowInGame(nm nonomap) {
+func ShowInGame(nm model.Nonomap) {
 }
 
 //This function shows result of gameplay that player finished now.
@@ -56,5 +57,5 @@ func ShowResult() {
 
 //This function shows display of user-creating maps.
 //This function will be called when player select 'create' in main menu.
-func ShowInCreate(nm nonomap) {
+func ShowInCreate(nm model.Nonomap) {
 }

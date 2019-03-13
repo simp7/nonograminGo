@@ -1,6 +1,7 @@
 package control
 
 import (
+	"../model"
 	"../util"
 	"../view"
 	"bufio"
@@ -8,61 +9,86 @@ import (
 	"os"
 )
 
-type keyReader struct {
-	eventChan    chan termbox.Event
-	currentEvent termbox.Event
+type KeyReader struct {
+	eventChan chan termbox.Event
+	endChan   chan bool
 }
 
-func NewKeyReader() *keyReader {
+func NewKeyReader() *KeyReader {
 
-	rd := keyReader{}
+	rd := KeyReader{}
 	rd.eventChan = make(chan termbox.Event)
+	rd.endChan = make(chan bool)
 	return &rd
 
 }
 
-func (rd *keyReader) poll() {
+/*
+This function takes user input into channel.
+This function will be called when program starts.
+This function should be called as goroutine.
+*/
 
-	rd.eventChan <- termbox.PollEvent()
-	rd.currentEvent = <-rd.eventChan
+func (rd *KeyReader) Control() {
 
-}
-
-func (rd *keyReader) ControlMenu() {
+	err := termbox.Init()
+	util.CheckErr(err)
+	defer termbox.Close()
 
 	for {
-		rd.poll()
-		switch rd.currentEvent.Ch {
-		case '1':
-			view.showMapList()
-			rd.SelectMap()
-		case '2':
-
-		case '3':
-		case '4':
+		select {
+		case rd.eventChan <- termbox.PollEvent():
+		case <-rd.endChan:
+			close(rd.eventChan)
+			close(rd.endChan)
 			return
 		}
 	}
 
 }
 
-func (rd *keyReader) SelectMap() {
+func (rd *KeyReader) ControlMenu() {
+
+	for {
+
+		event := <-rd.eventChan
+
+		if event.Type == termbox.EventKey {
+
+			switch {
+			case event.Ch == '1':
+				view.ShowMapList()
+				rd.SelectMap()
+			case event.Ch == '2':
+			case event.Ch == '3':
+			case event.Ch == '4' || event.Key == termbox.KeyEsc:
+				rd.endChan <- true
+				return
+			}
+
+		}
+
+	}
+
+}
+
+func (rd *KeyReader) SelectMap() {
 
 	nameReader := bufio.NewReader(os.Stdin)
 
 	for {
 		mapName, _, err := nameReader.ReadLine()
 		util.CheckErr(err)
-		targetMap := newNonomap(string(mapName))
+		targetMap := model.NewNonomap(string(mapName))
+		targetMap.CompareMap(*targetMap, 3)
 	}
 
 }
 
-func (rd *keyReader) ControlGame() {
+func (rd *KeyReader) ControlGame() {
 	for {
 	}
 }
 
-func (rd *keyReader) PressAnyKey() {
-	rd.poll()
+func (rd *KeyReader) PressAnyKey() {
 }
