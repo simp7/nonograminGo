@@ -9,8 +9,7 @@ func main() {
 
 	rd := control.NewKeyReader()
 
-	go rd.Control()
+	rd.Control()
 	view.ShowMenu()
-	rd.ControlMenu()
 
 }
