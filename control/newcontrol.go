@@ -6,6 +6,7 @@ import (
 	"../util"
 	"bufio"
 	"github.com/nsf/termbox-go"
+	"io/ioutil"
 	"os"
 )
 
@@ -47,16 +48,19 @@ func (rd *KeyReader) Control() {
 }
 
 func (rd *KeyReader) refresh() {
-	termbox.Clear(asset.Empty, asset.Empty)
+	termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
 }
 
 func (rd *KeyReader) printf(x int, y int, msgs []string) {
 
+	temp := x
+
 	for _, msg := range msgs {
 		for _, ch := range msg {
-			termbox.SetCell(x, y, ch, asset.Filled, asset.Empty)
+			termbox.SetCell(x, y, ch, asset.ColorText, asset.ColorEmptyCell)
 			x++
 		}
+		x = temp
 		y++
 	}
 
@@ -67,6 +71,8 @@ func (rd *KeyReader) menu() {
 	for {
 
 		rd.refresh()
+		rd.printf(5, 5, asset.StringMainMenu)
+		termbox.Flush()
 		event := <-rd.eventChan
 
 		if event.Type == termbox.EventKey {
@@ -91,6 +97,8 @@ func (rd *KeyReader) selectMap() {
 	nameReader := bufio.NewReader(os.Stdin)
 
 	for {
+		rd.selectMap()
+		termbox.SetCursor(3, 13)
 		mapName, _, err := nameReader.ReadLine()
 		util.CheckErr(err)
 		targetMap := model.NewNonomap(string(mapName))
@@ -102,4 +110,16 @@ func (rd *KeyReader) selectMap() {
 func (rd *KeyReader) controlGame() {
 	for {
 	}
+}
+
+func (rd *KeyReader) showMapList() {
+	files, err := ioutil.ReadDir("../maps")
+	util.CheckErr(err)
+	mapList := make([]string, 10)
+
+	for _, file := range files {
+		mapList = append(mapList, file.Name())
+	}
+
+	rd.printf(3, 3, mapList)
 }
