@@ -2,17 +2,25 @@ package control
 
 import (
 	"../asset"
-	"../model"
 	"../util"
-	"bufio"
 	"github.com/nsf/termbox-go"
 	"io/ioutil"
-	"os"
+)
+
+type View uint8
+
+const (
+	MainMenu View = iota
+	Select
+	InGame
+	Result
+	Create
 )
 
 type KeyReader struct {
-	eventChan chan termbox.Event
-	endChan   chan struct{}
+	eventChan   chan termbox.Event
+	endChan     chan struct{}
+	currentView View
 }
 
 func NewKeyReader() *KeyReader {
@@ -20,6 +28,7 @@ func NewKeyReader() *KeyReader {
 	rd := KeyReader{}
 	rd.eventChan = make(chan termbox.Event)
 	rd.endChan = make(chan struct{})
+	rd.currentView = MainMenu
 	return &rd
 
 }
@@ -48,7 +57,23 @@ func (rd *KeyReader) Control() {
 }
 
 func (rd *KeyReader) refresh() {
+
 	termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
+
+	switch rd.currentView {
+	case MainMenu:
+		rd.printf(5, 5, asset.StringMainMenu)
+	case Select:
+		rd.showMapList()
+	case InGame:
+	case Result:
+		rd.printf(5, 5, asset.StringResult)
+	case Create:
+	}
+
+	err := termbox.Flush()
+	util.CheckErr(err)
+
 }
 
 func (rd *KeyReader) printf(x int, y int, msgs []string) {
@@ -68,11 +93,11 @@ func (rd *KeyReader) printf(x int, y int, msgs []string) {
 
 func (rd *KeyReader) menu() {
 
+	rd.currentView = MainMenu
+
 	for {
 
 		rd.refresh()
-		rd.printf(5, 5, asset.StringMainMenu)
-		termbox.Flush()
 		event := <-rd.eventChan
 
 		if event.Type == termbox.EventKey {
@@ -94,15 +119,23 @@ func (rd *KeyReader) menu() {
 
 func (rd *KeyReader) selectMap() {
 
-	nameReader := bufio.NewReader(os.Stdin)
+	rd.currentView = Select
 
 	for {
-		rd.selectMap()
-		termbox.SetCursor(3, 13)
-		mapName, _, err := nameReader.ReadLine()
-		util.CheckErr(err)
-		targetMap := model.NewNonomap(string(mapName))
-		targetMap.CompareMap(*targetMap, 3)
+
+		rd.refresh()
+		event := <-rd.eventChan
+
+		if event.Type == termbox.EventKey {
+			switch {
+			case event.Key == termbox.KeyEsc:
+				rd.currentView = MainMenu
+				return
+			case event.Key == termbox.KeyArrowUp:
+			case event.Key == termbox.KeyArrowDown:
+			}
+		}
+
 	}
 
 }
@@ -113,13 +146,14 @@ func (rd *KeyReader) controlGame() {
 }
 
 func (rd *KeyReader) showMapList() {
+
+	mapList := []string{"[mapList]"}
 	files, err := ioutil.ReadDir("../maps")
 	util.CheckErr(err)
-	mapList := make([]string, 10)
 
 	for _, file := range files {
 		mapList = append(mapList, file.Name())
 	}
 
-	rd.printf(3, 3, mapList)
+	//rd.printf(5, 3, mapList)
 }
