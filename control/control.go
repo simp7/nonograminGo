@@ -3,6 +3,7 @@ package control
 import (
 	"../asset"
 	"../util"
+	"fmt"
 	"github.com/nsf/termbox-go"
 	"io/ioutil"
 )
@@ -21,6 +22,7 @@ type KeyReader struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
 	currentView View
+	event       termbox.Event
 }
 
 func NewKeyReader() *KeyReader {
@@ -74,6 +76,13 @@ func (rd *KeyReader) refresh() {
 	err := termbox.Flush()
 	util.CheckErr(err)
 
+	for {
+		rd.event = <-rd.eventChan
+
+		if rd.event.Type == termbox.EventKey {
+			return
+		}
+	}
 }
 
 func (rd *KeyReader) printf(x int, y int, msgs []string) {
@@ -98,19 +107,15 @@ func (rd *KeyReader) menu() {
 	for {
 
 		rd.refresh()
-		event := <-rd.eventChan
 
-		if event.Type == termbox.EventKey {
-			switch {
-			case event.Ch == '1':
-				rd.selectMap()
-			case event.Ch == '2':
-			case event.Ch == '3':
-			case event.Ch == '4' || event.Key == termbox.KeyEsc:
-				close(rd.endChan)
-				return
-			}
-
+		switch {
+		case rd.event.Ch == '1':
+			rd.selectMap()
+		case rd.event.Ch == '2':
+		case rd.event.Ch == '3':
+		case rd.event.Ch == '4' || rd.event.Key == termbox.KeyEsc:
+			close(rd.endChan)
+			return
 		}
 
 	}
@@ -124,16 +129,13 @@ func (rd *KeyReader) selectMap() {
 	for {
 
 		rd.refresh()
-		event := <-rd.eventChan
 
-		if event.Type == termbox.EventKey {
-			switch {
-			case event.Key == termbox.KeyEsc:
-				rd.currentView = MainMenu
-				return
-			case event.Key == termbox.KeyArrowUp:
-			case event.Key == termbox.KeyArrowDown:
-			}
+		switch {
+		case rd.event.Key == termbox.KeyEsc:
+			rd.currentView = MainMenu
+			return
+		case rd.event.Key == termbox.KeyArrowUp:
+		case rd.event.Key == termbox.KeyArrowDown:
 		}
 
 	}
@@ -148,12 +150,12 @@ func (rd *KeyReader) controlGame() {
 func (rd *KeyReader) showMapList() {
 
 	mapList := []string{"[mapList]"}
-	files, err := ioutil.ReadDir("../maps")
+	files, err := ioutil.ReadDir("./maps")
 	util.CheckErr(err)
-
-	for _, file := range files {
-		mapList = append(mapList, file.Name())
+	for n, file := range files {
+		mapList = append(mapList, fmt.Sprintf("%d. %s", n+1, file.Name()))
 	}
 
-	//rd.printf(5, 3, mapList)
+	rd.printf(5, 3, mapList)
+
 }
