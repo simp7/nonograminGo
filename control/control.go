@@ -3,9 +3,7 @@ package control
 import (
 	"../asset"
 	"../util"
-	"fmt"
 	"github.com/nsf/termbox-go"
-	"io/ioutil"
 )
 
 type View uint8
@@ -23,6 +21,7 @@ type KeyReader struct {
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
+	fm          *FileManager
 }
 
 func NewKeyReader() *KeyReader {
@@ -31,6 +30,7 @@ func NewKeyReader() *KeyReader {
 	rd.eventChan = make(chan termbox.Event)
 	rd.endChan = make(chan struct{})
 	rd.currentView = MainMenu
+	rd.fm = NewFileManager()
 	return &rd
 
 }
@@ -178,12 +178,7 @@ func (rd *KeyReader) controlGame() {
 func (rd *KeyReader) showMapList() {
 
 	mapList := []string{"[mapList]   [<-Prev | Next->]"}
-	files, err := ioutil.ReadDir("./maps")
-	util.CheckErr(err)
-
-	for n, file := range files {
-		mapList = append(mapList, fmt.Sprintf("%d. %s", n+1, file.Name()))
-	}
+	mapList = append(mapList, rd.fm.GetMapList()...)
 
 	rd.printf(5, 3, mapList)
 
