@@ -2,8 +2,6 @@ package model
 
 import (
 	"../util"
-	"fmt"
-	"io/ioutil"
 	"math"
 	"strconv"
 	"strings"
@@ -13,6 +11,7 @@ import (
 This file deals with algoritms of whole game of nonogram.
 User's control or display should be seperated from this file.
 */
+
 type Nonomap struct {
 	width   int
 	height  int
@@ -34,13 +33,12 @@ type Nonomap struct {
 	The extention of file is nm(*.nm)
 */
 
-func NewNonomap(fileName string) *Nonomap {
+func NewNonomap(data string) *Nonomap {
 
 	var imported Nonomap
+	var err error
 
-	file, err := ioutil.ReadFile(fmt.Sprintf("%s.nm", fileName))
-	util.CheckErr(err)
-	elements := strings.Split(string(file), "/")
+	elements := strings.Split(data, "/")
 	//Extract all data from wanted file.
 
 	imported.width, err = strconv.Atoi(elements[0])
@@ -76,7 +74,7 @@ func NewNonomap(fileName string) *Nonomap {
 
 /*
 This function compares selected row's player data and answer data so it can judge if player painted wrong cell.
-This function will be called when player paints cell.
+This function will be called when player paints cell(NOT when checking).
 */
 
 func (nm *Nonomap) CompareMap(answer Nonomap, x int) bool {
@@ -89,14 +87,11 @@ func (nm *Nonomap) CompareMap(answer Nonomap, x int) bool {
 
 }
 
-/*
-This function handles all gameplay of nonogram.
-This function will be called when player starts the game.
-*/
-
-func OneGame(nm Nonomap) {
-
-}
-
-func CheckMark() {
+func (nm *Nonomap) EmptyMap(*Nonomap) *Nonomap {
+	empty := NewNonomap("1/1/0")
+	*empty = *nm
+	for n := range empty.mapdata {
+		empty.mapdata[n] = 0
+	}
+	return empty
 }

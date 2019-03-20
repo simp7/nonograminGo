@@ -2,11 +2,13 @@ package control
 
 import (
 	"../asset"
+	"../model"
 	"../util"
 	"github.com/nsf/termbox-go"
 )
 
 type View uint8
+type Mode uint8
 
 const (
 	MainMenu View = iota
@@ -48,13 +50,16 @@ func (rd *KeyReader) Control() {
 
 	go func() {
 		for {
-			rd.eventChan <- termbox.PollEvent()
+			select {
+			case rd.eventChan <- termbox.PollEvent():
+			case <-rd.endChan:
+				return
+			}
 		}
 	}()
 
 	rd.menu()
 
-	<-rd.endChan
 	close(rd.eventChan)
 
 }
@@ -161,7 +166,7 @@ func (rd *KeyReader) selectMap() {
 		case rd.event.Key == termbox.KeyArrowRight:
 		case rd.event.Key == termbox.KeyArrowLeft:
 		case rd.event.Ch >= '1' && rd.event.Ch <= '9':
-
+			inGame(GetMapDataByNumber(int(rd.event.Ch - '0')))
 		}
 
 	}
@@ -175,6 +180,11 @@ func (rd *KeyReader) controlGame() {
 
 }
 
+/*
+This function shows the list of the map
+This function will be called when refreshing display while being in the select mode
+*/
+
 func (rd *KeyReader) showMapList() {
 
 	mapList := []string{"[mapList]   [<-Prev | Next->]"}
@@ -182,4 +192,17 @@ func (rd *KeyReader) showMapList() {
 
 	rd.printf(5, 3, mapList)
 
+}
+
+func (rd *KeyReader) inGame(data string) {
+
+	rd.currentView = InGame
+
+	correctMap := model.NewNonomap(data)
+	playerMap := correctMap.EmptyMap
+
+	for {
+		refresh()
+
+	}
 }
