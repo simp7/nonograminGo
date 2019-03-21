@@ -87,7 +87,7 @@ func (nm *Nonomap) CompareMap(answer Nonomap, x int) bool {
 
 }
 
-func (nm *Nonomap) EmptyMap(*Nonomap) *Nonomap {
+func (nm *Nonomap) EmptyMap() *Nonomap {
 	empty := NewNonomap("1/1/0")
 	*empty = *nm
 	for n := range empty.mapdata {
