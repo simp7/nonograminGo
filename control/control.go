@@ -199,10 +199,7 @@ func (rd *KeyReader) inGame(data string) {
 
 	correctMap := model.NewNonomap(data)
 	playerMap := correctMap.EmptyMap()
-
-	pt := util.NewPlaytime()
-	go rd.showTime(pt)
-
+	go rd.showTime()
 	for {
 		rd.refresh()
 		rd.showMap(playerMap)
@@ -213,21 +210,23 @@ func (rd *KeyReader) inGame(data string) {
 		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
 
 		case rd.event.Key == termbox.KeyEsc:
-			close(pt.Clock)
-			close(pt.Stop)
+			rd.currentView = Select
 			return
 		}
 
 	}
 }
 
-func (rd *KeyReader) showTime(pt *util.Playtime) {
+func (rd *KeyReader) showTime() {
 
-	pt.TimePassed()
+	pt := util.NewPlaytime()
+
+	go pt.TimePassed()
+
 	for {
 		select {
 		case sec := <-pt.Clock:
-			rd.printf(0, 3, []string{sec})
+			rd.printf(1, 3, []string{sec})
 		case <-pt.Stop:
 			return
 		}
