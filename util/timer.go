@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -11,8 +12,8 @@ Playtime can be used in show and record playtime of current map.
 
 type Playtime struct {
 	ticker time.Ticker
-	clock  chan int
-	stop   chan struct{}
+	Clock  chan string
+	Stop   chan struct{}
 }
 
 func NewPlaytime() *Playtime {
@@ -20,8 +21,8 @@ func NewPlaytime() *Playtime {
 	var p Playtime
 
 	p.ticker = *time.NewTicker(time.Second)
-	p.clock = make(chan int)
-	p.stop = make(chan struct{})
+	p.Clock = make(chan string)
+	p.Stop = make(chan struct{})
 
 	return &p
 
@@ -33,7 +34,7 @@ This function will be called when the game starts.
 This function should be called in goroutine.
 */
 
-func (p *Playtime) timePassed() {
+func (p *Playtime) TimePassed() {
 
 	present := 0
 
@@ -42,10 +43,10 @@ func (p *Playtime) timePassed() {
 
 		case <-p.ticker.C:
 			present += 1
-			p.clock <- present
+			p.Clock <- strconv.Itoa(present)
 
-		case <-p.stop:
-			p.clock <- present //To prevent situation that p.clock channel is empty.
+		case <-p.Stop:
+			p.Clock <- strconv.Itoa(present) //To prevent situation that p.clock channel is empty.
 			return
 
 		}
@@ -58,11 +59,11 @@ This function returns seconds that has passsed during gameplay.
 This function will be called when player finished the map.
 */
 
-func (p *Playtime) timeResult() int {
+func (p *Playtime) TimeResult() string {
 
-	close(p.stop)
-	close(p.clock)
+	close(p.Stop)
+	defer close(p.Clock)
 
-	return <-p.clock
+	return <-p.Clock
 
 }

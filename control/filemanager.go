@@ -30,7 +30,7 @@ func (fm *FileManager) GetMapList() []string {
 }
 
 func (fm *FileManager) GetMapDataByNumber(target int) string {
-	return fm.GetMapDataByName(fm.files[target].Name())
+	return fm.GetMapDataByName(fmt.Sprintf("./maps/%s", fm.files[target].Name()))
 }
 
 func (fm *FileManager) GetMapDataByName(target string) string {

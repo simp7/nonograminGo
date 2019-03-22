@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"github.com/nsf/termbox-go"
 	"log"
 )
 
@@ -11,6 +12,7 @@ var (
 
 func CheckErr(e error) {
 	if e != nil {
+		termbox.Close()
 		log.Fatal(e)
 	}
 }

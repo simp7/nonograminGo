@@ -38,6 +38,7 @@ func NewNonomap(data string) *Nonomap {
 	var imported Nonomap
 	var err error
 
+	data = strings.TrimSpace(data)
 	elements := strings.Split(data, "/")
 	//Extract all data from wanted file.
 

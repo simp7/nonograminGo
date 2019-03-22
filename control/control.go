@@ -166,7 +166,7 @@ func (rd *KeyReader) selectMap() {
 		case rd.event.Key == termbox.KeyArrowRight:
 		case rd.event.Key == termbox.KeyArrowLeft:
 		case rd.event.Ch >= '1' && rd.event.Ch <= '9':
-			rd.inGame(rd.fm.GetMapDataByNumber(int(rd.event.Ch - '0')))
+			rd.inGame(rd.fm.GetMapDataByNumber(int(rd.event.Ch - '1')))
 		}
 	}
 
@@ -200,6 +200,9 @@ func (rd *KeyReader) inGame(data string) {
 	correctMap := model.NewNonomap(data)
 	playerMap := correctMap.EmptyMap()
 
+	pt := util.NewPlaytime()
+	go rd.showTime(pt)
+
 	for {
 		rd.refresh()
 		rd.showMap(playerMap)
@@ -210,10 +213,26 @@ func (rd *KeyReader) inGame(data string) {
 		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
 
 		case rd.event.Key == termbox.KeyEsc:
+			close(pt.Clock)
+			close(pt.Stop)
 			return
 		}
 
 	}
+}
+
+func (rd *KeyReader) showTime(pt *util.Playtime) {
+
+	pt.TimePassed()
+	for {
+		select {
+		case sec := <-pt.Clock:
+			rd.printf(0, 3, []string{sec})
+		case <-pt.Stop:
+			return
+		}
+	}
+
 }
 
 func (rd *KeyReader) showMap(nm *model.Nonomap) {
