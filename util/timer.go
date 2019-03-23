@@ -13,7 +13,7 @@ Playtime can be used in show and record playtime of current map.
 type Playtime struct {
 	ticker time.Ticker
 	Clock  chan string
-	Stop   chan struct{}
+	stop   chan struct{}
 }
 
 func NewPlaytime() *Playtime {
@@ -22,7 +22,7 @@ func NewPlaytime() *Playtime {
 
 	p.ticker = *time.NewTicker(time.Second)
 	p.Clock = make(chan string)
-	p.Stop = make(chan struct{})
+	p.stop = make(chan struct{})
 
 	return &p
 
@@ -45,8 +45,9 @@ func (p *Playtime) TimePassed() {
 			present += 1
 			p.Clock <- strconv.Itoa(present)
 
-		case <-p.Stop:
+		case <-p.stop:
 			p.Clock <- strconv.Itoa(present) //To prevent situation that p.clock channel is empty.
+			p.ticker.Stop()
 			return
 
 		}
@@ -61,7 +62,7 @@ This function will be called when player finished the map.
 
 func (p *Playtime) TimeResult() string {
 
-	close(p.Stop)
+	close(p.stop)
 	defer close(p.Clock)
 
 	return <-p.Clock

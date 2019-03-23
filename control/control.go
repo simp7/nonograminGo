@@ -199,9 +199,12 @@ func (rd *KeyReader) inGame(data string) {
 
 	correctMap := model.NewNonomap(data)
 	playerMap := correctMap.EmptyMap()
+
 	go rd.showTime()
+
 	for {
 		rd.refresh()
+		go rd.showTime()
 		rd.showMap(playerMap)
 
 		switch {
@@ -227,8 +230,7 @@ func (rd *KeyReader) showTime() {
 		select {
 		case sec := <-pt.Clock:
 			rd.printf(1, 3, []string{sec})
-		case <-pt.Stop:
-			return
+			rd.refresh()
 		}
 	}
 
