@@ -23,6 +23,7 @@ type KeyReader struct {
 	currentView View
 	event       termbox.Event
 	fm          *FileManager
+	pt          *util.Playtime
 }
 
 func NewKeyReader() *KeyReader {
@@ -137,7 +138,6 @@ func (rd *KeyReader) menu() {
 		case rd.event.Ch == '2':
 		case rd.event.Ch == '3':
 		case rd.event.Ch == '4' || rd.event.Key == termbox.KeyEsc:
-			close(rd.endChan)
 			return
 		}
 
@@ -167,6 +167,7 @@ func (rd *KeyReader) selectMap() {
 		case rd.event.Ch >= '1' && rd.event.Ch <= '9':
 			rd.inGame(rd.fm.GetMapDataByNumber(int(rd.event.Ch - '1')))
 		}
+
 	}
 
 }
@@ -199,19 +200,27 @@ func (rd *KeyReader) inGame(data string) {
 	correctMap := model.NewNonomap(data)
 	playerMap := correctMap.EmptyMap()
 
-	go rd.showTime()
+	rd.pt = util.NewPlaytime()
 
 	for {
-		rd.refresh()
-		go rd.showTime()
+
 		rd.showMap(playerMap)
+		rd.refresh()
 
 		switch {
+		case rd.event.Key == termbox.KeyArrowUp:
+		case rd.event.Key == termbox.KeyArrowDown:
+		case rd.event.Key == termbox.KeyArrowLeft:
+		case rd.event.Key == termbox.KeyArrowRight:
 		case rd.event.Key == termbox.KeySpace:
+			if rd.isComplete() {
+				return
+			}
 
 		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
 
 		case rd.event.Key == termbox.KeyEsc:
+			rd.pt.EndWitoutResult()
 			rd.currentView = Select
 			return
 		}
@@ -219,25 +228,10 @@ func (rd *KeyReader) inGame(data string) {
 	}
 }
 
-func (rd *KeyReader) showTime() {
-
-	pt := util.NewPlaytime()
-
-	go pt.TimePassed()
-
-	for {
-		select {
-		case sec := <-pt.Clock:
-			rd.printf(1, 3, []string{sec})
-			rd.refresh()
-		}
-	}
-
-}
-
 func (rd *KeyReader) showMap(nm *model.Nonomap) {
 
 }
 
-func (rd *KeyReader) isRight() {
+func (rd *KeyReader) isComplete() bool {
+	return false
 }

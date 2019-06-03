@@ -23,6 +23,7 @@ func NewPlaytime() *Playtime {
 	p.ticker = *time.NewTicker(time.Second)
 	p.Clock = make(chan string)
 	p.stop = make(chan struct{})
+	go p.timePassed()
 
 	return &p
 
@@ -30,11 +31,11 @@ func NewPlaytime() *Playtime {
 
 /*
 This function will send the seconds that has passed during gameplay.
-This function will be called when the game starts.
+This function will be called in NewPlaytime.
 This function should be called in goroutine.
 */
 
-func (p *Playtime) TimePassed() {
+func (p *Playtime) timePassed() {
 
 	present := 0
 
@@ -46,8 +47,9 @@ func (p *Playtime) TimePassed() {
 			p.Clock <- strconv.Itoa(present)
 
 		case <-p.stop:
-			p.Clock <- strconv.Itoa(present) //To prevent situation that p.clock channel is empty.
+			p.Clock <- strconv.Itoa(present) //To prevent situation that p.Clock channel is empty.
 			p.ticker.Stop()
+			close(p.Clock)
 			return
 
 		}
@@ -63,8 +65,16 @@ This function will be called when player finished the map.
 func (p *Playtime) TimeResult() string {
 
 	close(p.stop)
-	defer close(p.Clock)
-
 	return <-p.Clock
+
+}
+
+/*
+This function will be called when player ends the game without solving.
+*/
+
+func (p *Playtime) EndWitoutResult() {
+
+	close(p.stop)
 
 }
