@@ -8,7 +8,6 @@ import (
 )
 
 type View uint8
-type Mode uint8
 
 const (
 	MainMenu View = iota
@@ -93,7 +92,7 @@ func (rd *KeyReader) refresh() {
 		if rd.event.Type == termbox.EventKey {
 			return
 		}
-	}
+	} // This loop keeps display until player press key.
 }
 
 /*
