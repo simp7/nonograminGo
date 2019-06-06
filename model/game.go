@@ -101,11 +101,78 @@ func (nm *Nonomap) EmptyMap() *Nonomap {
 	return empty
 }
 
-/*
-func (nm *Nonomap) CreateProblem() (horizontal [][]int, vertical [][]int) {
+func (nm *Nonomap) CreateProblem() (horizontal [][]int, vertical [][]int, hmax int, vmax int) {
 
+	horizontal = make([][]int, nm.height)
+	vertical = make([][]int, nm.width)
+	hmax = 0
+	vmax = 0
+
+	for i := 0; i < nm.width; i++ {
+
+		previousCell := false
+		temp := 0
+
+		for j := 0; j < nm.height; j++ {
+
+			if nm.bitmap[i][j] == true {
+				temp++
+				previousCell = true
+			} else {
+				if previousCell == true {
+					horizontal[i] = append(horizontal[i], temp)
+					temp = 0
+				}
+				previousCell = false
+			}
+
+		}
+
+		if previousCell == true {
+			horizontal[i] = append(horizontal[i], temp)
+		} else if len(horizontal[i]) == 0 {
+			horizontal[i] = append(horizontal[i], 0)
+		}
+
+		if hmax < len(horizontal[i]) {
+			hmax = len(horizontal[i])
+		}
+
+	}
+
+	for i := 0; i < nm.height; i++ {
+
+		previousCell := false
+		temp := 0
+
+		for j := 0; j < nm.width; j++ {
+			if nm.bitmap[j][i] == true {
+				temp++
+				previousCell = true
+			} else {
+				if previousCell == true {
+					vertical[i] = append(vertical[i], temp)
+					temp = 0
+				}
+				previousCell = false
+			}
+		}
+
+		if previousCell == true {
+			vertical[i] = append(vertical[i], temp)
+		} else if len(vertical[i]) == 0 {
+			vertical[i] = append(vertical[i], 0)
+		}
+
+		if vmax < len(vertical[i]) {
+			vmax = len(vertical[i])
+		}
+
+	}
+
+	return
 }
-*/
+
 func convertToBitmap(width int, height int, mapdata []int) [][]bool {
 
 	bitmap := make([][]bool, height)
