@@ -101,7 +101,7 @@ func (nm *Nonomap) EmptyMap() *Nonomap {
 	return empty
 }
 
-func (nm *Nonomap) CreateProblem() (horizontal [][]int, vertical [][]int, hmax int, vmax int) {
+func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hmax int, vmax int) {
 
 	horizontal = make([][]int, nm.height)
 	vertical = make([][]int, nm.width)
@@ -171,6 +171,26 @@ func (nm *Nonomap) CreateProblem() (horizontal [][]int, vertical [][]int, hmax i
 	}
 
 	return
+}
+
+func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hmax int, vmax int) {
+
+	hData, vData, hmax, vmax := nm.createProblemData()
+
+	hProblem = make([]string, nm.height)
+	vProblem = make([]string, vmax)
+
+	for i := 0; i < nm.height; i++ {
+		hProblem[i] = ""
+		for j := hmax; j > 0; j-- {
+			if len(hData[i]) < j {
+				hProblem[i] += " "
+			} else {
+				hProblem[i] += strconv.Itoa(hData[len(hData)-j])
+			}
+		}
+	}
+
 }
 
 func convertToBitmap(width int, height int, mapdata []int) [][]bool {
