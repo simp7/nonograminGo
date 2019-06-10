@@ -71,7 +71,8 @@ This function will be called when player strokes key or time passed.
 
 func (rd *KeyReader) refresh() {
 
-	termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
+	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
+	util.CheckErr(err)
 
 	switch rd.currentView {
 	case MainMenu:
@@ -84,7 +85,7 @@ func (rd *KeyReader) refresh() {
 	case Create:
 	}
 
-	err := termbox.Flush()
+	err = termbox.Flush()
 	util.CheckErr(err)
 
 	for {
@@ -201,11 +202,11 @@ func (rd *KeyReader) inGame(data string) {
 	playerMap := correctMap.EmptyMap()
 
 	rd.pt = util.NewPlaytime()
+	hProblem, vProblem, xpos, ypos := playerMap.CreateProblemFormat()
 
 	for {
 
-		rd.showMap(playerMap)
-		rd.refresh()
+		rd.showMap(hProblem, vProblem, xpos, ypos)
 
 		switch {
 		case rd.event.Key == termbox.KeyArrowUp:
@@ -228,8 +229,23 @@ func (rd *KeyReader) inGame(data string) {
 	}
 }
 
-func (rd *KeyReader) showMap(nm *model.Nonomap) {
+func (rd *KeyReader) showMap(hProblem []string, vProblem []string, xpos int, ypos int) {
+	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
+	util.CheckErr(err)
 
+	rd.printf(xpos, 0, vProblem)
+	rd.printf(0, ypos, hProblem)
+
+	err = termbox.Flush()
+	util.CheckErr(err)
+
+	for {
+		rd.event = <-rd.eventChan
+
+		if rd.event.Type == termbox.EventKey {
+			return
+		}
+	}
 }
 
 func (rd *KeyReader) isComplete() bool {

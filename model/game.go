@@ -108,12 +108,12 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hm
 	hmax = 0
 	vmax = 0
 
-	for i := 0; i < nm.width; i++ {
+	for i := 0; i < nm.height; i++ {
 
 		previousCell := false
 		temp := 0
 
-		for j := 0; j < nm.height; j++ {
+		for j := 0; j < nm.width; j++ {
 
 			if nm.bitmap[i][j] == true {
 				temp++
@@ -140,12 +140,12 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hm
 
 	}
 
-	for i := 0; i < nm.height; i++ {
+	for i := 0; i < nm.width; i++ {
 
 		previousCell := false
 		temp := 0
 
-		for j := 0; j < nm.width; j++ {
+		for j := 0; j < nm.height; j++ {
 			if nm.bitmap[j][i] == true {
 				temp++
 				previousCell = true
@@ -194,10 +194,11 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 	for i := 0; i < vmax; i++ {
 		vProblem[i] = ""
 		for j := 0; j < nm.width; j++ {
-			if vmax-j > len(vData[i]) {
+			if vmax-i > len(vData[j]) {
 				vProblem[i] += " "
 			} else {
-				vProblem[i] += strconv.Itoa(vData[j][i])
+				//vProblem[i] += strconv.Itoa(vData[vmax-1-i][j])
+				vProblem[i] += "x"
 			}
 		}
 	}
@@ -214,11 +215,38 @@ func convertToBitmap(width int, height int, mapdata []int) [][]bool {
 
 	for n, v := range mapdata {
 		for i := 1; i <= width; i++ {
-			bitmap[width-i][n] = (v%2 == 1)
+			bitmap[n][width-i] = (v%2 == 1)
 			v = v / 2
 		}
 	}
 
 	return bitmap
 
+}
+
+func (nm *Nonomap) ShowBitMap() (result []string) {
+	result = make([]string, nm.height)
+	for i := 0; i < nm.height; i++ {
+		for j := 0; j < nm.width; j++ {
+			if nm.bitmap[i][j] {
+				result[i] += "1"
+			} else {
+				result[i] += "0"
+			}
+		}
+	}
+	return
+}
+
+func (nm *Nonomap) ShowProblemHorizontal() (result []string) {
+	a, _, _, _ := nm.createProblemData()
+
+	result = make([]string, nm.height)
+	for n := range a {
+		for _, v := range a[n] {
+			result[n] += strconv.Itoa(v)
+		}
+	}
+
+	return
 }

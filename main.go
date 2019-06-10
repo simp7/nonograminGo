@@ -1,8 +1,6 @@
 package main
 
-import (
-	"./control"
-)
+import "./control"
 
 func main() {
 
