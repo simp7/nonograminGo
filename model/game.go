@@ -186,11 +186,23 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 			if len(hData[i]) < j {
 				hProblem[i] += " "
 			} else {
-				hProblem[i] += strconv.Itoa(hData[len(hData)-j])
+				hProblem[i] += strconv.Itoa(hData[i][len(hData[i])-j])
 			}
 		}
 	}
 
+	for i := 0; i < vmax; i++ {
+		vProblem[i] = ""
+		for j := 0; j < nm.width; j++ {
+			if vmax-j > len(vData[i]) {
+				vProblem[i] += " "
+			} else {
+				vProblem[i] += strconv.Itoa(vData[j][i])
+			}
+		}
+	}
+
+	return
 }
 
 func convertToBitmap(width int, height int, mapdata []int) [][]bool {
