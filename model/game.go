@@ -191,14 +191,13 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 		}
 	}
 
-	for i := 0; i < vmax; i++ {
-		vProblem[i] = ""
+	for i := vmax; i > 0; i-- {
+		vProblem[vmax-i] = ""
 		for j := 0; j < nm.width; j++ {
-			if vmax-i > len(vData[j]) {
-				vProblem[i] += " "
+			if i > len(vData[j]) {
+				vProblem[vmax-i] += " "
 			} else {
-				//vProblem[i] += strconv.Itoa(vData[vmax-1-i][j])
-				vProblem[i] += "x"
+				vProblem[vmax-i] += strconv.Itoa(vData[j][len(vData[j])-i])
 			}
 		}
 	}
@@ -248,5 +247,17 @@ func (nm *Nonomap) ShowProblemHorizontal() (result []string) {
 		}
 	}
 
+	return
+}
+
+func (nm *Nonomap) ShowProblemVertical() (result []string) {
+	_, b, _, _ := nm.createProblemData()
+
+	result = make([]string, nm.width)
+	for n := range b {
+		for _, v := range b[n] {
+			result[n] += strconv.Itoa(v)
+		}
+	}
 	return
 }

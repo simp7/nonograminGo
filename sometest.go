@@ -19,4 +19,7 @@ func doTest(data string) {
 	for _, v := range test.ShowProblemHorizontal() {
 		fmt.Println(v)
 	}
+	for _, v := range test.ShowProblemVertical() {
+		fmt.Println(v)
+	}
 }
