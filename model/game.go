@@ -82,13 +82,9 @@ func NewNonomap(data string) *Nonomap {
 	This function will be called when player paints cell(NOT when checking).
 */
 
-func (nm *Nonomap) CompareMap(answer Nonomap, x int) bool {
+func (nm *Nonomap) CompareValidity(x int, y int) bool {
 
-	if nm.mapdata[x] == answer.mapdata[x] {
-		return true
-	} else {
-		return false
-	}
+	return nm.bitmap[y][x]
 
 }
 
