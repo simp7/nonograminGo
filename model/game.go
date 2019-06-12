@@ -205,6 +205,14 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 	return
 }
 
+func (nm *Nonomap) GetHeight() int {
+	return nm.height
+}
+
+func (nm *Nonomap) GetWidth() int {
+	return nm.width
+}
+
 func convertToBitmap(width int, height int, mapdata []int) [][]bool {
 
 	bitmap := make([][]bool, height)

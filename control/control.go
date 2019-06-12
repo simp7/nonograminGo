@@ -8,13 +8,21 @@ import (
 )
 
 type View uint8
+type Signal uint8
 
 const (
 	MainMenu View = iota
 	Select
-	InGame
 	Result
 	Create
+)
+
+const (
+	Move Signal = iota
+	Erase
+	Check
+	Fill
+	//Wrongcheck
 )
 
 type KeyReader struct {
@@ -79,7 +87,6 @@ func (rd *KeyReader) refresh() {
 		rd.printf(5, 5, asset.StringMainMenu)
 	case Select:
 		rd.showMapList()
-	case InGame:
 	case Result:
 		rd.printf(5, 5, asset.StringResult)
 	case Create:
@@ -196,23 +203,55 @@ func (rd *KeyReader) showMapList() {
 
 func (rd *KeyReader) inGame(data string) {
 
-	rd.currentView = InGame
-
 	correctMap := model.NewNonomap(data)
 	playerMap := correctMap.EmptyMap()
 
 	rd.pt = util.NewPlaytime()
-	hProblem, vProblem, xpos, ypos := playerMap.CreateProblemFormat()
+	hProblem, vProblem, xProblemPos, yProblemPos := playerMap.CreateProblemFormat()
+
+	xpos, ypos := xProblemPos, yProblemPos+1
+	rd.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
 	for {
 
-		rd.showMap(hProblem, vProblem, xpos, ypos)
+		rd.showMap(xpos, ypos, Move)
+
+		err := termbox.Flush()
+		util.CheckErr(err)
+
+		for {
+			rd.event = <-rd.eventChan
+
+			if rd.event.Type == termbox.EventKey {
+				break
+			}
+		}
 
 		switch {
 		case rd.event.Key == termbox.KeyArrowUp:
+			if ypos-1 >= yProblemPos+1 {
+				rd.showMap(xpos, ypos, Erase)
+				ypos--
+				rd.showMap(xpos, ypos, Move)
+			}
 		case rd.event.Key == termbox.KeyArrowDown:
+			if ypos+1 < yProblemPos+1+playerMap.GetHeight() {
+				rd.showMap(xpos, ypos, Erase)
+				ypos++
+				rd.showMap(xpos, ypos, Move)
+			}
 		case rd.event.Key == termbox.KeyArrowLeft:
+			if xpos-1 >= xProblemPos {
+				rd.showMap(xpos, ypos, Erase)
+				xpos--
+				rd.showMap(xpos, ypos, Move)
+			}
 		case rd.event.Key == termbox.KeyArrowRight:
+			if xpos+1 < xProblemPos+playerMap.GetWidth() {
+				rd.showMap(xpos, ypos, Erase)
+				xpos++
+				rd.showMap(xpos, ypos, Move)
+			}
 		case rd.event.Key == termbox.KeySpace:
 			if rd.isComplete() {
 				return
@@ -229,23 +268,32 @@ func (rd *KeyReader) inGame(data string) {
 	}
 }
 
-func (rd *KeyReader) showMap(hProblem []string, vProblem []string, xpos int, ypos int) {
+func (rd *KeyReader) showProblem(hProblem []string, vProblem []string, xpos int, ypos int) {
+
 	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
 	util.CheckErr(err)
 
-	rd.printf(xpos, 0, vProblem)
-	rd.printf(0, ypos, hProblem)
+	rd.printf(xpos, 1, vProblem)
+	rd.printf(0, ypos+1, hProblem)
 
 	err = termbox.Flush()
 	util.CheckErr(err)
 
-	for {
-		rd.event = <-rd.eventChan
+}
 
-		if rd.event.Type == termbox.EventKey {
-			return
-		}
+func (rd *KeyReader) showMap(xpos int, ypos int, signal Signal) {
+
+	switch signal {
+	case Move:
+		termbox.SetCell(xpos, ypos, '+', asset.ColorFilledCell, asset.ColorEmptyCell)
+	case Erase:
+		termbox.SetCell(xpos, ypos, '■', asset.ColorEmptyCell, asset.ColorEmptyCell)
+	case Check:
+		termbox.SetCell(xpos, ypos, 'X', asset.ColorCheckedCell, asset.ColorCheckedCell)
+	case Fill:
+		termbox.SetCell(xpos, ypos, '■', asset.ColorFilledCell, asset.ColorFilledCell)
 	}
+
 }
 
 func (rd *KeyReader) isComplete() bool {
