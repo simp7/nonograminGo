@@ -134,10 +134,9 @@ This function will be called when player enters main menu.
 
 func (rd *KeyReader) menu() {
 
-	rd.currentView = MainMenu
-
 	for {
 
+		rd.currentView = MainMenu
 		rd.refresh()
 
 		switch {
@@ -160,15 +159,13 @@ This function will be called when player enters map-select.
 
 func (rd *KeyReader) selectMap() {
 
-	rd.currentView = Select
-
 	for {
 
+		rd.currentView = Select
 		rd.refresh()
 
 		switch {
 		case rd.event.Key == termbox.KeyEsc:
-			rd.currentView = MainMenu
 			return
 		case rd.event.Key == termbox.KeyArrowRight:
 		case rd.event.Key == termbox.KeyArrowLeft:
@@ -202,6 +199,8 @@ This function will be called when player select map.
 func (rd *KeyReader) inGame(data string) {
 
 	correctMap := model.NewNonomap(data)
+
+	remainedCell := correctMap.TotalCells()
 
 	rd.pt = util.NewPlaytime()
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
@@ -264,13 +263,18 @@ func (rd *KeyReader) inGame(data string) {
 			}
 
 		case rd.event.Key == termbox.KeySpace:
-			if playermap[realypos][realxpos] == Check {
+			if playermap[realypos][realxpos] == Check || playermap[realypos][realxpos] == Fill {
 				continue
 			}
 
 			if correctMap.CompareValidity(realxpos, realypos) {
 				rd.setMap(xpos, ypos, Fill)
 				playermap[realypos][realxpos] = Fill
+				remainedCell--
+				if remainedCell == 0 {
+					rd.pt.EndWithoutResult()
+					return
+				}
 			} else {
 				rd.setMap(xpos, ypos, Wrong)
 				playermap[realypos][realxpos] = Wrong
@@ -286,8 +290,7 @@ func (rd *KeyReader) inGame(data string) {
 			}
 
 		case rd.event.Key == termbox.KeyEsc:
-			rd.pt.EndWitoutResult()
-			rd.currentView = Select
+			rd.pt.EndWithoutResult()
 			return
 		}
 

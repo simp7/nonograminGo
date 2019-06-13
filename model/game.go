@@ -265,3 +265,18 @@ func (nm *Nonomap) ShowProblemVertical() (result []string) {
 	}
 	return
 }
+
+func (nm *Nonomap) TotalCells() (total int) {
+
+	total = 0
+
+	for n := range nm.bitmap {
+		for _, v := range nm.bitmap[n] {
+			if v {
+				total++
+			}
+		}
+	}
+	return
+
+}

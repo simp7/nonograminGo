@@ -73,7 +73,7 @@ func (p *Playtime) TimeResult() string {
 This function will be called when player ends the game without solving.
 */
 
-func (p *Playtime) EndWitoutResult() {
+func (p *Playtime) EndWithoutResult() {
 
 	close(p.stop)
 
