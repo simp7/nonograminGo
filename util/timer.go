@@ -44,7 +44,6 @@ func (p *Playtime) timePassed() {
 
 		case <-p.ticker.C:
 			present += 1
-			p.Clock <- strconv.Itoa(present)
 
 		case <-p.stop:
 			p.Clock <- strconv.Itoa(present) //To prevent situation that p.Clock channel is empty.

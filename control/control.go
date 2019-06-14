@@ -73,6 +73,23 @@ func (rd *KeyReader) Control() {
 }
 
 /*
+This function wait until player press some keys.
+This function would be called when key input is needed.
+*/
+
+func (rd *KeyReader) pressKeyToContinue() {
+
+	for {
+		rd.event = <-rd.eventChan
+
+		if rd.event.Type == termbox.EventKey {
+			return
+		}
+	}
+
+}
+
+/*
 This function refresh current display because of player's input or time passed
 This function will be called when player strokes key or time passed.
 */
@@ -88,20 +105,14 @@ func (rd *KeyReader) refresh() {
 	case Select:
 		rd.showMapList()
 	case Result:
-		rd.printf(5, 5, asset.StringResult)
+		rd.printf(5, 5, []string{rd.pt.TimeResult()})
 	case Create:
 	}
 
 	err = termbox.Flush()
 	util.CheckErr(err)
+	rd.pressKeyToContinue()
 
-	for {
-		rd.event = <-rd.eventChan
-
-		if rd.event.Type == termbox.EventKey {
-			return
-		}
-	} // This loop keeps display until player press key.
 }
 
 /*
@@ -184,7 +195,7 @@ This function will be called when refreshing display while being in the select m
 
 func (rd *KeyReader) showMapList() {
 
-	mapList := []string{"[mapList]   [<-Prev | Next->]"}
+	mapList := asset.StringSelectHeader
 	mapList = append(mapList, rd.fm.GetMapList()...)
 
 	rd.printf(5, 3, mapList)
@@ -209,6 +220,7 @@ func (rd *KeyReader) inGame(data string) {
 	rd.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
 	playermap := initializeMap(correctMap.GetWidth(), correctMap.GetHeight())
+	rd.printf(1, 0, []string{rd.fm.GetCurrentMapName()})
 
 	for n := range playermap {
 		for m := range playermap[n] {
@@ -224,13 +236,7 @@ func (rd *KeyReader) inGame(data string) {
 		err := termbox.Flush()
 		util.CheckErr(err)
 
-		for {
-			rd.event = <-rd.eventChan
-
-			if rd.event.Type == termbox.EventKey {
-				break
-			}
-		}
+		rd.pressKeyToContinue()
 
 		switch {
 
@@ -272,7 +278,8 @@ func (rd *KeyReader) inGame(data string) {
 				playermap[realypos][realxpos] = Fill
 				remainedCell--
 				if remainedCell == 0 {
-					rd.pt.EndWithoutResult()
+					rd.currentView = Result
+					rd.refresh()
 					return
 				}
 			} else {
