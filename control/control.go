@@ -5,6 +5,7 @@ import (
 	"../model"
 	"../util"
 	"github.com/nsf/termbox-go"
+	"strconv"
 )
 
 type View uint8
@@ -13,7 +14,6 @@ type Signal uint8
 const (
 	MainMenu View = iota
 	Select
-	Result
 	Create
 )
 
@@ -96,21 +96,16 @@ This function will be called when player strokes key or time passed.
 
 func (rd *KeyReader) refresh() {
 
-	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
-	util.CheckErr(err)
+	redrow(func() {
+		switch rd.currentView {
+		case MainMenu:
+			rd.printf(5, 5, asset.StringMainMenu)
+		case Select:
+			rd.showMapList()
+		case Create:
+		}
+	})
 
-	switch rd.currentView {
-	case MainMenu:
-		rd.printf(5, 5, asset.StringMainMenu)
-	case Select:
-		rd.showMapList()
-	case Result:
-		rd.printf(5, 5, []string{rd.pt.TimeResult()})
-	case Create:
-	}
-
-	err = termbox.Flush()
-	util.CheckErr(err)
 	rd.pressKeyToContinue()
 
 }
@@ -212,6 +207,7 @@ func (rd *KeyReader) inGame(data string) {
 	correctMap := model.NewNonomap(data)
 
 	remainedCell := correctMap.TotalCells()
+	wrongCell := 0
 
 	rd.pt = util.NewPlaytime()
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
@@ -227,6 +223,7 @@ func (rd *KeyReader) inGame(data string) {
 			rd.setMap(m+xProblemPos, n+yProblemPos+1, Empty)
 		}
 	}
+
 	rd.setMap(xpos, ypos, Cursor)
 
 	for {
@@ -278,13 +275,18 @@ func (rd *KeyReader) inGame(data string) {
 				playermap[realypos][realxpos] = Fill
 				remainedCell--
 				if remainedCell == 0 {
-					rd.currentView = Result
-					rd.refresh()
+					redrow(func() {
+						rd.printf(1, 0, []string{"You Complete Me!"})
+						rd.showAnswer(playermap)
+					})
+					rd.pressKeyToContinue()
+					rd.ShowResult(wrongCell)
 					return
 				}
 			} else {
 				rd.setMap(xpos, ypos, Wrong)
 				playermap[realypos][realxpos] = Wrong
+				wrongCell++
 			}
 
 		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
@@ -307,16 +309,17 @@ func (rd *KeyReader) inGame(data string) {
 
 func (rd *KeyReader) showProblem(hProblem []string, vProblem []string, xpos int, ypos int) {
 
-	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
-	util.CheckErr(err)
-
-	rd.printf(xpos, 1, vProblem)
-	rd.printf(0, ypos+1, hProblem)
-
-	err = termbox.Flush()
-	util.CheckErr(err)
+	redrow(func() {
+		rd.printf(xpos, 1, vProblem)
+		rd.printf(0, ypos+1, hProblem)
+	})
 
 }
+
+/*
+	This function set the cell in game with signal.
+	This function would be called when player press key in game.
+*/
 
 func (rd *KeyReader) setMap(xpos int, ypos int, signal Signal) {
 
@@ -335,6 +338,54 @@ func (rd *KeyReader) setMap(xpos int, ypos int, signal Signal) {
 
 }
 
+/*
+	This function shows total result in game.
+	This function will be called when player finally solve the problem and after seeing the whole answer picture.
+*/
+
+func (rd *KeyReader) ShowResult(wrong int) {
+
+	resultFormat := asset.StringResult
+	result := make([]string, len(resultFormat))
+	copy(result, resultFormat)
+
+	result[4] += rd.fm.GetCurrentMapName()
+	result[5] += rd.pt.TimeResult()
+	result[6] += strconv.Itoa(wrong)
+
+	redrow(func() {
+		rd.printf(5, 5, result)
+	})
+
+	rd.pressKeyToContinue()
+
+}
+
+/*
+	This function shows whole answer picture that player solve.
+	This function will be called when player finally solve the problem.
+*/
+
+func (rd *KeyReader) showAnswer(playermap [][]Signal) {
+
+	for n := range playermap {
+		for m, v := range playermap[n] {
+			if v == Fill {
+				rd.setMap(m+2, n+2, Fill)
+			} else {
+				rd.setMap(m+2, n+2, Empty)
+			}
+		}
+	}
+
+}
+
+/*
+	This function initialize current player's map data to compare the map with answer.
+	The result will be used in showing player's current map.
+	The function will be called when player enter the game.
+*/
+
 func initializeMap(width int, height int) (emptyMap [][]Signal) {
 
 	emptyMap = make([][]Signal, height)
@@ -349,4 +400,19 @@ func initializeMap(width int, height int) (emptyMap [][]Signal) {
 	}
 	return
 
+}
+
+/*
+	This function erase existing things in display and drow things in function.
+	This function will be called when display has to be cleared.
+*/
+
+func redrow(function func()) {
+	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
+	util.CheckErr(err)
+
+	function()
+
+	err = termbox.Flush()
+	util.CheckErr(err)
 }

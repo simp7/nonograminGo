@@ -88,14 +88,10 @@ func (nm *Nonomap) CompareValidity(x int, y int) bool {
 
 }
 
-func (nm *Nonomap) EmptyMap() *Nonomap {
-	empty := NewNonomap("1/1/0")
-	*empty = *nm
-	for n := range empty.mapdata {
-		empty.mapdata[n] = 0
-	}
-	return empty
-}
+/*
+	This function convert nonomap's data into problem data so player can solve with it.
+	This function will be called in CreateProblemFormat().
+*/
 
 func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hmax int, vmax int) {
 
@@ -169,6 +165,11 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hm
 	return
 }
 
+/*
+	This function trim problem data to show player problem clearly.
+	This function will be called when player enter the game.
+*/
+
 func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hmax int, vmax int) {
 
 	hData, vData, hmax, vmax := nm.createProblemData()
@@ -208,6 +209,11 @@ func (nm *Nonomap) GetHeight() int {
 func (nm *Nonomap) GetWidth() int {
 	return nm.width
 }
+
+/*
+	This function generate answer bitmap of Nonomap via mapdata.
+	This function will be called when Nonomap is initialized.
+*/
 
 func convertToBitmap(width int, height int, mapdata []int) [][]bool {
 
@@ -265,6 +271,12 @@ func (nm *Nonomap) ShowProblemVertical() (result []string) {
 	}
 	return
 }
+
+/*
+	This function count total cells that sould be filled.
+	The result will be used when judging whether player complete the map.
+	This function will be called when player enter the game.
+*/
 
 func (nm *Nonomap) TotalCells() (total int) {
 
