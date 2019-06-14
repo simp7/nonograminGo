@@ -15,6 +15,7 @@ const (
 	MainMenu View = iota
 	Select
 	Create
+	Credit
 )
 
 const (
@@ -103,6 +104,8 @@ func (rd *KeyReader) refresh() {
 		case Select:
 			rd.showMapList()
 		case Create:
+		case Credit:
+			rd.printf(5, 5, asset.StringCredit)
 		}
 	})
 
@@ -150,6 +153,8 @@ func (rd *KeyReader) menu() {
 			rd.selectMap()
 		case rd.event.Ch == '2':
 		case rd.event.Ch == '3':
+			rd.currentView = Credit
+			rd.refresh()
 		case rd.event.Ch == '4' || rd.event.Key == termbox.KeyEsc:
 			return
 		}

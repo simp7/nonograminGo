@@ -15,4 +15,5 @@ var (
 	StringMainMenu     = []string{"----------", " NONOGRAM", "----------", "", "Press number you want to select.", "", "1. START", "2. CREATE", "3. CREDIT", "4. EXIT"}
 	StringSelectHeader = []string{"[mapList]  [<-Prev | Next->]"}
 	StringResult       = []string{"--------------------", "       CLEAR!", "--------------------", "", "MAP NAME    : ", "CLEAR TIME  : ", "WRONG CELLS : "}
+	StringCredit       = []string{"------------------------------", "            CREDIT", "------------------------------", "Developer : JeongHyeon Park(N0RM4L15T)", "Programming Language : Go(100%)", "I wish you enjoy this game!", "------------------------------"}
 )
