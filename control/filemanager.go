@@ -4,6 +4,7 @@ import (
 	"../util"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"strings"
 )
@@ -48,4 +49,28 @@ func (fm *FileManager) GetMapDataByName(target string) string {
 
 func (fm *FileManager) GetCurrentMapName() string {
 	return strings.TrimSuffix(fm.currentFile, ".nm")
+}
+
+func (fm *FileManager) CreateMap(name string, width int, height int, bitmap [][]bool) {
+
+	mapData := make([]int, height)
+	nonoMapData := fmt.Sprintf("%d/%d", width, height)
+
+	for n := range bitmap {
+		result := 0
+		for m, v := range bitmap[n] {
+			if v {
+				result += int(math.Pow(2, float64(m)))
+			}
+		}
+		mapData[n] = result
+	}
+
+	for _, v := range mapData {
+		nonoMapData += fmt.Sprintf("/%d", v)
+	}
+
+	err := ioutil.WriteFile(fmt.Sprintf("./maps/%s", name), []byte(nonoMapData), 0644)
+	util.CheckErr(err)
+
 }
