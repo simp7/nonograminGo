@@ -99,11 +99,11 @@ func (rd *KeyReader) refresh() {
 	redrow(func() {
 		switch rd.currentView {
 		case MainMenu:
-			rd.printf(5, 5, asset.StringMainMenu)
+			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringMainMenu)
 		case Select:
 			rd.showMapList()
 		case Credit:
-			rd.printf(5, 5, asset.StringCredit)
+			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringCredit)
 		}
 	})
 
@@ -197,7 +197,7 @@ func (rd *KeyReader) showMapList() {
 	mapList := asset.StringSelectHeader
 	mapList = append(mapList, rd.fm.GetMapList()...)
 
-	rd.printf(5, 3, mapList)
+	rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, mapList)
 
 }
 
@@ -280,11 +280,11 @@ func (rd *KeyReader) inGame(data string) {
 				remainedCell--
 				if remainedCell == 0 {
 					redrow(func() {
-						rd.printf(1, 0, []string{"You Complete Me!"})
+						rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{"You Complete Me!"})
 						rd.showAnswer(playermap)
 					})
 					rd.pressKeyToContinue()
-					rd.ShowResult(wrongCell)
+					rd.showResult(wrongCell)
 					return
 				}
 			} else {
@@ -347,7 +347,7 @@ func (rd *KeyReader) setMap(xpos int, ypos int, signal Signal) {
 	This function will be called when player finally solve the problem and after seeing the whole answer picture.
 */
 
-func (rd *KeyReader) ShowResult(wrong int) {
+func (rd *KeyReader) showResult(wrong int) {
 
 	resultFormat := asset.StringResult
 	result := make([]string, len(resultFormat))
@@ -358,7 +358,7 @@ func (rd *KeyReader) ShowResult(wrong int) {
 	result[6] += strconv.Itoa(wrong)
 
 	redrow(func() {
-		rd.printf(5, 5, result)
+		rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, result)
 	})
 
 	rd.pressKeyToContinue()
@@ -375,9 +375,9 @@ func (rd *KeyReader) showAnswer(playermap [][]Signal) {
 	for n := range playermap {
 		for m, v := range playermap[n] {
 			if v == Fill {
-				rd.setMap(m+2, n+2, Fill)
+				rd.setMap(m+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Fill)
 			} else {
-				rd.setMap(m+2, n+2, Empty)
+				rd.setMap(m+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Empty)
 			}
 		}
 	}
@@ -413,18 +413,18 @@ func (rd *KeyReader) createNonomapInfo() {
 func (rd *KeyReader) stringReader(header string) (result string) {
 
 	result = ""
-	resultByte := make([]rune, 30)
+	resultByte := make([]rune, asset.NumberNameMax)
 	n := 0
 
 	redrow(func() {
-		rd.printf(5, 5, []string{header})
+		rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header})
 	})
 
 	for {
 		rd.pressKeyToContinue()
 
 		redrow(func() {
-			rd.printf(5, 5, []string{header})
+			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header})
 
 			if header == asset.StringHeaderMapname {
 				if rd.event.Ch != 0 {
@@ -448,7 +448,7 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 				result += string(resultByte[i])
 			}
 
-			rd.printf(5, 7, []string{result})
+			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY+2, []string{result})
 
 		})
 
@@ -470,6 +470,7 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 
 func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 	redrow(func() {
+
 	})
 }
 
