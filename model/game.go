@@ -181,8 +181,11 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 		hProblem[i] = ""
 		for j := hmax; j > 0; j-- {
 			if len(hData[i]) < j {
-				hProblem[i] += " "
+				hProblem[i] += "  "
 			} else {
+				if hData[i][len(hData[i])-j] < 10 {
+					hProblem[i] += " "
+				}
 				hProblem[i] += strconv.Itoa(hData[i][len(hData[i])-j])
 			}
 		}
@@ -192,14 +195,18 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 		vProblem[vmax-i] = ""
 		for j := 0; j < nm.width; j++ {
 			if i > len(vData[j]) {
-				vProblem[vmax-i] += " "
+				vProblem[vmax-i] += "  "
 			} else {
+				if vData[j][len(vData[j])-i] < 10 {
+					vProblem[vmax-i] += " "
+				}
 				vProblem[vmax-i] += strconv.Itoa(vData[j][len(vData[j])-i])
 			}
 		}
 	}
-
+	hmax *= 2
 	return
+
 }
 
 func (nm *Nonomap) GetHeight() int {

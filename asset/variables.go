@@ -7,7 +7,8 @@ import (
 const (
 	ColorFilledCell  = termbox.ColorBlack
 	ColorEmptyCell   = termbox.ColorWhite
-	ColorCheckedCell = termbox.ColorRed | termbox.AttrBold
+	ColorCheckedCell = termbox.ColorCyan
+	ColorWrongCell   = termbox.ColorRed | termbox.AttrBold
 	ColorText        = termbox.ColorBlack
 )
 

@@ -224,7 +224,7 @@ func (rd *KeyReader) inGame(data string) {
 
 	for n := range playermap {
 		for m := range playermap[n] {
-			rd.setMap(m+xProblemPos, n+yProblemPos+1, Empty)
+			rd.setMap((2*m)+xProblemPos, n+yProblemPos+1, Empty)
 		}
 	}
 
@@ -232,7 +232,7 @@ func (rd *KeyReader) inGame(data string) {
 
 	for {
 
-		realxpos, realypos := xpos-xProblemPos, ypos-yProblemPos-1
+		realxpos, realypos := (xpos-xProblemPos)/2, ypos-yProblemPos-1
 
 		err := termbox.Flush()
 		util.CheckErr(err)
@@ -258,14 +258,14 @@ func (rd *KeyReader) inGame(data string) {
 		case rd.event.Key == termbox.KeyArrowLeft:
 			if xpos-1 >= xProblemPos {
 				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				xpos--
+				xpos -= 2
 				rd.setMap(xpos, ypos, Cursor)
 			}
 
 		case rd.event.Key == termbox.KeyArrowRight:
-			if xpos+1 < xProblemPos+correctMap.GetWidth() {
+			if xpos+2 < xProblemPos+(2*correctMap.GetWidth()) {
 				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				xpos++
+				xpos += 2
 				rd.setMap(xpos, ypos, Cursor)
 			}
 
@@ -329,15 +329,20 @@ func (rd *KeyReader) setMap(xpos int, ypos int, signal Signal) {
 
 	switch signal {
 	case Cursor:
-		termbox.SetCell(xpos, ypos, '+', asset.ColorFilledCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos, ypos, '(', asset.ColorFilledCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos+1, ypos, ')', asset.ColorFilledCell, asset.ColorEmptyCell)
 	case Empty:
-		termbox.SetCell(xpos, ypos, '☐', asset.ColorFilledCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos, ypos, ' ', asset.ColorEmptyCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos+1, ypos, ' ', asset.ColorEmptyCell, asset.ColorEmptyCell)
 	case Check:
-		termbox.SetCell(xpos, ypos, 'x', asset.ColorCheckedCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos, ypos, '>', asset.ColorCheckedCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos+1, ypos, '<', asset.ColorCheckedCell, asset.ColorEmptyCell)
 	case Fill:
-		termbox.SetCell(xpos, ypos, '■', asset.ColorFilledCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos, ypos, ' ', asset.ColorFilledCell, asset.ColorFilledCell)
+		termbox.SetCell(xpos+1, ypos, ' ', asset.ColorFilledCell, asset.ColorFilledCell)
 	case Wrong:
-		termbox.SetCell(xpos, ypos, '☐', asset.ColorCheckedCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos, ypos, '>', asset.ColorWrongCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos+1, ypos, '<', asset.ColorWrongCell, asset.ColorEmptyCell)
 	}
 
 }
@@ -375,9 +380,9 @@ func (rd *KeyReader) showAnswer(playermap [][]Signal) {
 	for n := range playermap {
 		for m, v := range playermap[n] {
 			if v == Fill {
-				rd.setMap(m+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Fill)
+				rd.setMap((2*m)+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Fill)
 			} else {
-				rd.setMap(m+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Empty)
+				rd.setMap((2*m)+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Empty)
 			}
 		}
 	}
@@ -483,15 +488,15 @@ func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 func initializeMap(width int, height int) (emptyMap [][]Signal) {
 
 	emptyMap = make([][]Signal, height)
+
 	for n := range emptyMap {
-
 		emptyMap[n] = make([]Signal, width)
-
 		for m := range emptyMap[n] {
 			emptyMap[n][m] = Empty
 		}
 
 	}
+
 	return
 
 }
