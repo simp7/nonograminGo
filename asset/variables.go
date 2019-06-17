@@ -20,9 +20,10 @@ var (
 )
 
 var (
-	StringHeaderMapname = "Write map name that you want to create"
-	StringHeaderWidth   = "Write map's width"
-	StringHeaderHeight  = "Write map's height"
+	StringHeaderMapname   = "Write map name that you want to create"
+	StringHeaderWidth     = "Write map's width"
+	StringHeaderHeight    = "Write map's height"
+	StringMsgFileNotExist = "File doesn't exist."
 )
 
 var (

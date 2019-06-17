@@ -180,7 +180,12 @@ func (rd *KeyReader) selectMap() {
 		case rd.event.Key == termbox.KeyArrowRight:
 		case rd.event.Key == termbox.KeyArrowLeft:
 		case rd.event.Ch >= '1' && rd.event.Ch <= '9':
-			rd.inGame(rd.fm.GetMapDataByNumber(int(rd.event.Ch - '1')))
+			nonomapData := rd.fm.GetMapDataByNumber(int(rd.event.Ch - '1'))
+			if nonomapData == asset.StringMsgFileNotExist {
+				continue
+			} else {
+				rd.inGame(nonomapData)
+			}
 		}
 
 	}
@@ -270,7 +275,7 @@ func (rd *KeyReader) inGame(data string) {
 			}
 
 		case rd.event.Key == termbox.KeySpace:
-			if playermap[realypos][realxpos] == Check || playermap[realypos][realxpos] == Fill {
+			if playermap[realypos][realxpos] == Check || playermap[realypos][realxpos] == Fill || playermap[realypos][realxpos] == Wrong {
 				continue
 			}
 
@@ -278,7 +283,7 @@ func (rd *KeyReader) inGame(data string) {
 				rd.setMap(xpos, ypos, Fill)
 				playermap[realypos][realxpos] = Fill
 				remainedCell--
-				if remainedCell == 0 {
+				if remainedCell == 0 { //Enter when player complete the game
 					redrow(func() {
 						rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{"You Complete Me!"})
 						rd.showAnswer(playermap)

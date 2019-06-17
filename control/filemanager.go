@@ -1,6 +1,7 @@
 package control
 
 import (
+	"../asset"
 	"../util"
 	"fmt"
 	"io/ioutil"
@@ -36,6 +37,9 @@ func (fm *FileManager) GetMapList() []string {
 }
 
 func (fm *FileManager) GetMapDataByNumber(target int) string {
+	if target >= len(fm.files) {
+		return asset.StringMsgFileNotExist
+	}
 	fm.currentFile = fm.files[target].Name()
 	return fm.GetMapDataByName(fmt.Sprintf("./maps/%s", fm.currentFile))
 }
