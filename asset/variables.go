@@ -17,3 +17,9 @@ var (
 	StringResult       = []string{"--------------------", "       CLEAR!", "--------------------", "", "MAP NAME    : ", "CLEAR TIME  : ", "WRONG CELLS : "}
 	StringCredit       = []string{"------------------------------", "            CREDIT", "------------------------------", "Developer : JeongHyeon Park(N0RM4L15T)", "Programming Language : Go(100%)", "I wish you enjoy this game!", "------------------------------"}
 )
+
+var (
+	StringHeaderMapname = "Write map name that you want to create"
+	StringHeaderWidth   = "Write map's width"
+	StringHeaderHeight  = "Write map's height"
+)

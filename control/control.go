@@ -14,7 +14,6 @@ type Signal uint8
 const (
 	MainMenu View = iota
 	Select
-	Create
 	Credit
 )
 
@@ -103,7 +102,6 @@ func (rd *KeyReader) refresh() {
 			rd.printf(5, 5, asset.StringMainMenu)
 		case Select:
 			rd.showMapList()
-		case Create:
 		case Credit:
 			rd.printf(5, 5, asset.StringCredit)
 		}
@@ -152,6 +150,7 @@ func (rd *KeyReader) menu() {
 		case rd.event.Ch == '1':
 			rd.selectMap()
 		case rd.event.Ch == '2':
+			rd.createNonomapInfo()
 		case rd.event.Ch == '3':
 			rd.currentView = Credit
 			rd.refresh()
@@ -386,6 +385,95 @@ func (rd *KeyReader) showAnswer(playermap [][]Signal) {
 }
 
 /*
+	This function receive user's key input to create name of nonogram map in create mode.
+	This function will be called when player enter the create mode from main menu.
+*/
+func (rd *KeyReader) createNonomapInfo() {
+
+	mapName := rd.stringReader(asset.StringHeaderMapname)
+	if mapName == "" {
+		return
+	}
+	mapWidth := rd.stringReader(asset.StringHeaderWidth)
+	if mapWidth == "" {
+		return
+	}
+	mapHeight := rd.stringReader(asset.StringHeaderHeight)
+	if mapHeight == "" {
+		return
+	}
+
+	width, err := strconv.Atoi(mapWidth)
+	util.CheckErr(err)
+	height, err := strconv.Atoi(mapHeight)
+	util.CheckErr(err)
+	rd.inCreate(mapName, width, height)
+
+}
+func (rd *KeyReader) stringReader(header string) (result string) {
+
+	result = ""
+	resultByte := make([]rune, 30)
+	n := 0
+
+	redrow(func() {
+		rd.printf(5, 5, []string{header})
+	})
+
+	for {
+		rd.pressKeyToContinue()
+
+		redrow(func() {
+			rd.printf(5, 5, []string{header})
+
+			if header == asset.StringHeaderMapname {
+				if rd.event.Ch != 0 {
+					resultByte[n] = rd.event.Ch
+					n++
+				} else if rd.event.Key == termbox.KeySpace {
+					resultByte[n] = ' '
+					n++
+				}
+			} else if rd.event.Ch >= '0' && rd.event.Ch <= '9' {
+				resultByte[n] = rd.event.Ch
+				n++
+			}
+			if (rd.event.Key == termbox.KeyBackspace || rd.event.Key == termbox.KeyBackspace2 || rd.event.Key == termbox.KeyDelete) && n > 0 {
+				resultByte[n] = 0
+				n--
+			}
+
+			result = ""
+			for i := 0; i < n; i++ {
+				result += string(resultByte[i])
+			}
+
+			rd.printf(5, 7, []string{result})
+
+		})
+
+		if rd.event.Key == termbox.KeyEnter {
+			return
+		} else if rd.event.Key == termbox.KeyEsc {
+			result = ""
+			return
+		}
+
+	}
+
+}
+
+/*
+	This function shows player's current map in create mode and receive player's key input.
+	This function will be called when player finish writing name of nonomap that player would create.
+*/
+
+func (rd *KeyReader) inCreate(mapName string, width int, height int) {
+	redrow(func() {
+	})
+}
+
+/*
 	This function initialize current player's map data to compare the map with answer.
 	The result will be used in showing player's current map.
 	The function will be called when player enter the game.
@@ -413,6 +501,7 @@ func initializeMap(width int, height int) (emptyMap [][]Signal) {
 */
 
 func redrow(function func()) {
+
 	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
 	util.CheckErr(err)
 
@@ -420,4 +509,5 @@ func redrow(function func()) {
 
 	err = termbox.Flush()
 	util.CheckErr(err)
+
 }
