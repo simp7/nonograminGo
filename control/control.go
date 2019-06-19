@@ -218,10 +218,13 @@ func (rd *KeyReader) inGame(data string) {
 	remainedCell := correctMap.TotalCells()
 	wrongCell := 0
 
+	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
+	util.CheckErr(err)
+
 	rd.pt = util.NewPlaytime()
+
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
 
-	xpos, ypos := xProblemPos, yProblemPos+1
 	rd.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
 	playermap := initializeMap(correctMap.GetWidth(), correctMap.GetHeight())
@@ -232,7 +235,7 @@ func (rd *KeyReader) inGame(data string) {
 			rd.setMap((2*m)+xProblemPos, n+yProblemPos+1, Empty)
 		}
 	}
-
+	xpos, ypos := xProblemPos, yProblemPos+1
 	rd.setMap(xpos, ypos, Cursor)
 
 	for {
@@ -261,7 +264,7 @@ func (rd *KeyReader) inGame(data string) {
 			}
 
 		case rd.event.Key == termbox.KeyArrowLeft:
-			if xpos-1 >= xProblemPos {
+			if xpos-2 >= xProblemPos {
 				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
 				xpos -= 2
 				rd.setMap(xpos, ypos, Cursor)
@@ -479,9 +482,86 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 */
 
 func (rd *KeyReader) inCreate(mapName string, width int, height int) {
-	redrow(func() {
 
+	answermap := make([][]bool, height)
+	for n := range answermap {
+		answermap[n] = make([]bool, width)
+	}
+
+	playermap := initializeMap(width, height)
+
+	redrow(func() {
+		rd.printf(1, 0, []string{mapName})
 	})
+
+	for n := range playermap {
+		for m := range playermap[n] {
+			rd.setMap((2*m)+asset.NumberDefaultX, n+asset.NumberDefaultY, Empty)
+			answermap[n][m] = false
+		}
+	}
+
+	xpos, ypos := asset.NumberDefaultX, asset.NumberDefaultY
+	rd.setMap(xpos, ypos, Cursor)
+
+	for {
+		realxpos, realypos := (xpos-asset.NumberDefaultX)/2, ypos-asset.NumberDefaultY
+
+		err := termbox.Flush()
+		util.CheckErr(err)
+
+		rd.pressKeyToContinue()
+
+		switch {
+
+		case rd.event.Key == termbox.KeyArrowUp:
+			if ypos-1 >= asset.NumberDefaultY {
+				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
+				ypos--
+				rd.setMap(xpos, ypos, Cursor)
+			}
+
+		case rd.event.Key == termbox.KeyArrowDown:
+			if ypos+1 < asset.NumberDefaultY+height {
+				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
+				ypos++
+				rd.setMap(xpos, ypos, Cursor)
+			}
+		case rd.event.Key == termbox.KeyArrowLeft:
+			if xpos-2 >= asset.NumberDefaultX {
+				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
+				xpos -= 2
+				rd.setMap(xpos, ypos, Cursor)
+			}
+		case rd.event.Key == termbox.KeyArrowRight:
+			if xpos+2 < asset.NumberDefaultX+(2*width) {
+				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
+				xpos += 2
+				rd.setMap(xpos, ypos, Cursor)
+			}
+		case rd.event.Key == termbox.KeySpace:
+			if playermap[realypos][realxpos] == Empty {
+				playermap[realypos][realxpos] = Fill
+				answermap[realypos][realxpos] = true
+			} else if playermap[realypos][realxpos] == Fill {
+				playermap[realypos][realxpos] = Empty
+				answermap[realypos][realxpos] = false
+			}
+		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
+			if playermap[realypos][realxpos] == Empty {
+				playermap[realypos][realxpos] = Check
+			} else if playermap[realypos][realxpos] == Check {
+				playermap[realypos][realxpos] = Empty
+			}
+		case rd.event.Key == termbox.KeyEsc:
+			return
+		case rd.event.Key == termbox.KeyEnter:
+			rd.fm.CreateMap(mapName, width, height, answermap)
+			rd.fm.RefreshMapList()
+			return
+		}
+
+	}
 }
 
 /*
@@ -520,5 +600,4 @@ func redrow(function func()) {
 
 	err = termbox.Flush()
 	util.CheckErr(err)
-
 }

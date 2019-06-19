@@ -64,7 +64,7 @@ func (fm *FileManager) CreateMap(name string, width int, height int, bitmap [][]
 		result := 0
 		for m, v := range bitmap[n] {
 			if v {
-				result += int(math.Pow(2, float64(m)))
+				result += int(math.Pow(2, float64(width-m-1)))
 			}
 		}
 		mapData[n] = result
@@ -74,7 +74,13 @@ func (fm *FileManager) CreateMap(name string, width int, height int, bitmap [][]
 		nonoMapData += fmt.Sprintf("/%d", v)
 	}
 
-	err := ioutil.WriteFile(fmt.Sprintf("./maps/%s", name), []byte(nonoMapData), 0644)
+	err := ioutil.WriteFile(fmt.Sprintf("./maps/%s.nm", name), []byte(nonoMapData), 0644)
 	util.CheckErr(err)
 
+}
+
+func (fm *FileManager) RefreshMapList() {
+	var err error
+	fm.files, err = ioutil.ReadDir("./maps")
+	util.CheckErr(err)
 }
