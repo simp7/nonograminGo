@@ -13,11 +13,13 @@ import (
 type FileManager struct {
 	files       []os.FileInfo
 	currentFile string
+	order       int
 }
 
 func NewFileManager() *FileManager {
 	fm := FileManager{}
 	fm.currentFile = ""
+	fm.order = 0
 
 	var err error
 	fm.files, err = ioutil.ReadDir("./maps")
@@ -27,21 +29,52 @@ func NewFileManager() *FileManager {
 }
 
 func (fm *FileManager) GetMapList() []string {
-	mapList := []string{}
 
-	for n, file := range fm.files {
-		mapList = append(mapList, fmt.Sprintf("%d. %s", n+1, strings.TrimSuffix(file.Name(), ".nm")))
+	mapList := make([]string, 10)
+
+	for n := 0; n < 10; n++ {
+		if n+10*fm.order < len(fm.files) {
+			mapList[n] = fmt.Sprintf("%d. %s", n, strings.TrimSuffix(fm.files[n+10*fm.order].Name(), ".nm"))
+		}
 	}
 
 	return mapList
+
+}
+
+func (fm *FileManager) NextList() {
+	if 10*(fm.order+1) >= len(fm.files) {
+		fm.order = 0
+	} else {
+		fm.order++
+	}
+}
+
+func (fm *FileManager) PrevList() {
+	if fm.order == 0 {
+		fm.order = (len(fm.files) - 1) / 10
+	} else {
+		fm.order--
+	}
+}
+
+func (fm *FileManager) GetCurrentOrder() int {
+	return fm.order + 1
+}
+
+func (fm *FileManager) GetMaxOrder() int {
+	return len(fm.files)/10 + 1
 }
 
 func (fm *FileManager) GetMapDataByNumber(target int) string {
+
 	if target >= len(fm.files) {
 		return asset.StringMsgFileNotExist
 	}
 	fm.currentFile = fm.files[target].Name()
+
 	return fm.GetMapDataByName(fmt.Sprintf("./maps/%s", fm.currentFile))
+
 }
 
 func (fm *FileManager) GetMapDataByName(target string) string {

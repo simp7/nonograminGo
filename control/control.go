@@ -178,9 +178,11 @@ func (rd *KeyReader) selectMap() {
 		case rd.event.Key == termbox.KeyEsc:
 			return
 		case rd.event.Key == termbox.KeyArrowRight:
+			rd.fm.NextList()
 		case rd.event.Key == termbox.KeyArrowLeft:
-		case rd.event.Ch >= '1' && rd.event.Ch <= '9':
-			nonomapData := rd.fm.GetMapDataByNumber(int(rd.event.Ch - '1'))
+			rd.fm.PrevList()
+		case rd.event.Ch >= '0' && rd.event.Ch <= '9':
+			nonomapData := rd.fm.GetMapDataByNumber(int(rd.event.Ch - '0'))
 			if nonomapData == asset.StringMsgFileNotExist {
 				continue
 			} else {
