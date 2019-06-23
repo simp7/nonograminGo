@@ -1,8 +1,6 @@
 package asset
 
-import (
-	"github.com/nsf/termbox-go"
-)
+import "github.com/nsf/termbox-go"
 
 const (
 	ColorFilledCell  = termbox.ColorBlack
@@ -17,6 +15,7 @@ var (
 	StringSelectHeader = []string{"[mapList]  [<-Prev | Next->]", "----------------------------", ""}
 	StringResult       = []string{"--------------------", "       CLEAR!", "--------------------", "", "MAP NAME    : ", "CLEAR TIME  : ", "WRONG CELLS : "}
 	StringCredit       = []string{"--------------------------------------", "                CREDIT", "--------------------------------------", "Developer : JeongHyeon Park(N0RM4L15T)", "Programming Language : Go(100%)", "I wish you enjoy this game!", "--------------------------------------"}
+	StringComplete     = []string{"----------Congratulation! You Complete Me!----------"}
 )
 
 var (

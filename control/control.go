@@ -218,6 +218,8 @@ This function will be called when player select map.
 
 func (rd *KeyReader) inGame(data string) {
 
+	redrow(func() { rd.printf(0, 0, []string{rd.fm.GetCurrentMapName()}) })
+
 	correctMap := model.NewNonomap(data)
 
 	remainedCell := correctMap.TotalCells()
@@ -226,47 +228,15 @@ func (rd *KeyReader) inGame(data string) {
 	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
 	util.CheckErr(err)
 
-	rd.pt = util.NewPlaytime()
-
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
 	rd.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
-	playermap := initializeMap(correctMap.GetWidth(), correctMap.GetHeight())
-	rd.printf(1, 0, []string{rd.fm.GetCurrentMapName()})
+	rd.pt = util.NewPlaytime()
 
-	for n := range playermap {
-		for m := range playermap[n] {
-			rd.setMap((2*m)+xProblemPos, n+yProblemPos+1, Empty)
-		}
-	}
-
-	xpos, ypos := xProblemPos, yProblemPos+1
-	rd.setMap(xpos, ypos, Cursor)
+	player := model.NewPlayer(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
+	player.SetMap(model.Cursor)
 
 	for {
-
-		getRealpos := func() (realxpos int, realypos int) {
-			realxpos, realypos = (xpos-xProblemPos)/2, ypos-yProblemPos-1
-			return
-		}
-
-		getMapSignal := func() Signal {
-			realxpos, realypos := getRealpos()
-			return playermap[realypos][realxpos]
-		}
-
-		setMapSignal := func(xpos int, ypos int, signal Signal) {
-			realxpos, realypos := getRealpos()
-			playermap[realypos][realxpos] = signal
-		}
-
-		moveCursor := func(condition bool, function func()) {
-			if condition {
-				rd.setMap(xpos, ypos, getMapSignal())
-				function()
-				rd.setCursor(xpos, ypos, getMapSignal())
-			}
-		}
 
 		err := termbox.Flush()
 		util.CheckErr(err)
@@ -276,49 +246,42 @@ func (rd *KeyReader) inGame(data string) {
 		switch {
 
 		case rd.event.Key == termbox.KeyArrowUp:
-			moveCursor(ypos-1 >= yProblemPos+1, func() { ypos-- })
-
+			player.Move(model.Up)
 		case rd.event.Key == termbox.KeyArrowDown:
-			moveCursor(ypos+1 < yProblemPos+1+correctMap.GetHeight(), func() { ypos++ })
-
+			player.Move(model.Down)
 		case rd.event.Key == termbox.KeyArrowLeft:
-			moveCursor(xpos-2 >= xProblemPos, func() { xpos -= 2 })
-
+			player.Move(model.Left)
 		case rd.event.Key == termbox.KeyArrowRight:
-			moveCursor(xpos+2 < xProblemPos+(2*correctMap.GetWidth()), func() { xpos += 2 })
-
+			player.Move(model.Right)
 		case rd.event.Key == termbox.KeySpace:
-			if getMapSignal() == Check || getMapSignal() == Fill || getMapSignal() == Wrong {
-				continue
-			}
 
-			if correctMap.CompareValidity(getRealpos()) {
-				rd.setMap(xpos, ypos, CursorFilled)
-				setMapSignal(xpos, ypos, Fill)
-				remainedCell--
+			if player.GetMapSignal() == model.Empty {
+				if correctMap.CompareValidity(player.GetRealpos()) {
+					player.SetMap(model.CursorFilled)
+					player.SetMapSignal(model.Fill)
+					remainedCell--
 
-				if remainedCell == 0 { //Enter when player complete the game
-					redrow(func() {
-						rd.showAnswer(playermap)
-					})
-					rd.pressKeyToContinue()
-					rd.showResult(wrongCell)
-					return
+					if remainedCell == 0 { //Enter when player complete the game
+						player.SetMap(model.Fill)
+						rd.showResult(wrongCell)
+						return
+					}
+
+				} else {
+					player.SetMap(model.CursorWrong)
+					player.SetMapSignal(model.Wrong)
+					wrongCell++
 				}
 
-			} else {
-				rd.setMap(xpos, ypos, CursorWrong)
-				setMapSignal(xpos, ypos, Wrong)
-				wrongCell++
 			}
 
 		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
-			if getMapSignal() == Empty {
-				rd.setMap(xpos, ypos, CursorChecked)
-				setMapSignal(xpos, ypos, Check)
-			} else if getMapSignal() == Check {
-				rd.setMap(xpos, ypos, Cursor)
-				setMapSignal(xpos, ypos, Empty)
+			if player.GetMapSignal() == model.Empty {
+				player.SetMap(model.CursorChecked)
+				player.SetMapSignal(model.Check)
+			} else if player.GetMapSignal() == model.Check {
+				player.SetMap(model.Cursor)
+				player.SetMapSignal(model.Empty)
 			}
 
 		case rd.event.Key == termbox.KeyEsc:
@@ -382,6 +345,10 @@ func (rd *KeyReader) setMap(xpos int, ypos int, signal Signal) {
 
 func (rd *KeyReader) showResult(wrong int) {
 
+	rd.printf(0, 0, asset.StringComplete)
+	err := termbox.Flush()
+	util.CheckErr(err)
+
 	resultFormat := asset.StringResult
 	result := make([]string, len(resultFormat))
 	copy(result, resultFormat)
@@ -390,31 +357,11 @@ func (rd *KeyReader) showResult(wrong int) {
 	result[5] += rd.pt.TimeResult()
 	result[6] += strconv.Itoa(wrong)
 
-	redrow(func() {
-		rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, result)
-	})
-
 	rd.pressKeyToContinue()
 
-}
+	redrow(func() { rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, result) })
 
-/*
-	This function shows whole answer picture that player solve.
-	This function will be called when player finally solve the problem.
-*/
-
-func (rd *KeyReader) showAnswer(playermap [][]Signal) {
-
-	rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{"You Complete Me!"})
-	for n := range playermap {
-		for m, v := range playermap[n] {
-			if v == Fill {
-				rd.setMap((2*m)+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Fill)
-			} else {
-				rd.setMap((2*m)+asset.NumberDefaultX, n+asset.NumberDefaultY+3, Empty)
-			}
-		}
-	}
+	rd.pressKeyToContinue()
 
 }
 
@@ -504,30 +451,12 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 
 func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 
-	answermap := make([][]bool, height)
-	for n := range answermap {
-		answermap[n] = make([]bool, width)
-	}
+	redrow(func() { rd.printf(1, 0, []string{mapName}) })
 
-	playermap := initializeMap(width, height)
-
-	redrow(func() {
-		rd.printf(1, 0, []string{mapName})
-	})
-
-	for n := range playermap {
-		for m := range playermap[n] {
-			rd.setMap((2*m)+asset.NumberDefaultX, n+asset.NumberDefaultY, Empty)
-			answermap[n][m] = false
-		}
-	}
-
-	xpos, ypos := asset.NumberDefaultX, asset.NumberDefaultY
-	rd.setMap(xpos, ypos, Cursor)
+	player := model.NewPlayer(asset.NumberDefaultX, asset.NumberDefaultY, width, height)
+	player.SetMap(model.Cursor)
 
 	for {
-		realxpos, realypos := (xpos-asset.NumberDefaultX)/2, ypos-asset.NumberDefaultY
-
 		err := termbox.Flush()
 		util.CheckErr(err)
 
@@ -536,87 +465,38 @@ func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 		switch {
 
 		case rd.event.Key == termbox.KeyArrowUp:
-			if ypos-1 >= asset.NumberDefaultY {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				ypos--
-				rd.setMap(xpos, ypos, Cursor)
-			}
-
+			player.Move(model.Up)
 		case rd.event.Key == termbox.KeyArrowDown:
-			if ypos+1 < asset.NumberDefaultY+height {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				ypos++
-				rd.setMap(xpos, ypos, Cursor)
-			}
+			player.Move(model.Down)
 		case rd.event.Key == termbox.KeyArrowLeft:
-			if xpos-2 >= asset.NumberDefaultX {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				xpos -= 2
-				rd.setMap(xpos, ypos, Cursor)
-			}
+			player.Move(model.Left)
 		case rd.event.Key == termbox.KeyArrowRight:
-			if xpos+2 < asset.NumberDefaultX+(2*width) {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				xpos += 2
-				rd.setMap(xpos, ypos, Cursor)
-			}
+			player.Move(model.Right)
 		case rd.event.Key == termbox.KeySpace:
-			if playermap[realypos][realxpos] == Empty {
-				playermap[realypos][realxpos] = Fill
-				answermap[realypos][realxpos] = true
-			} else if playermap[realypos][realxpos] == Fill {
-				playermap[realypos][realxpos] = Empty
-				answermap[realypos][realxpos] = false
+			if player.GetMapSignal() == model.Empty {
+				player.SetMap(model.CursorFilled)
+				player.SetMapSignal(model.Fill)
+			} else if player.GetMapSignal() == model.Fill {
+				player.SetMap(model.Cursor)
+				player.SetMapSignal(model.Empty)
 			}
 		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
-			if playermap[realypos][realxpos] == Empty {
-				playermap[realypos][realxpos] = Check
-			} else if playermap[realypos][realxpos] == Check {
-				playermap[realypos][realxpos] = Empty
+			if player.GetMapSignal() == model.Empty {
+				player.SetMap(model.CursorChecked)
+				player.SetMapSignal(model.Check)
+			} else if player.GetMapSignal() == model.Check {
+				player.SetMap(model.Cursor)
+				player.SetMapSignal(model.Empty)
 			}
 		case rd.event.Key == termbox.KeyEsc:
 			return
 		case rd.event.Key == termbox.KeyEnter:
-			rd.fm.CreateMap(mapName, width, height, answermap)
+			rd.fm.CreateMap(mapName, width, height, player.ConvertToBitMap())
 			rd.fm.RefreshMapList()
 			return
 		}
 
 	}
-}
-
-/*
-	This function initialize current player's map data to compare the map with answer.
-	The result will be used in showing player's current map.
-	The function will be called when player enter the game.
-*/
-
-func (rd *KeyReader) setCursor(xpos int, ypos int, CellState Signal) {
-	if CellState == Fill {
-		rd.setMap(xpos, ypos, CursorFilled)
-	} else if CellState == Check {
-		rd.setMap(xpos, ypos, CursorChecked)
-	} else if CellState == Wrong {
-		rd.setMap(xpos, ypos, CursorWrong)
-	} else {
-		rd.setMap(xpos, ypos, Cursor)
-	}
-}
-
-func initializeMap(width int, height int) (emptyMap [][]Signal) {
-
-	emptyMap = make([][]Signal, height)
-
-	for n := range emptyMap {
-		emptyMap[n] = make([]Signal, width)
-		for m := range emptyMap[n] {
-			emptyMap[n][m] = Empty
-		}
-
-	}
-
-	return
-
 }
 
 /*
