@@ -23,6 +23,9 @@ const (
 	Check
 	Fill
 	Wrong
+	CursorFilled
+	CursorChecked
+	CursorWrong
 )
 
 type KeyReader struct {
@@ -226,7 +229,6 @@ func (rd *KeyReader) inGame(data string) {
 	rd.pt = util.NewPlaytime()
 
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
-
 	rd.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
 	playermap := initializeMap(correctMap.GetWidth(), correctMap.GetHeight())
@@ -237,12 +239,34 @@ func (rd *KeyReader) inGame(data string) {
 			rd.setMap((2*m)+xProblemPos, n+yProblemPos+1, Empty)
 		}
 	}
+
 	xpos, ypos := xProblemPos, yProblemPos+1
 	rd.setMap(xpos, ypos, Cursor)
 
 	for {
 
-		realxpos, realypos := (xpos-xProblemPos)/2, ypos-yProblemPos-1
+		getRealpos := func() (realxpos int, realypos int) {
+			realxpos, realypos = (xpos-xProblemPos)/2, ypos-yProblemPos-1
+			return
+		}
+
+		getMapSignal := func() Signal {
+			realxpos, realypos := getRealpos()
+			return playermap[realypos][realxpos]
+		}
+
+		setMapSignal := func(xpos int, ypos int, signal Signal) {
+			realxpos, realypos := getRealpos()
+			playermap[realypos][realxpos] = signal
+		}
+
+		moveCursor := func(condition bool, function func()) {
+			if condition {
+				rd.setMap(xpos, ypos, getMapSignal())
+				function()
+				rd.setCursor(xpos, ypos, getMapSignal())
+			}
+		}
 
 		err := termbox.Flush()
 		util.CheckErr(err)
@@ -252,64 +276,49 @@ func (rd *KeyReader) inGame(data string) {
 		switch {
 
 		case rd.event.Key == termbox.KeyArrowUp:
-			if ypos-1 >= yProblemPos+1 {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				ypos--
-				rd.setMap(xpos, ypos, Cursor)
-			}
+			moveCursor(ypos-1 >= yProblemPos+1, func() { ypos-- })
 
 		case rd.event.Key == termbox.KeyArrowDown:
-			if ypos+1 < yProblemPos+1+correctMap.GetHeight() {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				ypos++
-				rd.setMap(xpos, ypos, Cursor)
-			}
+			moveCursor(ypos+1 < yProblemPos+1+correctMap.GetHeight(), func() { ypos++ })
 
 		case rd.event.Key == termbox.KeyArrowLeft:
-			if xpos-2 >= xProblemPos {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				xpos -= 2
-				rd.setMap(xpos, ypos, Cursor)
-			}
+			moveCursor(xpos-2 >= xProblemPos, func() { xpos -= 2 })
 
 		case rd.event.Key == termbox.KeyArrowRight:
-			if xpos+2 < xProblemPos+(2*correctMap.GetWidth()) {
-				rd.setMap(xpos, ypos, playermap[realypos][realxpos])
-				xpos += 2
-				rd.setMap(xpos, ypos, Cursor)
-			}
+			moveCursor(xpos+2 < xProblemPos+(2*correctMap.GetWidth()), func() { xpos += 2 })
 
 		case rd.event.Key == termbox.KeySpace:
-			if playermap[realypos][realxpos] == Check || playermap[realypos][realxpos] == Fill || playermap[realypos][realxpos] == Wrong {
+			if getMapSignal() == Check || getMapSignal() == Fill || getMapSignal() == Wrong {
 				continue
 			}
 
-			if correctMap.CompareValidity(realxpos, realypos) {
-				rd.setMap(xpos, ypos, Fill)
-				playermap[realypos][realxpos] = Fill
+			if correctMap.CompareValidity(getRealpos()) {
+				rd.setMap(xpos, ypos, CursorFilled)
+				setMapSignal(xpos, ypos, Fill)
 				remainedCell--
+
 				if remainedCell == 0 { //Enter when player complete the game
 					redrow(func() {
-						rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{"You Complete Me!"})
 						rd.showAnswer(playermap)
 					})
 					rd.pressKeyToContinue()
 					rd.showResult(wrongCell)
 					return
 				}
+
 			} else {
-				rd.setMap(xpos, ypos, Wrong)
-				playermap[realypos][realxpos] = Wrong
+				rd.setMap(xpos, ypos, CursorWrong)
+				setMapSignal(xpos, ypos, Wrong)
 				wrongCell++
 			}
 
 		case rd.event.Ch == 'x' || rd.event.Ch == 'X':
-			if playermap[realypos][realxpos] == Empty {
-				rd.setMap(xpos, ypos, Check)
-				playermap[realypos][realxpos] = Check
-			} else if playermap[realypos][realxpos] == Check {
-				rd.setMap(xpos, ypos, Empty)
-				playermap[realypos][realxpos] = Empty
+			if getMapSignal() == Empty {
+				rd.setMap(xpos, ypos, CursorChecked)
+				setMapSignal(xpos, ypos, Check)
+			} else if getMapSignal() == Check {
+				rd.setMap(xpos, ypos, Cursor)
+				setMapSignal(xpos, ypos, Empty)
 			}
 
 		case rd.event.Key == termbox.KeyEsc:
@@ -353,6 +362,15 @@ func (rd *KeyReader) setMap(xpos int, ypos int, signal Signal) {
 	case Wrong:
 		termbox.SetCell(xpos, ypos, '>', asset.ColorWrongCell, asset.ColorEmptyCell)
 		termbox.SetCell(xpos+1, ypos, '<', asset.ColorWrongCell, asset.ColorEmptyCell)
+	case CursorFilled:
+		termbox.SetCell(xpos, ypos, '(', asset.ColorEmptyCell, asset.ColorFilledCell)
+		termbox.SetCell(xpos+1, ypos, ')', asset.ColorEmptyCell, asset.ColorFilledCell)
+	case CursorWrong:
+		termbox.SetCell(xpos, ypos, '(', asset.ColorWrongCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos+1, ypos, ')', asset.ColorWrongCell, asset.ColorEmptyCell)
+	case CursorChecked:
+		termbox.SetCell(xpos, ypos, '(', asset.ColorCheckedCell, asset.ColorEmptyCell)
+		termbox.SetCell(xpos+1, ypos, ')', asset.ColorCheckedCell, asset.ColorEmptyCell)
 	}
 
 }
@@ -387,6 +405,7 @@ func (rd *KeyReader) showResult(wrong int) {
 
 func (rd *KeyReader) showAnswer(playermap [][]Signal) {
 
+	rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{"You Complete Me!"})
 	for n := range playermap {
 		for m, v := range playermap[n] {
 			if v == Fill {
@@ -571,6 +590,18 @@ func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 	The result will be used in showing player's current map.
 	The function will be called when player enter the game.
 */
+
+func (rd *KeyReader) setCursor(xpos int, ypos int, CellState Signal) {
+	if CellState == Fill {
+		rd.setMap(xpos, ypos, CursorFilled)
+	} else if CellState == Check {
+		rd.setMap(xpos, ypos, CursorChecked)
+	} else if CellState == Wrong {
+		rd.setMap(xpos, ypos, CursorWrong)
+	} else {
+		rd.setMap(xpos, ypos, Cursor)
+	}
+}
 
 func initializeMap(width int, height int) (emptyMap [][]Signal) {
 
