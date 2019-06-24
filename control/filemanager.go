@@ -28,6 +28,11 @@ func NewFileManager() *FileManager {
 	return &fm
 }
 
+/*
+	This function returns list of map whose number of maps are seperated by 10.
+	This function will be called when player enter the select page.
+*/
+
 func (fm *FileManager) GetMapList() []string {
 
 	mapList := make([]string, 10)
@@ -42,6 +47,11 @@ func (fm *FileManager) GetMapList() []string {
 
 }
 
+/*
+	This function gets player to the next page of list.
+	This function will be called when player inputs left-arrow key.
+*/
+
 func (fm *FileManager) NextList() {
 	if 10*(fm.order+1) >= len(fm.files) {
 		fm.order = 0
@@ -49,6 +59,11 @@ func (fm *FileManager) NextList() {
 		fm.order++
 	}
 }
+
+/*
+	This function gets player to the previous page of list
+	This function will be called when player inputs right-arrow key.
+*/
 
 func (fm *FileManager) PrevList() {
 	if fm.order == 0 {
@@ -58,9 +73,19 @@ func (fm *FileManager) PrevList() {
 	}
 }
 
+/*
+	This function returns player's current page.
+	This function will be called with maplist, attached with list header.
+*/
+
 func (fm *FileManager) GetOrder() string {
 	return fmt.Sprintf("(%d/%d)", fm.order+1, len(fm.files)/10+1)
 }
+
+/*
+	This function gets nonomap data by number.
+	This function will be called when user inputs number in select.
+*/
 
 func (fm *FileManager) GetMapDataByNumber(target int) string {
 
@@ -73,6 +98,11 @@ func (fm *FileManager) GetMapDataByNumber(target int) string {
 
 }
 
+/*
+	This function gets nonomap data by name.
+	This function will be called in GetMapDataByNumber.
+*/
+
 func (fm *FileManager) GetMapDataByName(target string) string {
 	file, err := ioutil.ReadFile(target)
 	util.CheckErr(err)
@@ -80,9 +110,19 @@ func (fm *FileManager) GetMapDataByName(target string) string {
 	return string(file)
 }
 
+/*
+	This function returns file name without '.nm'.
+	This function will be called with map list.
+*/
+
 func (fm *FileManager) GetCurrentMapName() string {
 	return strings.TrimSuffix(fm.currentFile, ".nm")
 }
+
+/*
+	This function creates file by bitmap that player generate in create mode.
+	This function will be called when player finish create mode by pressing enter key.
+*/
 
 func (fm *FileManager) CreateMap(name string, width int, height int, bitmap [][]bool) {
 
@@ -107,6 +147,11 @@ func (fm *FileManager) CreateMap(name string, width int, height int, bitmap [][]
 	util.CheckErr(err)
 
 }
+
+/*
+	This function refresh list of map
+	This function will be called after user create map so it contains added map.
+*/
 
 func (fm *FileManager) RefreshMapList() {
 	var err error
