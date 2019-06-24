@@ -17,3 +17,6 @@ If you don't know how to run, see below 'How to run'
 4. go run main.go
 4-2. go build main.go and ./main
 5. Enjoy the game.
+
+# External package
+- [termbox-go](https://github.com/nsf/termbox-go) : for handling CLI environment
