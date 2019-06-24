@@ -1,7 +1,7 @@
 package util
 
 import (
-	"strconv"
+	"fmt"
 	"time"
 )
 
@@ -44,9 +44,10 @@ func (p *Playtime) timePassed() {
 
 		case <-p.ticker.C:
 			present += 1
+			p.Clock <- convertTimeFormat(present)
 
 		case <-p.stop:
-			p.Clock <- strconv.Itoa(present) //To prevent situation that p.Clock channel is empty.
+			p.Clock <- convertTimeFormat(present) //To prevent situation that p.Clock channel is empty.
 			p.ticker.Stop()
 			close(p.Clock)
 			return
@@ -75,5 +76,18 @@ This function will be called when player ends the game without solving.
 func (p *Playtime) EndWithoutResult() {
 
 	close(p.stop)
+
+}
+
+func convertTimeFormat(totalTime int) string {
+
+	minutes := totalTime / 60
+	seconds := totalTime % 60
+
+	if seconds < 10 {
+		return fmt.Sprintf("%d:0%d", minutes, seconds)
+	} else {
+		return fmt.Sprintf("%d:%d", minutes, seconds)
+	}
 
 }
