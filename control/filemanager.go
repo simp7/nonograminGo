@@ -92,7 +92,7 @@ func (fm *FileManager) GetMapDataByNumber(target int) string {
 	if target >= len(fm.files) {
 		return asset.StringMsgFileNotExist
 	}
-	fm.currentFile = fm.files[target].Name()
+	fm.currentFile = fm.files[target+10*fm.order].Name()
 
 	return fm.GetMapDataByName(fmt.Sprintf("./maps/%s", fm.currentFile))
 
