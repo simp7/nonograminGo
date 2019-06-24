@@ -58,12 +58,8 @@ func (fm *FileManager) PrevList() {
 	}
 }
 
-func (fm *FileManager) GetCurrentOrder() int {
-	return fm.order + 1
-}
-
-func (fm *FileManager) GetMaxOrder() int {
-	return len(fm.files)/10 + 1
+func (fm *FileManager) GetOrder() string {
+	return fmt.Sprintf("(%d/%d)", fm.order+1, len(fm.files)/10+1)
 }
 
 func (fm *FileManager) GetMapDataByNumber(target int) string {

@@ -210,7 +210,10 @@ This function will be called when refreshing display while being in the select m
 
 func (rd *KeyReader) showMapList() {
 
-	mapList := asset.StringSelectHeader
+	mapList := make([]string, len(asset.StringSelectHeader))
+	copy(mapList, asset.StringSelectHeader)
+	mapList[0] += rd.fm.GetOrder()
+
 	mapList = append(mapList, rd.fm.GetMapList()...)
 
 	rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, mapList)
