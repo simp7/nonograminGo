@@ -245,6 +245,8 @@ func (rd *KeyReader) inGame(data string) {
 	player := model.NewPlayer(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
 	player.SetMap(model.Cursor)
 
+	go rd.showTimePassed()
+
 	for {
 
 		err := termbox.Flush()
@@ -531,6 +533,24 @@ func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 			return
 		}
 
+	}
+}
+
+/*
+	This function shows time passed in game.
+	This function will be called when player enter the game.
+	This function should be called as goroutine and should finish when player finish the game.
+*/
+
+func (rd *KeyReader) showTimePassed() {
+	for {
+		select {
+		case current := <-rd.pt.Clock:
+			rd.printf(asset.NumberTimerX, 0, []string{current})
+			util.CheckErr(termbox.Flush())
+		case <-rd.pt.Stop:
+			return
+		}
 	}
 }
 

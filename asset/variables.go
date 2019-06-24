@@ -16,6 +16,7 @@ const (
 	NumberHeightMax = 25
 	NumberDefaultX  = 5
 	NumberDefaultY  = 5
+	NumberTimerX    = 40
 )
 
 var (
