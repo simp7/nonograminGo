@@ -227,15 +227,11 @@ This function will be called when player select map.
 
 func (rd *KeyReader) inGame(data string) {
 
-	redrow(func() { rd.printf(0, 0, []string{rd.fm.GetCurrentMapName()}) })
-
+	util.CheckErr(termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell))
 	correctMap := model.NewNonomap(data)
 
 	remainedCell := correctMap.TotalCells()
 	wrongCell := 0
-
-	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
-	util.CheckErr(err)
 
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
 	rd.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
@@ -543,10 +539,13 @@ func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 */
 
 func (rd *KeyReader) showTimePassed() {
+
+	mapname := rd.fm.GetCurrentMapName()
+
 	for {
 		select {
 		case current := <-rd.pt.Clock:
-			rd.printf(asset.NumberTimerX, 0, []string{current})
+			rd.printf(asset.NumberDefaultX, 0, []string{mapname + asset.StringBlankBetweenMapAndTimer + current})
 			util.CheckErr(termbox.Flush())
 		case <-rd.pt.Stop:
 			return

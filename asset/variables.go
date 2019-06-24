@@ -12,11 +12,10 @@ const (
 
 const (
 	NumberNameMax   = 30
-	NumberWidthMax  = 25
-	NumberHeightMax = 25
+	NumberWidthMax  = 30
+	NumberHeightMax = 30
 	NumberDefaultX  = 5
 	NumberDefaultY  = 5
-	NumberTimerX    = 40
 )
 
 var (
@@ -29,9 +28,10 @@ var (
 )
 
 const (
-	StringHeaderMapname   = "Write map name that you want to create"
-	StringHeaderWidth     = "Write map's width"
-	StringHeaderHeight    = "Write map's height"
-	StringHeaderSizeError = "Value should not be more than "
-	StringMsgFileNotExist = "File doesn't exist."
+	StringHeaderMapname           = "Write map name that you want to create"
+	StringHeaderWidth             = "Write map's width"
+	StringHeaderHeight            = "Write map's height"
+	StringHeaderSizeError         = "Value should not be more than "
+	StringMsgFileNotExist         = "File doesn't exist."
+	StringBlankBetweenMapAndTimer = "               "
 )

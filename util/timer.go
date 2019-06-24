@@ -38,6 +38,7 @@ This function should be called in goroutine.
 func (p *Playtime) timePassed() {
 
 	present := 0
+	p.Clock <- convertTimeFormat(present)
 
 	for {
 		select {
