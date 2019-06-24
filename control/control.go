@@ -14,6 +14,7 @@ type Signal uint8
 const (
 	MainMenu View = iota
 	Select
+	Help
 	Credit
 )
 
@@ -105,6 +106,8 @@ func (rd *KeyReader) refresh() {
 			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringMainMenu)
 		case Select:
 			rd.showMapList()
+		case Help:
+			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringHelp)
 		case Credit:
 			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringCredit)
 		}
@@ -155,9 +158,12 @@ func (rd *KeyReader) menu() {
 		case rd.event.Ch == '2':
 			rd.createNonomapInfo()
 		case rd.event.Ch == '3':
+			rd.currentView = Help
+			rd.refresh()
+		case rd.event.Ch == '4':
 			rd.currentView = Credit
 			rd.refresh()
-		case rd.event.Ch == '4' || rd.event.Key == termbox.KeyEsc:
+		case rd.event.Ch == '5' || rd.event.Key == termbox.KeyEsc:
 			return
 		}
 
@@ -369,37 +375,56 @@ func (rd *KeyReader) showResult(wrong int) {
 	This function receive user's key input to create name of nonogram map in create mode.
 	This function will be called when player enter the create mode from main menu.
 */
+
 func (rd *KeyReader) createNonomapInfo() {
+
+	width, height := 0, 0
+	var err error
 
 	mapName := rd.stringReader(asset.StringHeaderMapname)
 	if mapName == "" {
 		return
 	}
+
 	mapWidth := rd.stringReader(asset.StringHeaderWidth)
-	if mapWidth == "" {
-		return
-	}
-	mapHeight := rd.stringReader(asset.StringHeaderHeight)
-	if mapHeight == "" {
-		return
+	for {
+		if mapWidth == "" {
+			return
+		} else {
+			width, err = strconv.Atoi(mapWidth)
+			util.CheckErr(err)
+			if width <= asset.NumberWidthMax {
+				break
+			}
+			mapWidth = rd.stringReader(asset.StringHeaderSizeError + strconv.Itoa(asset.NumberWidthMax))
+		}
 	}
 
-	width, err := strconv.Atoi(mapWidth)
-	util.CheckErr(err)
-	height, err := strconv.Atoi(mapHeight)
-	util.CheckErr(err)
+	mapHeight := rd.stringReader(asset.StringHeaderHeight)
+	for {
+		if mapHeight == "" {
+			return
+		} else {
+			height, err = strconv.Atoi(mapHeight)
+			util.CheckErr(err)
+			if height <= asset.NumberHeightMax {
+				break
+			}
+			mapHeight = rd.stringReader(asset.StringHeaderSizeError + strconv.Itoa(asset.NumberHeightMax))
+		}
+	}
+
 	rd.inCreate(mapName, width, height)
 
 }
+
 func (rd *KeyReader) stringReader(header string) (result string) {
 
 	result = ""
 	resultByte := make([]rune, asset.NumberNameMax)
 	n := 0
 
-	redrow(func() {
-		rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header})
-	})
+	redrow(func() { rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header}) })
 
 	for {
 		rd.pressKeyToContinue()
@@ -407,20 +432,22 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 		redrow(func() {
 			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header})
 
-			if header == asset.StringHeaderMapname {
-				if rd.event.Ch != 0 {
+			if n < asset.NumberNameMax {
+				if header == asset.StringHeaderMapname {
+					if rd.event.Ch != 0 {
+						resultByte[n] = rd.event.Ch
+						n++
+					} else if rd.event.Key == termbox.KeySpace {
+						resultByte[n] = ' '
+						n++
+					}
+				} else if rd.event.Ch >= '0' && rd.event.Ch <= '9' {
 					resultByte[n] = rd.event.Ch
 					n++
-				} else if rd.event.Key == termbox.KeySpace {
-					resultByte[n] = ' '
-					n++
 				}
-			} else if rd.event.Ch >= '0' && rd.event.Ch <= '9' {
-				resultByte[n] = rd.event.Ch
-				n++
 			}
+
 			if (rd.event.Key == termbox.KeyBackspace || rd.event.Key == termbox.KeyBackspace2 || rd.event.Key == termbox.KeyDelete) && n > 0 {
-				resultByte[n] = 0
 				n--
 			}
 

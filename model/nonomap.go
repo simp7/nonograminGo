@@ -1,6 +1,7 @@
 package model
 
 import (
+	"../asset"
 	"../util"
 	"math"
 	"strconv"
@@ -58,7 +59,7 @@ func NewNonomap(data string) *Nonomap {
 	}
 	//Extract map's answer from file.
 
-	if imported.height > 25 || imported.width > 25 || imported.height < 0 || imported.width < 0 {
+	if imported.height > asset.NumberHeightMax || imported.width > asset.NumberWidthMax || imported.height <= 0 || imported.width <= 0 {
 		util.CheckErr(util.InvalidMap)
 	} //Check if height and width meets criteria of size.
 
@@ -209,16 +210,20 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 
 }
 
+//This function returns height of nonomap
+
 func (nm *Nonomap) GetHeight() int {
 	return nm.height
 }
+
+//This function returns width of nonomap
 
 func (nm *Nonomap) GetWidth() int {
 	return nm.width
 }
 
 /*
-	This function generate answer bitmap of Nonomap via mapdata.
+	This function generates answer bitmap of Nonomap via mapdata.
 	This function will be called when Nonomap is initialized.
 */
 
