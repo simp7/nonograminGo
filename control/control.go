@@ -418,6 +418,11 @@ func (rd *KeyReader) createNonomapInfo() {
 
 }
 
+/*
+	This function gets string value from player.
+	This function will be called when player creates map so configures properties of map.
+*/
+
 func (rd *KeyReader) stringReader(header string) (result string) {
 
 	result = ""

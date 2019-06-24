@@ -34,6 +34,11 @@ type Player struct {
 	playermap   [][]Signal
 }
 
+/*
+	This function Creates player structure with problem position, width, and height of map.
+	This function will be called when player enter the game or create the map.
+*/
+
 func NewPlayer(x int, y int, width int, height int) *Player {
 
 	pl := Player{}
@@ -51,6 +56,11 @@ func NewPlayer(x int, y int, width int, height int) *Player {
 
 	return &pl
 }
+
+/*
+	This function set a cell that cursor exist.
+	This function will be called when player inputs key in game or in create mode
+*/
 
 func (pl *Player) SetMap(signal Signal) {
 
@@ -86,6 +96,11 @@ func (pl *Player) SetMap(signal Signal) {
 	}
 }
 
+/*
+	This function especially set cursor among cells.
+	This function will be called when player move cursor.
+*/
+
 func (pl *Player) SetCursor(cellState Signal) {
 	if cellState == Fill {
 		pl.SetMap(CursorFilled)
@@ -98,20 +113,31 @@ func (pl *Player) SetCursor(cellState Signal) {
 	}
 }
 
+//This function returns real position of the map by calculating cursor position and problem position.
+
 func (pl *Player) GetRealpos() (realxpos int, realypos int) {
 	realxpos, realypos = (pl.xpos-pl.xProblemPos)/2, pl.ypos-pl.yProblemPos-1
 	return
 }
+
+//This function returns current state of current cell of cursor
 
 func (pl *Player) GetMapSignal() Signal {
 	realxpos, realypos := pl.GetRealpos()
 	return pl.playermap[realypos][realxpos]
 }
 
+//This function change state of cell in map
+
 func (pl *Player) SetMapSignal(signal Signal) {
 	realxpos, realypos := pl.GetRealpos()
 	pl.playermap[realypos][realxpos] = signal
 }
+
+/*
+	This function process movement of cursor with the help of SetCursor
+	This function will be called when cursor moves
+*/
 
 func (pl *Player) moveCursor(condition bool, function func()) {
 	if condition {
@@ -120,6 +146,11 @@ func (pl *Player) moveCursor(condition bool, function func()) {
 		pl.SetCursor(pl.GetMapSignal())
 	}
 }
+
+/*
+	This function process movement of cursor with the help of moveCursor
+	This function will be called when cursor moves
+*/
 
 func (pl *Player) Move(direction Direction) {
 	switch direction {
@@ -133,6 +164,11 @@ func (pl *Player) Move(direction Direction) {
 		pl.moveCursor(pl.xpos+2 < pl.xProblemPos+(2*len(pl.playermap[0])), func() { pl.xpos += 2 })
 	}
 }
+
+/*
+	This function process playermap into bitmap that is just composed with Fill and empty.
+	This function will be called when user finish making map in create mode.
+*/
 
 func (pl *Player) ConvertToBitMap() (result [][]bool) {
 	result = make([][]bool, len(pl.playermap))
