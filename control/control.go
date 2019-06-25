@@ -6,6 +6,7 @@ import (
 	"../util"
 	"github.com/nsf/termbox-go"
 	"strconv"
+	"sync"
 )
 
 type View uint8
@@ -36,6 +37,7 @@ type KeyReader struct {
 	event       termbox.Event
 	fm          *FileManager
 	pt          *util.Playtime
+	locker      sync.Mutex
 }
 
 func NewKeyReader() *KeyReader {
@@ -310,51 +312,11 @@ func (rd *KeyReader) showProblem(hProblem []string, vProblem []string, xpos int,
 }
 
 /*
-	This function set the cell in game with signal.
-	This function would be called when player press key in game.
-*/
-
-func (rd *KeyReader) setMap(xpos int, ypos int, signal Signal) {
-
-	switch signal {
-	case Cursor:
-		termbox.SetCell(xpos, ypos, '(', asset.ColorFilledCell, asset.ColorEmptyCell)
-		termbox.SetCell(xpos+1, ypos, ')', asset.ColorFilledCell, asset.ColorEmptyCell)
-	case Empty:
-		termbox.SetCell(xpos, ypos, ' ', asset.ColorEmptyCell, asset.ColorEmptyCell)
-		termbox.SetCell(xpos+1, ypos, ' ', asset.ColorEmptyCell, asset.ColorEmptyCell)
-	case Check:
-		termbox.SetCell(xpos, ypos, '>', asset.ColorCheckedCell, asset.ColorEmptyCell)
-		termbox.SetCell(xpos+1, ypos, '<', asset.ColorCheckedCell, asset.ColorEmptyCell)
-	case Fill:
-		termbox.SetCell(xpos, ypos, ' ', asset.ColorFilledCell, asset.ColorFilledCell)
-		termbox.SetCell(xpos+1, ypos, ' ', asset.ColorFilledCell, asset.ColorFilledCell)
-	case Wrong:
-		termbox.SetCell(xpos, ypos, '>', asset.ColorWrongCell, asset.ColorEmptyCell)
-		termbox.SetCell(xpos+1, ypos, '<', asset.ColorWrongCell, asset.ColorEmptyCell)
-	case CursorFilled:
-		termbox.SetCell(xpos, ypos, '(', asset.ColorEmptyCell, asset.ColorFilledCell)
-		termbox.SetCell(xpos+1, ypos, ')', asset.ColorEmptyCell, asset.ColorFilledCell)
-	case CursorWrong:
-		termbox.SetCell(xpos, ypos, '(', asset.ColorWrongCell, asset.ColorEmptyCell)
-		termbox.SetCell(xpos+1, ypos, ')', asset.ColorWrongCell, asset.ColorEmptyCell)
-	case CursorChecked:
-		termbox.SetCell(xpos, ypos, '(', asset.ColorCheckedCell, asset.ColorEmptyCell)
-		termbox.SetCell(xpos+1, ypos, ')', asset.ColorCheckedCell, asset.ColorEmptyCell)
-	}
-
-}
-
-/*
 	This function shows total result in game.
 	This function will be called when player finally solve the problem and after seeing the whole answer picture.
 */
 
 func (rd *KeyReader) showResult(wrong int) {
-
-	rd.printf(0, 0, asset.StringComplete)
-	err := termbox.Flush()
-	util.CheckErr(err)
 
 	resultFormat := asset.StringResult
 	result := make([]string, len(resultFormat))
@@ -364,7 +326,13 @@ func (rd *KeyReader) showResult(wrong int) {
 	result[5] += rd.pt.TimeResult()
 	result[6] += strconv.Itoa(wrong)
 
+	rd.locker.Lock()
+
+	rd.printf(0, 0, asset.StringComplete)
+	util.CheckErr(termbox.Flush())
+
 	rd.pressKeyToContinue()
+	rd.locker.Unlock()
 
 	redrow(func() { rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, result) })
 
@@ -542,6 +510,9 @@ func (rd *KeyReader) showTimePassed() {
 
 	mapname := rd.fm.GetCurrentMapName()
 
+	rd.locker.Lock()
+	defer rd.locker.Unlock()
+
 	for {
 		select {
 		case current := <-rd.pt.Clock:
@@ -551,6 +522,7 @@ func (rd *KeyReader) showTimePassed() {
 			return
 		}
 	}
+
 }
 
 /*
@@ -560,11 +532,9 @@ func (rd *KeyReader) showTimePassed() {
 
 func redrow(function func()) {
 
-	err := termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell)
-	util.CheckErr(err)
+	util.CheckErr(termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell))
 
 	function()
 
-	err = termbox.Flush()
-	util.CheckErr(err)
+	util.CheckErr(termbox.Flush())
 }
