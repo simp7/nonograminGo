@@ -9,7 +9,7 @@ If you don't know how to run, see below 'How to run'
 # How to run
 0. If you have not downloaded Golang(programming language) environment yet, please download in https://golang.org/dl/
 1. Open the terminal
-2. go get https://github.com/N0RM4L15T/nonograminGo
+2. go get github.com/N0RM4L15T/nonograminGo
 3. Enter the project folder that you got by go get.
 4. go build main.go
 5. ./main
