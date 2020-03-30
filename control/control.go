@@ -262,7 +262,7 @@ func (rd *KeyReader) inGame(data string) {
 			player.Move(model.Left)
 		case rd.event.Key == termbox.KeyArrowRight:
 			player.Move(model.Right)
-		case rd.event.Key == termbox.KeySpace:
+		case rd.event.Key == termbox.KeySpace || rd.event.Ch == 'z' || rd.event.Ch == 'Z':
 
 			if player.GetMapSignal() == model.Empty {
 				if correctMap.CompareValidity(player.GetRealpos()) {
@@ -473,7 +473,7 @@ func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 			player.Move(model.Left)
 		case rd.event.Key == termbox.KeyArrowRight:
 			player.Move(model.Right)
-		case rd.event.Key == termbox.KeySpace:
+		case rd.event.Key == termbox.KeySpace || rd.event.Ch == 'z' || rd.event.Ch == 'Z':
 			if player.GetMapSignal() == model.Empty {
 				player.SetMap(model.CursorFilled)
 				player.SetMapSignal(model.Fill)
