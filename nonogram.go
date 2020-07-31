@@ -1,6 +1,6 @@
 package main
 
-import "./control"
+import "nonograminGo/control"
 
 func main() {
 

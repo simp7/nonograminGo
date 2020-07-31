@@ -1,8 +1,8 @@
 package control
 
 import (
-	"../asset"
-	"../util"
+	"nonograminGo/asset"
+	"nonograminGo/util"
 	"fmt"
 	"io/ioutil"
 	"math"

@@ -1,9 +1,9 @@
 package control
 
 import (
-	"../asset"
-	"../model"
-	"../util"
+	"nonograminGo/asset"
+	"nonograminGo/model"
+	"nonograminGo/util"
 	"github.com/nsf/termbox-go"
 	"strconv"
 	"sync"
