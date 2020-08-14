@@ -1,7 +1,7 @@
 package model
 
 import (
-	"nonograminGo/asset"
+	"github.com/N0RM4L15T/nonograminGo/asset"
 	"github.com/nsf/termbox-go"
 )
 
