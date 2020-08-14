@@ -1,8 +1,8 @@
 package model
 
 import (
-	"nonograminGo/asset"
-	"nonograminGo/util"
+	"github.com/N0RM4L15T/nonograminGo/asset"
+	"github.com/N0RM4L15T/nonograminGo/util"
 	"math"
 	"strconv"
 	"strings"
