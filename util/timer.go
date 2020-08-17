@@ -30,7 +30,7 @@ func NewPlaytime() *Playtime {
 }
 
 /*
-This function will send the seconds that has passed during gameplay.
+This function will send the seconds that has passed during game.
 This function will be called in NewPlaytime.
 This function should be called in goroutine.
 */
@@ -59,7 +59,7 @@ func (p *Playtime) timePassed() {
 }
 
 /*
-This function returns seconds that has passsed during gameplay.
+This function returns seconds that has passed during game.
 This function will be called when player finished the map.
 */
 
