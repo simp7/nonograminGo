@@ -2,8 +2,8 @@ package control
 
 import (
 	"fmt"
-	"github.com/N0RM4L15T/nonograminGo/asset"
-	"github.com/N0RM4L15T/nonograminGo/util"
+	"github.com/simp7/nonograminGo/asset"
+	"github.com/simp7/nonograminGo/util"
 	"io/ioutil"
 	"math"
 	"os"
