@@ -2,15 +2,15 @@ package control
 
 import (
 	"encoding/csv"
-	"github.com/N0RM4L15T/nonograminGo/util"
+	"github.com/simp7/nonograminGo/util"
 	"os"
 )
 
 type CSVManager struct {
-	file *os.File
+	file   *os.File
 	reader *csv.Reader
 	writer *csv.Writer
-	csvMap map[string] string
+	csvMap map[string]string
 }
 
 func NewCSVManager(fileName string) *CSVManager {
@@ -23,7 +23,7 @@ func NewCSVManager(fileName string) *CSVManager {
 
 	m.reader = csv.NewReader(m.file)
 	m.writer = csv.NewWriter(m.file)
-	m.csvMap = make(map[string] string)
+	m.csvMap = make(map[string]string)
 
 	m.read()
 	return &m
