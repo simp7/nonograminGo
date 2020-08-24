@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/N0RM4L15T/simp7/asset"
+	"github.com/simp7/nonograminGo/asset"
 	"github.com/nsf/termbox-go"
 )
 
