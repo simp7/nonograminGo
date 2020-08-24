@@ -1,9 +1,9 @@
 package control
 
 import (
+	"fmt"
 	"github.com/simp7/nonograminGo/asset"
 	"github.com/simp7/nonograminGo/util"
-	"fmt"
 	"io/ioutil"
 	"math"
 	"os"
@@ -29,7 +29,7 @@ func NewFileManager() *FileManager {
 }
 
 /*
-	This function returns list of map whose number of maps are seperated by 10.
+	This function returns list of map whose number of maps are separated by 10.
 	This function will be called when player enter the select page.
 */
 

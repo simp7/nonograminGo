@@ -102,7 +102,7 @@ This function will be called when player strokes key or time passed.
 
 func (rd *KeyReader) refresh() {
 
-	redrow(func() {
+	redraw(func() {
 		switch rd.currentView {
 		case MainMenu:
 			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringMainMenu)
@@ -304,7 +304,7 @@ func (rd *KeyReader) inGame(data string) {
 
 func (rd *KeyReader) showProblem(hProblem []string, vProblem []string, xpos int, ypos int) {
 
-	redrow(func() {
+	redraw(func() {
 		rd.printf(xpos, 1, vProblem)
 		rd.printf(0, ypos+1, hProblem)
 	})
@@ -334,7 +334,7 @@ func (rd *KeyReader) showResult(wrong int) {
 	rd.pressKeyToContinue()
 	rd.locker.Unlock()
 
-	redrow(func() { rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, result) })
+	redraw(func() { rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, result) })
 
 	rd.pressKeyToContinue()
 
@@ -398,12 +398,12 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 	resultByte := make([]rune, asset.NumberNameMax)
 	n := 0
 
-	redrow(func() { rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header}) })
+	redraw(func() { rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header}) })
 
 	for {
 		rd.pressKeyToContinue()
 
-		redrow(func() {
+		redraw(func() {
 			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header})
 
 			if n < asset.NumberNameMax {
@@ -452,7 +452,7 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 
 func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 
-	redrow(func() { rd.printf(1, 0, []string{mapName}) })
+	redraw(func() { rd.printf(1, 0, []string{mapName}) })
 
 	player := model.NewPlayer(asset.NumberDefaultX, asset.NumberDefaultY, width, height)
 	player.SetMap(model.Cursor)
@@ -526,11 +526,11 @@ func (rd *KeyReader) showTimePassed() {
 }
 
 /*
-	This function erase existing things in display and drow things in function.
+	This function erase existing things in display and draw things in function.
 	This function will be called when display has to be cleared.
 */
 
-func redrow(function func()) {
+func redraw(function func()) {
 
 	util.CheckErr(termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell))
 

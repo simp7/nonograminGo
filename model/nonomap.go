@@ -21,7 +21,7 @@ type Nonomap struct {
 }
 
 /*
-	nonomap is devided into 3 parts and has arguments equal or more than 3, which is seperated by '/'.
+	nonomap is divided into 3 parts and has arguments equal or more than 3, which is separated by '/'.
 
 	First two elements indicates width and height respectively.
 
@@ -29,13 +29,13 @@ type Nonomap struct {
 	Each elements indicates map data of each line.
 	They are designated by bitmap, which 0 is blank and 1 is filled one.
 
-	Because the size of int is 32bits, width of maps can't be more than 32 mathmatically.
+	Because the size of int is 32bits, width of maps can't be more than 32 mathematically.
 
 	But because of display's limit, width and height can't be more than 25
 
 	When it comes to player's map, 2 is checked one where player thinks that cell is blank.
 
-	The extention of file is nm(*.nm)
+	The extension of file is nm(*.nm)
 */
 
 func NewNonomap(data string) *Nonomap {
@@ -285,7 +285,7 @@ func (nm *Nonomap) ShowProblemVertical() (result []string) {
 }
 
 /*
-	This function count total cells that sould be filled.
+	This function count total cells that should be filled.
 	The result will be used when judging whether player complete the map.
 	This function will be called when player enter the game.
 */
