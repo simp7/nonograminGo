@@ -3,16 +3,15 @@ This project is about making Nonogram with golang.
 It is a toy project of N0RM4L15T to improve skills for programming(exactly skill of Golang, vim, and CLI development).
 
 # Current state
-You can now play the game!
-If you don't know how to run, see below 'How to run'
+Not working.
 
 # How to run
 0. If you have not downloaded Golang(programming language) environment yet, please download in https://golang.org/dl/
 1. Open the terminal
-2. go get github.com/N0RM4L15T/nonograminGo
+2. go get github.com/simp7/nonograminGo
 3. Enter the project folder that you got by go get.
 4. go build main.go
-5. ./main
+5. ./nonograminGo
 6. Enjoy the game.
 
 # External package
