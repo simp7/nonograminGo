@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/N0RM4L15T/nonograminGo/model"
+	"github.com/simp7/nonograminGo/model"
 	"fmt"
 )
 
