@@ -3,7 +3,7 @@ This project is about making Nonogram with golang.
 It is a toy project of N0RM4L15T to improve skills for programming(exactly skill of Golang, vim, and CLI development).
 
 # Current state
-Not working.
+Currently working
 
 # How to run
 0. If you have not downloaded Golang(programming language) environment yet, please download in https://golang.org/dl/
