@@ -11,7 +11,7 @@ import (
 )
 
 type FileManager struct {
-	dirPath		[]byte
+	dirPath     []byte
 	files       []os.FileInfo
 	currentFile string
 	order       int
@@ -21,13 +21,11 @@ func NewFileManager() *FileManager {
 	fm := FileManager{}
 	fm.currentFile = ""
 	fm.order = 0
-
+	pf := util.GetPathFormatter()
 
 	var err error
-	fm.dirPath, err = ioutil.ReadFile("./asset")
-	util.CheckErr(err)
 
-	fm.files, err = ioutil.ReadDir("./maps")
+	fm.files, err = ioutil.ReadDir(pf.GetPath("maps"))
 	util.CheckErr(err)
 
 	return &fm
