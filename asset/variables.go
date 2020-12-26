@@ -5,7 +5,7 @@ import "github.com/nsf/termbox-go"
 const (
 	ColorFilledCell  = termbox.ColorBlack
 	ColorEmptyCell   = termbox.ColorWhite
-	ColorCheckedCell = termbox.ColorCyan
+	ColorCheckedCell = termbox.ColorBlack
 	ColorWrongCell   = termbox.ColorRed | termbox.AttrBold
 	ColorText        = termbox.ColorBlack
 )
@@ -28,7 +28,7 @@ var (
 )
 
 const (
-	StringHeaderMapname           = "Write map name that you want to create"
+	StringHeaderMapName           = "Write map name that you want to create"
 	StringHeaderWidth             = "Write map's width"
 	StringHeaderHeight            = "Write map's height"
 	StringHeaderSizeError         = "Value should not be more than "

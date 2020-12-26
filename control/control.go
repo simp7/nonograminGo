@@ -1,10 +1,10 @@
 package control
 
 import (
+	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/asset"
 	"github.com/simp7/nonograminGo/model"
 	"github.com/simp7/nonograminGo/util"
-	"github.com/nsf/termbox-go"
 	"strconv"
 	"sync"
 )
@@ -35,7 +35,7 @@ type KeyReader struct {
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
-	fm          *FileManager
+	fm          FileManager
 	pt          *util.Playtime
 	locker      sync.Mutex
 }
@@ -350,7 +350,7 @@ func (rd *KeyReader) createNonomapInfo() {
 	width, height := 0, 0
 	var err error
 
-	mapName := rd.stringReader(asset.StringHeaderMapname)
+	mapName := rd.stringReader(asset.StringHeaderMapName)
 	if mapName == "" {
 		return
 	}
@@ -407,7 +407,7 @@ func (rd *KeyReader) stringReader(header string) (result string) {
 			rd.printf(asset.NumberDefaultX, asset.NumberDefaultY, []string{header})
 
 			if n < asset.NumberNameMax {
-				if header == asset.StringHeaderMapname {
+				if header == asset.StringHeaderMapName {
 					if rd.event.Ch != 0 {
 						resultByte[n] = rd.event.Ch
 						n++

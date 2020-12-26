@@ -10,15 +10,27 @@ import (
 	"strings"
 )
 
-type FileManager struct {
+type FileManager interface {
+	GetMapList() []string
+	NextList()
+	PrevList()
+	GetOrder() string
+	GetMapDataByNumber(int) string
+	GetMapDataByName(string) string
+	GetCurrentMapName() string
+	CreateMap(name string, width int, height int, bitmap [][]bool)
+	RefreshMapList()
+}
+
+type fileManager struct {
 	dirPath     []byte
 	files       []os.FileInfo
 	currentFile string
 	order       int
 }
 
-func NewFileManager() *FileManager {
-	fm := FileManager{}
+func NewFileManager() FileManager {
+	fm := new(fileManager)
 	fm.currentFile = ""
 	fm.order = 0
 	pf := util.GetPathFormatter()
@@ -28,7 +40,7 @@ func NewFileManager() *FileManager {
 	fm.files, err = ioutil.ReadDir(pf.GetPath("maps"))
 	util.CheckErr(err)
 
-	return &fm
+	return fm
 }
 
 /*
@@ -36,7 +48,7 @@ func NewFileManager() *FileManager {
 	This function will be called when player enter the select page.
 */
 
-func (fm *FileManager) GetMapList() []string {
+func (fm *fileManager) GetMapList() []string {
 
 	mapList := make([]string, 10)
 
@@ -55,7 +67,7 @@ func (fm *FileManager) GetMapList() []string {
 	This function will be called when player inputs left-arrow key.
 */
 
-func (fm *FileManager) NextList() {
+func (fm *fileManager) NextList() {
 	if 10*(fm.order+1) >= len(fm.files) {
 		fm.order = 0
 	} else {
@@ -68,7 +80,7 @@ func (fm *FileManager) NextList() {
 	This function will be called when player inputs right-arrow key.
 */
 
-func (fm *FileManager) PrevList() {
+func (fm *fileManager) PrevList() {
 	if fm.order == 0 {
 		fm.order = (len(fm.files) - 1) / 10
 	} else {
@@ -81,7 +93,7 @@ func (fm *FileManager) PrevList() {
 	This function will be called with maplist, attached with list header.
 */
 
-func (fm *FileManager) GetOrder() string {
+func (fm *fileManager) GetOrder() string {
 	return fmt.Sprintf("(%d/%d)", fm.order+1, len(fm.files)/10+1)
 }
 
@@ -90,7 +102,7 @@ func (fm *FileManager) GetOrder() string {
 	This function will be called when user inputs number in select.
 */
 
-func (fm *FileManager) GetMapDataByNumber(target int) string {
+func (fm *fileManager) GetMapDataByNumber(target int) string {
 
 	if target >= len(fm.files) {
 		return asset.StringMsgFileNotExist
@@ -106,7 +118,7 @@ func (fm *FileManager) GetMapDataByNumber(target int) string {
 	This function will be called in GetMapDataByNumber.
 */
 
-func (fm *FileManager) GetMapDataByName(target string) string {
+func (fm *fileManager) GetMapDataByName(target string) string {
 	file, err := ioutil.ReadFile(target)
 	util.CheckErr(err)
 
@@ -118,7 +130,7 @@ func (fm *FileManager) GetMapDataByName(target string) string {
 	This function will be called with map list.
 */
 
-func (fm *FileManager) GetCurrentMapName() string {
+func (fm *fileManager) GetCurrentMapName() string {
 	return strings.TrimSuffix(fm.currentFile, ".nm")
 }
 
@@ -127,7 +139,7 @@ func (fm *FileManager) GetCurrentMapName() string {
 	This function will be called when player finish create mode by pressing enter key.
 */
 
-func (fm *FileManager) CreateMap(name string, width int, height int, bitmap [][]bool) {
+func (fm *fileManager) CreateMap(name string, width int, height int, bitmap [][]bool) {
 
 	mapData := make([]int, height)
 	nonoMapData := fmt.Sprintf("%d/%d", width, height)
@@ -156,7 +168,7 @@ func (fm *FileManager) CreateMap(name string, width int, height int, bitmap [][]
 	This function will be called after user create map so it contains added map.
 */
 
-func (fm *FileManager) RefreshMapList() {
+func (fm *fileManager) RefreshMapList() {
 	var err error
 	fm.files, err = ioutil.ReadDir("./maps")
 	util.CheckErr(err)
