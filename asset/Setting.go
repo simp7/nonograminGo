@@ -1,22 +1,41 @@
 package asset
 
-import "sync"
+import (
+	"github.com/simp7/nonograminGo/util"
+	"io/ioutil"
+	"sync"
+)
 
-type Setting interface {
+type Setting struct {
+	Color
+	Text
+	Figure
+	Language string
 }
 
-type setting struct {
-	color Color
-	text  Text
-}
-
-var instance Setting
+var instance *Setting
 var once sync.Once
 
-func GetInstance() Setting {
+func GetSetting() *Setting {
+
 	once.Do(func() {
-		s := new(setting)
-		s.color = new(color)
+
+		instance = new(Setting)
+		pf := util.GetPathFormatter()
+		ff := util.NewFileFormatter()
+
+		instance.Color = defaultColor()
+		instance.Figure = defaultFigure()
+
+		instance.Language = "en.json"
+		languageFile := pf.GetPath(instance.Language)
+		content, _ := ioutil.ReadFile(languageFile)
+		ff.GetRaw(string(content))
+
+		util.CheckErr(ff.Decode(&instance.Text))
+
 	})
+
 	return instance
+
 }
