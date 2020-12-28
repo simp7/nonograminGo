@@ -19,24 +19,13 @@ const (
 	Credit
 )
 
-const (
-	Cursor Signal = iota
-	Empty
-	Check
-	Fill
-	Wrong
-	CursorFilled
-	CursorChecked
-	CursorWrong
-)
-
 type KeyReader struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
 	fm          FileManager
-	pt          *util.Playtime
+	timer       util.Timer
 	locker      sync.Mutex
 }
 
@@ -223,7 +212,7 @@ func (rd *KeyReader) showMapList() {
 }
 
 /*
-This function shows the map current player plays and change its appearence when player press key.
+This function shows the map current player plays and change its appearance when player press key.
 This function will be called when player select map.
 */
 
@@ -238,12 +227,12 @@ func (rd *KeyReader) inGame(data string) {
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
 	rd.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
-	rd.pt = util.NewPlaytime()
+	rd.timer = util.NewPlaytime()
 
 	player := model.NewPlayer(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
 	player.SetMap(model.Cursor)
 
-	go rd.showTimePassed()
+	go rd.showHeader()
 
 	for {
 
@@ -294,7 +283,7 @@ func (rd *KeyReader) inGame(data string) {
 			}
 
 		case rd.event.Key == termbox.KeyEsc:
-			rd.pt.EndWithoutResult()
+			rd.timer.End()
 			return
 		}
 
@@ -302,11 +291,11 @@ func (rd *KeyReader) inGame(data string) {
 
 }
 
-func (rd *KeyReader) showProblem(hProblem []string, vProblem []string, xpos int, ypos int) {
+func (rd *KeyReader) showProblem(hProblem []string, vProblem []string, xPos int, yPos int) {
 
 	redraw(func() {
-		rd.printf(xpos, 1, vProblem)
-		rd.printf(0, ypos+1, hProblem)
+		rd.printf(xPos, 1, vProblem)
+		rd.printf(0, yPos+1, hProblem)
 	})
 
 }
@@ -323,7 +312,7 @@ func (rd *KeyReader) showResult(wrong int) {
 	copy(result, resultFormat)
 
 	result[4] += rd.fm.GetCurrentMapName()
-	result[5] += rd.pt.TimeResult()
+	result[5] += rd.timer.GetResult()
 	result[6] += strconv.Itoa(wrong)
 
 	rd.locker.Lock()
@@ -506,22 +495,17 @@ func (rd *KeyReader) inCreate(mapName string, width int, height int) {
 	This function should be called as goroutine and should finish when player finish the game.
 */
 
-func (rd *KeyReader) showTimePassed() {
+func (rd *KeyReader) showHeader() {
 
-	mapname := rd.fm.GetCurrentMapName()
+	mapName := rd.fm.GetCurrentMapName()
 
 	rd.locker.Lock()
 	defer rd.locker.Unlock()
 
-	for {
-		select {
-		case current := <-rd.pt.Clock:
-			rd.printf(asset.NumberDefaultX, 0, []string{mapname + asset.StringBlankBetweenMapAndTimer + current})
-			util.CheckErr(termbox.Flush())
-		case <-rd.pt.Stop:
-			return
-		}
-	}
+	rd.timer.Do(func(current string) {
+		rd.printf(asset.NumberDefaultX, 0, []string{mapName + asset.StringBlankBetweenMapAndTimer + current})
+		util.CheckErr(termbox.Flush())
+	})
 
 }
 
@@ -533,8 +517,7 @@ func (rd *KeyReader) showTimePassed() {
 func redraw(function func()) {
 
 	util.CheckErr(termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell))
-
 	function()
-
 	util.CheckErr(termbox.Flush())
+
 }
