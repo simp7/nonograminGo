@@ -19,6 +19,10 @@ const (
 	Credit
 )
 
+type Controller interface {
+	Start()
+}
+
 type KeyReader struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
@@ -29,7 +33,7 @@ type KeyReader struct {
 	locker      sync.Mutex
 }
 
-func NewKeyReader() *KeyReader {
+func NewKeyReader() Controller {
 
 	rd := KeyReader{}
 	rd.eventChan = make(chan termbox.Event)
@@ -45,7 +49,7 @@ This function takes player's input into channel.
 This function will be called when program starts.
 */
 
-func (rd *KeyReader) Control() {
+func (rd *KeyReader) Start() {
 
 	err := termbox.Init()
 	util.CheckErr(err)
