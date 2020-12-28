@@ -5,7 +5,7 @@ import "github.com/nsf/termbox-go"
 const (
 	ColorFilledCell  = termbox.ColorBlack
 	ColorEmptyCell   = termbox.ColorWhite
-	ColorCheckedCell = termbox.ColorBlack
+	ColorCheckedCell = termbox.ColorBlue
 	ColorWrongCell   = termbox.ColorRed | termbox.AttrBold
 	ColorText        = termbox.ColorBlack
 )

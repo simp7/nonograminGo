@@ -7,22 +7,28 @@ import (
 
 /*
 This file deals with timer.
-Playtime can be used in show and record playtime of current map.
+Timer can be used in show and record playtime of current map.
 */
 
-type Playtime struct {
-	ticker time.Ticker
-	Clock  chan string
-	Stop   chan struct{}
+type Timer interface {
+	GetResult() string
+	End()
+	Do(func(current string))
 }
 
-func NewPlaytime() *Playtime {
+type timer struct {
+	time.Ticker
+	clock   chan string
+	stopper chan struct{}
+}
 
-	var p Playtime
+func NewPlaytime() Timer {
 
-	p.ticker = *time.NewTicker(time.Second)
-	p.Clock = make(chan string)
-	p.Stop = make(chan struct{})
+	var p timer
+
+	p.Ticker = *time.NewTicker(time.Second)
+	p.clock = make(chan string)
+	p.stopper = make(chan struct{})
 	go p.timePassed()
 
 	return &p
@@ -35,22 +41,22 @@ This function will be called in NewPlaytime.
 This function should be called in goroutine.
 */
 
-func (p *Playtime) timePassed() {
+func (p *timer) timePassed() {
 
 	present := 0
-	p.Clock <- convertTimeFormat(present)
+	p.clock <- convertTimeFormat(present)
 
 	for {
 		select {
 
-		case <-p.ticker.C:
+		case <-p.C:
 			present += 1
-			p.Clock <- convertTimeFormat(present)
+			p.clock <- convertTimeFormat(present)
 
-		case <-p.Stop:
-			p.Clock <- convertTimeFormat(present) //To prevent situation that p.Clock channel is empty.
-			p.ticker.Stop()
-			close(p.Clock)
+		case <-p.stopper:
+			p.clock <- convertTimeFormat(present) //To prevent situation that p.clock channel is empty.
+			p.Stop()
+			close(p.clock)
 			return
 
 		}
@@ -63,10 +69,10 @@ This function returns seconds that has passed during game.
 This function will be called when player finished the map.
 */
 
-func (p *Playtime) TimeResult() string {
+func (p *timer) GetResult() string {
 
-	close(p.Stop)
-	return <-p.Clock
+	p.End()
+	return <-p.clock
 
 }
 
@@ -74,10 +80,21 @@ func (p *Playtime) TimeResult() string {
 This function will be called when player ends the game without solving.
 */
 
-func (p *Playtime) EndWithoutResult() {
+func (p *timer) End() {
 
-	close(p.Stop)
+	close(p.stopper)
 
+}
+
+func (p *timer) Do(someFunc func(current string)) {
+	for {
+		select {
+		case current := <-p.clock:
+			someFunc(current)
+		case <-p.stopper:
+			return
+		}
+	}
 }
 
 func convertTimeFormat(totalTime int) string {
