@@ -12,7 +12,9 @@ var (
 
 func CheckErr(e error) {
 	if e != nil {
-		termbox.Close()
+		if termbox.IsInit {
+			termbox.Close()
+		}
 		log.Fatal(e)
 	}
 }
