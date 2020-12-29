@@ -37,7 +37,7 @@ func GetSetting() *Setting {
 		content, _ := ioutil.ReadFile(languageFile + ".json")
 		ff.GetRaw(string(content))
 
-		ff.Decode(&instance.Text)
+		util.CheckErr(ff.Decode(&instance.Text))
 
 	})
 
