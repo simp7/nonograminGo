@@ -6,6 +6,11 @@ import (
 	"sync"
 )
 
+const (
+	EN string = "en"
+	KR string = "kr"
+)
+
 type Setting struct {
 	Color
 	Text
@@ -27,12 +32,12 @@ func GetSetting() *Setting {
 		instance.Color = defaultColor()
 		instance.Figure = defaultFigure()
 
-		instance.Language = "en.json"
+		instance.Language = EN
 		languageFile := pf.GetPath(instance.Language)
-		content, _ := ioutil.ReadFile(languageFile)
+		content, _ := ioutil.ReadFile(languageFile + ".json")
 		ff.GetRaw(string(content))
 
-		util.CheckErr(ff.Decode(&instance.Text))
+		ff.Decode(&instance.Text)
 
 	})
 
