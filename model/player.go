@@ -29,9 +29,9 @@ const (
 type Player struct {
 	xProblemPos int
 	yProblemPos int
-	xpos        int
-	ypos        int
-	playermap   [][]Signal
+	xPos        int
+	yPos        int
+	playerMap   [][]Signal
 }
 
 /*
@@ -44,15 +44,15 @@ func NewPlayer(x int, y int, width int, height int) *Player {
 	pl := Player{}
 	pl.xProblemPos, pl.yProblemPos = x, y
 
-	pl.playermap = make([][]Signal, height)
-	for n := range pl.playermap {
-		pl.playermap[n] = make([]Signal, width)
-		for m := range pl.playermap[n] {
-			pl.playermap[n][m] = Empty
+	pl.playerMap = make([][]Signal, height)
+	for n := range pl.playerMap {
+		pl.playerMap[n] = make([]Signal, width)
+		for m := range pl.playerMap[n] {
+			pl.playerMap[n][m] = Empty
 		}
 	}
 
-	pl.xpos, pl.ypos = pl.xProblemPos, pl.yProblemPos+1
+	pl.xPos, pl.yPos = pl.xProblemPos, pl.yProblemPos+1
 
 	return &pl
 }
@@ -65,8 +65,8 @@ func NewPlayer(x int, y int, width int, height int) *Player {
 func (pl *Player) SetMap(signal Signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
-		termbox.SetCell(pl.xpos, pl.ypos, first, fg, bg)
-		termbox.SetCell(pl.xpos+1, pl.ypos, second, fg, bg)
+		termbox.SetCell(pl.xPos, pl.yPos, first, fg, bg)
+		termbox.SetCell(pl.xPos+1, pl.yPos, second, fg, bg)
 	}
 
 	switch signal {
@@ -115,23 +115,23 @@ func (pl *Player) SetCursor(cellState Signal) {
 
 //This function returns real position of the map by calculating cursor position and problem position.
 
-func (pl *Player) GetRealpos() (realxpos int, realypos int) {
-	realxpos, realypos = (pl.xpos-pl.xProblemPos)/2, pl.ypos-pl.yProblemPos-1
+func (pl *Player) RealPos() (realXPos int, realYPos int) {
+	realXPos, realYPos = (pl.xPos-pl.xProblemPos)/2, pl.yPos-pl.yProblemPos-1
 	return
 }
 
 //This function returns current state of current cell of cursor
 
 func (pl *Player) GetMapSignal() Signal {
-	realxpos, realypos := pl.GetRealpos()
-	return pl.playermap[realypos][realxpos]
+	realXPos, realYPos := pl.RealPos()
+	return pl.playerMap[realYPos][realXPos]
 }
 
 //This function change state of cell in map
 
 func (pl *Player) SetMapSignal(signal Signal) {
-	realxpos, realypos := pl.GetRealpos()
-	pl.playermap[realypos][realxpos] = signal
+	realXPos, realYPos := pl.RealPos()
+	pl.playerMap[realYPos][realXPos] = signal
 }
 
 /*
@@ -155,27 +155,27 @@ func (pl *Player) moveCursor(condition bool, function func()) {
 func (pl *Player) Move(direction Direction) {
 	switch direction {
 	case Up:
-		pl.moveCursor(pl.ypos-1 >= pl.yProblemPos+1, func() { pl.ypos-- })
+		pl.moveCursor(pl.yPos-1 >= pl.yProblemPos+1, func() { pl.yPos-- })
 	case Down:
-		pl.moveCursor(pl.ypos+1 < pl.yProblemPos+1+len(pl.playermap), func() { pl.ypos++ })
+		pl.moveCursor(pl.yPos+1 < pl.yProblemPos+1+len(pl.playerMap), func() { pl.yPos++ })
 	case Left:
-		pl.moveCursor(pl.xpos-2 >= pl.xProblemPos, func() { pl.xpos -= 2 })
+		pl.moveCursor(pl.xPos-2 >= pl.xProblemPos, func() { pl.xPos -= 2 })
 	case Right:
-		pl.moveCursor(pl.xpos+2 < pl.xProblemPos+(2*len(pl.playermap[0])), func() { pl.xpos += 2 })
+		pl.moveCursor(pl.xPos+2 < pl.xProblemPos+(2*len(pl.playerMap[0])), func() { pl.xPos += 2 })
 	}
 }
 
 /*
-	This function process playermap into bitmap that is just composed with Fill and empty.
+	This function process playerMap into bitmap that is just composed with Fill and empty.
 	This function will be called when user finish making map in create mode.
 */
 
 func (pl *Player) ConvertToBitMap() (result [][]bool) {
-	result = make([][]bool, len(pl.playermap))
+	result = make([][]bool, len(pl.playerMap))
 	for n := range result {
-		result[n] = make([]bool, len(pl.playermap[0]))
+		result[n] = make([]bool, len(pl.playerMap[0]))
 		for m := range result[n] {
-			if pl.playermap[n][m] == Fill {
+			if pl.playerMap[n][m] == Fill {
 				result[n][m] = true
 			} else {
 				result[n][m] = false
