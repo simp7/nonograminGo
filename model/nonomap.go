@@ -9,14 +9,14 @@ import (
 )
 
 /*
-	This file deals with algoritms of whole game of nonogram.
-	User's control or display should be seperated from this file.
+	This file deals with algorithms of whole game of nonogram.
+	User's control or display should be separated from this file.
 */
 
 type Nonomap struct {
 	width   int
 	height  int
-	mapdata []int
+	mapData []int
 	bitmap  [][]bool
 }
 
@@ -54,7 +54,7 @@ func NewNonomap(data string) *Nonomap {
 
 	for _, v := range elements[2:] {
 		temp, err := strconv.Atoi(v)
-		imported.mapdata = append(imported.mapdata, temp)
+		imported.mapData = append(imported.mapData, temp)
 		util.CheckErr(err)
 	}
 	//Extract map's answer from file.
@@ -63,17 +63,17 @@ func NewNonomap(data string) *Nonomap {
 		util.CheckErr(util.InvalidMap)
 	} //Check if height and width meets criteria of size.
 
-	for _, v := range imported.mapdata {
+	for _, v := range imported.mapData {
 		if float64(v) >= math.Pow(2, float64(imported.width)) {
 			util.CheckErr(util.InvalidMap)
-		} //Check whether height matches mapdata.
+		} //Check whether height matches mapData.
 	}
-	if len(imported.mapdata) != imported.height {
+	if len(imported.mapData) != imported.height {
 		util.CheckErr(util.InvalidMap)
-	} //Check whether height matches mapdata.
+	} //Check whether height matches mapData.
 
 	//Check validity of file.
-	imported.bitmap = convertToBitmap(imported.width, imported.height, imported.mapdata)
+	imported.bitmap = convertToBitmap(imported.width, imported.height, imported.mapData)
 	return &imported
 
 }
@@ -94,12 +94,12 @@ func (nm *Nonomap) CompareValidity(x int, y int) bool {
 	This function will be called in CreateProblemFormat().
 */
 
-func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hmax int, vmax int) {
+func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hMax int, vMax int) {
 
 	horizontal = make([][]int, nm.height)
 	vertical = make([][]int, nm.width)
-	hmax = 0
-	vmax = 0
+	hMax = 0
+	vMax = 0
 
 	for i := 0; i < nm.height; i++ {
 
@@ -127,8 +127,8 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hm
 			horizontal[i] = append(horizontal[i], 0)
 		}
 
-		if hmax < len(horizontal[i]) {
-			hmax = len(horizontal[i])
+		if hMax < len(horizontal[i]) {
+			hMax = len(horizontal[i])
 		}
 
 	}
@@ -157,8 +157,8 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hm
 			vertical[i] = append(vertical[i], 0)
 		}
 
-		if vmax < len(vertical[i]) {
-			vmax = len(vertical[i])
+		if vMax < len(vertical[i]) {
+			vMax = len(vertical[i])
 		}
 
 	}
@@ -171,16 +171,16 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hm
 	This function will be called when player enter the game.
 */
 
-func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hmax int, vmax int) {
+func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hMax int, vMax int) {
 
-	hData, vData, hmax, vmax := nm.createProblemData()
+	hData, vData, hMax, vMax := nm.createProblemData()
 
 	hProblem = make([]string, nm.height)
-	vProblem = make([]string, vmax)
+	vProblem = make([]string, vMax)
 
 	for i := 0; i < nm.height; i++ {
 		hProblem[i] = ""
-		for j := hmax; j > 0; j-- {
+		for j := hMax; j > 0; j-- {
 			if len(hData[i]) < j {
 				hProblem[i] += "  "
 			} else {
@@ -192,20 +192,20 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 		}
 	}
 
-	for i := vmax; i > 0; i-- {
-		vProblem[vmax-i] = ""
+	for i := vMax; i > 0; i-- {
+		vProblem[vMax-i] = ""
 		for j := 0; j < nm.width; j++ {
 			if i > len(vData[j]) {
-				vProblem[vmax-i] += "  "
+				vProblem[vMax-i] += "  "
 			} else {
 				if vData[j][len(vData[j])-i] < 10 {
-					vProblem[vmax-i] += " "
+					vProblem[vMax-i] += " "
 				}
-				vProblem[vmax-i] += strconv.Itoa(vData[j][len(vData[j])-i])
+				vProblem[vMax-i] += strconv.Itoa(vData[j][len(vData[j])-i])
 			}
 		}
 	}
-	hmax *= 2
+	hMax *= 2
 	return
 
 }
@@ -223,7 +223,7 @@ func (nm *Nonomap) GetWidth() int {
 }
 
 /*
-	This function generates answer bitmap of Nonomap via mapdata.
+	This function generates answer bitmap of Nonomap via mapData.
 	This function will be called when Nonomap is initialized.
 */
 
@@ -236,7 +236,7 @@ func convertToBitmap(width int, height int, mapdata []int) [][]bool {
 
 	for n, v := range mapdata {
 		for i := 1; i <= width; i++ {
-			bitmap[n][width-i] = (v%2 == 1)
+			bitmap[n][width-i] = v%2 == 1
 			v = v / 2
 		}
 	}

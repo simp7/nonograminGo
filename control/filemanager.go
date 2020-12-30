@@ -90,7 +90,7 @@ func (fm *fileManager) PrevList() {
 
 /*
 	This function returns player's current page.
-	This function will be called with maplist, attached with list header.
+	This function will be called with list of map, attached with list header.
 */
 
 func (fm *fileManager) GetOrder() string {
