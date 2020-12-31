@@ -8,7 +8,7 @@ import (
 type FileFormatter interface {
 	Encode(interface{}) error
 	Decode(interface{}) error
-	GetRaw(from string)
+	GetRaw(from []byte)
 	Content() []byte
 }
 
@@ -25,8 +25,8 @@ func NewFileFormatter() FileFormatter {
 	return f
 }
 
-func (f *fileFormatter) GetRaw(from string) {
-	f.buffer.WriteString(from)
+func (f *fileFormatter) GetRaw(from []byte) {
+	f.buffer.Write(from)
 }
 
 func (f *fileFormatter) Content() []byte {
