@@ -9,7 +9,7 @@ import (
 func TestGetSetting(t *testing.T) {
 	s := GetSetting()
 	fmt.Println(s.Text)
-	a := [][]string{s.MainMenu, s.Help, {s.RequestMapName, s.FileNotExist}}
+	a := [][]string{s.MainMenu(), s.GetHelp(), {s.RequestMapName(), s.FileNotExist()}}
 	b := [][]string{StringMainMenu, StringHelp, {StringHeaderMapName, StringMsgFileNotExist}}
 	for i := range a {
 		compareTexts(a[i], b[i], t)

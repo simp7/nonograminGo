@@ -27,7 +27,6 @@ func GetSetting() *Setting {
 
 		instance = new(Setting)
 		pf := util.GetPathFormatter()
-		ff := util.NewFileFormatter()
 
 		instance.Color = defaultColor()
 		instance.Figure = defaultFigure()
@@ -35,9 +34,7 @@ func GetSetting() *Setting {
 		instance.Language = EN
 		languageFile := pf.GetPath(instance.Language)
 		content, _ := ioutil.ReadFile(languageFile + ".json")
-		ff.GetRaw(string(content))
-
-		util.CheckErr(ff.Decode(&instance.Text))
+		instance.Text = NewText(content)
 
 	})
 

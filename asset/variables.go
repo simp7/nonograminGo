@@ -24,7 +24,7 @@ var (
 	StringResult       = []string{"--------------------", "       CLEAR!", "--------------------", "", "MAP NAME    : ", "CLEAR TIME  : ", "WRONG CELLS : "}
 	StringCredit       = []string{"--------------------------------------", "                CREDIT", "--------------------------------------", "Developer : JeongHyeon Park(N0RM4L15T)", "Programming Language : Go(100%)", "This program applies MIT License(MIT)", "I wish you enjoy this game!", "--------------------------------------"}
 	StringComplete     = []string{"----------Congratulation! You Complete Me!----------"}
-	StringHelp         = []string{"    MANUAL", "--------------", "ArrowKey : Move Cursor", "Space or Z : Fill the cell", "X : Check the cell that is supposed to be blank", "Enter(Create mode) : Save the map that player create", "Esc : get out of current game/display"}
+	StringHelp         = []string{"    MANUAL", "--------------", "Arrow Key : Move cursor", "Space or Z : Fill the cell", "X : Check the cell that is supposed to be blank", "Enter(create mode) : Save the map that player creates", "Esc : Get out of current game/display"}
 )
 
 const (
