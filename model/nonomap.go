@@ -42,6 +42,7 @@ func NewNonomap(data string) *Nonomap {
 
 	var imported Nonomap
 	var err error
+	setting := asset.GetSetting()
 
 	data = strings.TrimSpace(data)
 	elements := strings.Split(data, "/")
@@ -59,7 +60,7 @@ func NewNonomap(data string) *Nonomap {
 	}
 	//Extract map's answer from file.
 
-	if imported.height > asset.NumberHeightMax || imported.width > asset.NumberWidthMax || imported.height <= 0 || imported.width <= 0 {
+	if imported.height > setting.HeightMax || imported.width > setting.WidthMax || imported.height <= 0 || imported.width <= 0 {
 		util.CheckErr(util.InvalidMap)
 	} //Check if height and width meets criteria of size.
 
@@ -227,14 +228,14 @@ func (nm *Nonomap) GetWidth() int {
 	This function will be called when Nonomap is initialized.
 */
 
-func convertToBitmap(width int, height int, mapdata []int) [][]bool {
+func convertToBitmap(width int, height int, mapData []int) [][]bool {
 
 	bitmap := make([][]bool, height)
 	for n := range bitmap {
 		bitmap[n] = make([]bool, width)
 	}
 
-	for n, v := range mapdata {
+	for n, v := range mapData {
 		for i := 1; i <= width; i++ {
 			bitmap[n][width-i] = v%2 == 1
 			v = v / 2

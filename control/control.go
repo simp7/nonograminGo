@@ -31,16 +31,19 @@ type cliController struct {
 	fm          FileManager
 	timer       util.Timer
 	locker      sync.Mutex
+	*asset.Setting
 }
 
 func NewCliController() Controller {
 
-	rd := cliController{}
-	rd.eventChan = make(chan termbox.Event)
-	rd.endChan = make(chan struct{})
-	rd.currentView = MainMenu
-	rd.fm = NewFileManager()
-	return &rd
+	cc := new(cliController)
+	cc.eventChan = make(chan termbox.Event)
+	cc.endChan = make(chan struct{})
+	cc.currentView = MainMenu
+	cc.fm = NewFileManager()
+	cc.Setting = asset.GetSetting()
+
+	return cc
 
 }
 
@@ -95,16 +98,16 @@ This function will be called when player strokes key or time passed.
 
 func (cc *cliController) refresh() {
 
-	redraw(func() {
+	cc.redraw(func() {
 		switch cc.currentView {
 		case MainMenu:
-			cc.println(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringMainMenu)
+			cc.printStandard(cc.MainMenu())
 		case Select:
 			cc.showMapList()
 		case Help:
-			cc.println(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringHelp)
+			cc.printStandard(cc.GetHelp())
 		case Credit:
-			cc.println(asset.NumberDefaultX, asset.NumberDefaultY, asset.StringCredit)
+			cc.printStandard(cc.GetCredit())
 		}
 	})
 
@@ -124,7 +127,7 @@ func (cc *cliController) println(x int, y int, texts []string) {
 	for _, msg := range texts {
 
 		for _, ch := range msg {
-			termbox.SetCell(x, y, ch, asset.ColorText, asset.ColorEmptyCell)
+			termbox.SetCell(x, y, ch, cc.Color.Text, cc.Empty)
 			x++
 		}
 
@@ -133,6 +136,10 @@ func (cc *cliController) println(x int, y int, texts []string) {
 
 	}
 
+}
+
+func (cc *cliController) printStandard(texts []string) {
+	cc.println(cc.DefaultX, cc.DefaultY, texts)
 }
 
 /*
@@ -187,7 +194,7 @@ func (cc *cliController) selectMap() {
 			cc.fm.PrevList()
 		case cc.event.Ch >= '0' && cc.event.Ch <= '9':
 			nonomapData := cc.fm.GetMapDataByNumber(int(cc.event.Ch - '0'))
-			if nonomapData == asset.StringMsgFileNotExist {
+			if nonomapData == cc.FileNotExist() {
 				continue
 			} else {
 				cc.inGame(nonomapData)
@@ -205,13 +212,13 @@ This function will be called when refreshing display while being in the select m
 
 func (cc *cliController) showMapList() {
 
-	mapList := make([]string, len(asset.StringSelectHeader))
-	copy(mapList, asset.StringSelectHeader)
+	mapList := make([]string, len(cc.GetSelectHeader()))
+	copy(mapList, cc.GetSelectHeader())
 	mapList[0] += cc.fm.GetOrder()
 
 	mapList = append(mapList, cc.fm.GetMapList()...)
 
-	cc.println(asset.NumberDefaultX, asset.NumberDefaultY, mapList)
+	cc.printStandard(mapList)
 
 }
 
@@ -222,7 +229,7 @@ This function will be called when player select map.
 
 func (cc *cliController) inGame(data string) {
 
-	util.CheckErr(termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell))
+	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
 	correctMap := model.NewNonomap(data)
 
 	remainedCell := correctMap.TotalCells()
@@ -231,7 +238,7 @@ func (cc *cliController) inGame(data string) {
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
 	cc.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
-	cc.timer = util.NewPlaytime()
+	cc.timer = util.StartTimer()
 
 	player := model.NewPlayer(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
 	player.SetMap(model.Cursor)
@@ -297,7 +304,7 @@ func (cc *cliController) inGame(data string) {
 
 func (cc *cliController) showProblem(hProblem []string, vProblem []string, xPos int, yPos int) {
 
-	redraw(func() {
+	cc.redraw(func() {
 		cc.println(xPos, 1, vProblem)
 		cc.println(0, yPos+1, hProblem)
 	})
@@ -311,23 +318,23 @@ func (cc *cliController) showProblem(hProblem []string, vProblem []string, xPos 
 
 func (cc *cliController) showResult(wrong int) {
 
-	resultFormat := asset.StringResult
+	resultFormat := cc.GetResult()
 	result := make([]string, len(resultFormat))
 	copy(result, resultFormat)
 
-	result[4] += cc.fm.GetCurrentMapName()
-	result[5] += cc.timer.GetResult()
-	result[6] += strconv.Itoa(wrong)
+	result[3] += cc.fm.GetCurrentMapName()
+	result[4] += cc.timer.GetResult()
+	result[5] += strconv.Itoa(wrong)
 
 	cc.locker.Lock()
 
-	cc.println(0, 0, asset.StringComplete)
+	cc.println(0, 0, []string{cc.Complete()})
 	util.CheckErr(termbox.Flush())
 
 	cc.pressKeyToContinue()
 	cc.locker.Unlock()
 
-	redraw(func() { cc.println(asset.NumberDefaultX, asset.NumberDefaultY, result) })
+	cc.redraw(func() { cc.printStandard(result) })
 
 	cc.pressKeyToContinue()
 
@@ -343,36 +350,36 @@ func (cc *cliController) createNonomapInfo() {
 	width, height := 0, 0
 	var err error
 
-	mapName := cc.stringReader(asset.StringHeaderMapName)
+	mapName := cc.stringReader(cc.RequestMapName())
 	if mapName == "" {
 		return
 	}
 
-	mapWidth := cc.stringReader(asset.StringHeaderWidth)
+	mapWidth := cc.stringReader(cc.RequestWidth())
 	for {
 		if mapWidth == "" {
 			return
 		} else {
 			width, err = strconv.Atoi(mapWidth)
 			util.CheckErr(err)
-			if width <= asset.NumberWidthMax {
+			if width <= cc.WidthMax {
 				break
 			}
-			mapWidth = cc.stringReader(asset.StringHeaderSizeError + strconv.Itoa(asset.NumberWidthMax))
+			mapWidth = cc.stringReader(cc.SizeError() + strconv.Itoa(cc.WidthMax))
 		}
 	}
 
-	mapHeight := cc.stringReader(asset.StringHeaderHeight)
+	mapHeight := cc.stringReader(cc.RequestHeight())
 	for {
 		if mapHeight == "" {
 			return
 		} else {
 			height, err = strconv.Atoi(mapHeight)
 			util.CheckErr(err)
-			if height <= asset.NumberHeightMax {
+			if height <= cc.HeightMax {
 				break
 			}
-			mapHeight = cc.stringReader(asset.StringHeaderSizeError + strconv.Itoa(asset.NumberHeightMax))
+			mapHeight = cc.stringReader(cc.SizeError() + strconv.Itoa(cc.HeightMax))
 		}
 	}
 
@@ -388,19 +395,19 @@ func (cc *cliController) createNonomapInfo() {
 func (cc *cliController) stringReader(header string) (result string) {
 
 	result = ""
-	resultByte := make([]rune, asset.NumberNameMax)
+	resultByte := make([]rune, cc.NameMax)
 	n := 0
 
-	redraw(func() { cc.println(asset.NumberDefaultX, asset.NumberDefaultY, []string{header}) })
+	cc.redraw(func() { cc.printStandard([]string{header}) })
 
 	for {
 		cc.pressKeyToContinue()
 
-		redraw(func() {
-			cc.println(asset.NumberDefaultX, asset.NumberDefaultY, []string{header})
+		cc.redraw(func() {
+			cc.printStandard([]string{header})
 
-			if n < asset.NumberNameMax {
-				if header == asset.StringHeaderMapName {
+			if n < cc.NameMax {
+				if header == cc.RequestMapName() {
 					if cc.event.Ch != 0 {
 						resultByte[n] = cc.event.Ch
 						n++
@@ -423,7 +430,7 @@ func (cc *cliController) stringReader(header string) (result string) {
 				result += string(resultByte[i])
 			}
 
-			cc.println(asset.NumberDefaultX, asset.NumberDefaultY+2, []string{result})
+			cc.println(cc.DefaultX, cc.DefaultY+2, []string{result})
 
 		})
 
@@ -445,9 +452,9 @@ func (cc *cliController) stringReader(header string) (result string) {
 
 func (cc *cliController) inCreate(mapName string, width int, height int) {
 
-	redraw(func() { cc.println(1, 0, []string{mapName}) })
+	cc.redraw(func() { cc.println(1, 0, []string{mapName}) })
 
-	player := model.NewPlayer(asset.NumberDefaultX, asset.NumberDefaultY, width, height)
+	player := model.NewPlayer(cc.DefaultX, cc.DefaultY, width, height)
 	player.SetMap(model.Cursor)
 
 	for {
@@ -507,7 +514,7 @@ func (cc *cliController) showHeader() {
 	defer cc.locker.Unlock()
 
 	cc.timer.Do(func(current string) {
-		cc.println(asset.NumberDefaultX, 0, []string{mapName + asset.StringBlankBetweenMapAndTimer + current})
+		cc.println(cc.DefaultX, 0, []string{mapName + cc.BlankBetweenMapNameAndTimer() + current})
 		util.CheckErr(termbox.Flush())
 	})
 
@@ -518,9 +525,9 @@ func (cc *cliController) showHeader() {
 	This function will be called when display has to be cleared.
 */
 
-func redraw(function func()) {
+func (cc *cliController) redraw(function func()) {
 
-	util.CheckErr(termbox.Clear(asset.ColorEmptyCell, asset.ColorEmptyCell))
+	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
 	function()
 	util.CheckErr(termbox.Flush())
 

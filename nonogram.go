@@ -1,6 +1,8 @@
 package main
 
-import "github.com/simp7/nonograminGo/control"
+import (
+	"github.com/simp7/nonograminGo/control"
+)
 
 func main() {
 

@@ -22,41 +22,41 @@ type timer struct {
 	stopper chan struct{}
 }
 
-func NewPlaytime() Timer {
+func StartTimer() Timer {
 
-	var p timer
+	t := new(timer)
 
-	p.Ticker = *time.NewTicker(time.Second)
-	p.clock = make(chan string)
-	p.stopper = make(chan struct{})
-	go p.timePassed()
+	t.Ticker = *time.NewTicker(time.Second)
+	t.clock = make(chan string)
+	t.stopper = make(chan struct{})
+	go t.timePassed()
 
-	return &p
+	return t
 
 }
 
 /*
 This function will send the seconds that has passed during game.
-This function will be called in NewPlaytime.
+This function will be called in StartTimer.
 This function should be called in goroutine.
 */
 
-func (p *timer) timePassed() {
+func (t *timer) timePassed() {
 
 	present := 0
-	p.clock <- convertTimeFormat(present)
+	t.clock <- convertTimeFormat(present)
 
 	for {
 		select {
 
-		case <-p.C:
+		case <-t.C:
 			present += 1
-			p.clock <- convertTimeFormat(present)
+			t.clock <- convertTimeFormat(present)
 
-		case <-p.stopper:
-			p.clock <- convertTimeFormat(present) //To prevent situation that p.clock channel is empty.
-			p.Stop()
-			close(p.clock)
+		case <-t.stopper:
+			t.clock <- convertTimeFormat(present) //To prevent situation that t.clock channel is empty.
+			t.Stop()
+			close(t.clock)
 			return
 
 		}
@@ -69,10 +69,10 @@ This function returns seconds that has passed during game.
 This function will be called when player finished the map.
 */
 
-func (p *timer) GetResult() string {
+func (t *timer) GetResult() string {
 
-	p.End()
-	return <-p.clock
+	t.End()
+	return <-t.clock
 
 }
 
@@ -80,18 +80,18 @@ func (p *timer) GetResult() string {
 This function will be called when player ends the game without solving.
 */
 
-func (p *timer) End() {
+func (t *timer) End() {
 
-	close(p.stopper)
+	close(t.stopper)
 
 }
 
-func (p *timer) Do(someFunc func(current string)) {
+func (t *timer) Do(someFunc func(current string)) {
 	for {
 		select {
-		case current := <-p.clock:
+		case current := <-t.clock:
 			someFunc(current)
-		case <-p.stopper:
+		case <-t.stopper:
 			return
 		}
 	}

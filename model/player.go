@@ -26,12 +26,23 @@ const (
 	Right
 )
 
-type Player struct {
+type Player interface {
+	SetMap(Signal)
+	SetCursor(Signal)
+	RealPos() (x, y int)
+	GetMapSignal() Signal
+	SetMapSignal(Signal)
+	Move(Direction)
+	ConvertToBitMap() [][]bool
+}
+
+type player struct {
 	xProblemPos int
 	yProblemPos int
 	xPos        int
 	yPos        int
 	playerMap   [][]Signal
+	*asset.Setting
 }
 
 /*
@@ -39,22 +50,23 @@ type Player struct {
 	This function will be called when player enter the game or create the map.
 */
 
-func NewPlayer(x int, y int, width int, height int) *Player {
+func NewPlayer(x int, y int, width int, height int) Player {
 
-	pl := Player{}
-	pl.xProblemPos, pl.yProblemPos = x, y
+	p := new(player)
+	p.xProblemPos, p.yProblemPos = x, y
 
-	pl.playerMap = make([][]Signal, height)
-	for n := range pl.playerMap {
-		pl.playerMap[n] = make([]Signal, width)
-		for m := range pl.playerMap[n] {
-			pl.playerMap[n][m] = Empty
+	p.playerMap = make([][]Signal, height)
+	for n := range p.playerMap {
+		p.playerMap[n] = make([]Signal, width)
+		for m := range p.playerMap[n] {
+			p.playerMap[n][m] = Empty
 		}
 	}
 
-	pl.xPos, pl.yPos = pl.xProblemPos, pl.yProblemPos+1
+	p.xPos, p.yPos = p.xProblemPos, p.yProblemPos+1
+	p.Setting = asset.GetSetting()
 
-	return &pl
+	return p
 }
 
 /*
@@ -62,37 +74,37 @@ func NewPlayer(x int, y int, width int, height int) *Player {
 	This function will be called when player inputs key in game or in create mode
 */
 
-func (pl *Player) SetMap(signal Signal) {
+func (p *player) SetMap(signal Signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
-		termbox.SetCell(pl.xPos, pl.yPos, first, fg, bg)
-		termbox.SetCell(pl.xPos+1, pl.yPos, second, fg, bg)
+		termbox.SetCell(p.xPos, p.yPos, first, fg, bg)
+		termbox.SetCell(p.xPos+1, p.yPos, second, fg, bg)
 	}
 
 	switch signal {
 	case Empty:
-		setCell(' ', ' ', asset.ColorEmptyCell, asset.ColorEmptyCell)
+		setCell(' ', ' ', p.Empty, p.Empty)
 
 	case Fill:
-		setCell(' ', ' ', asset.ColorFilledCell, asset.ColorFilledCell)
+		setCell(' ', ' ', p.Filled, p.Filled)
 
 	case Check:
-		setCell('>', '<', asset.ColorCheckedCell, asset.ColorEmptyCell)
+		setCell('>', '<', p.Checked, p.Empty)
 
 	case Wrong:
-		setCell('>', '<', asset.ColorWrongCell, asset.ColorEmptyCell)
+		setCell('>', '<', p.Wrong, p.Empty)
 
 	case Cursor:
-		setCell('(', ')', asset.ColorFilledCell, asset.ColorEmptyCell)
+		setCell('(', ')', p.Filled, p.Empty)
 
 	case CursorFilled:
-		setCell('(', ')', asset.ColorEmptyCell, asset.ColorFilledCell)
+		setCell('(', ')', p.Empty, p.Filled)
 
 	case CursorChecked:
-		setCell('(', ')', asset.ColorCheckedCell, asset.ColorEmptyCell)
+		setCell('(', ')', p.Checked, p.Empty)
 
 	case CursorWrong:
-		setCell('(', ')', asset.ColorWrongCell, asset.ColorEmptyCell)
+		setCell('(', ')', p.Wrong, p.Empty)
 	}
 }
 
@@ -101,37 +113,37 @@ func (pl *Player) SetMap(signal Signal) {
 	This function will be called when player move cursor.
 */
 
-func (pl *Player) SetCursor(cellState Signal) {
+func (p *player) SetCursor(cellState Signal) {
 	if cellState == Fill {
-		pl.SetMap(CursorFilled)
+		p.SetMap(CursorFilled)
 	} else if cellState == Check {
-		pl.SetMap(CursorChecked)
+		p.SetMap(CursorChecked)
 	} else if cellState == Wrong {
-		pl.SetMap(CursorWrong)
+		p.SetMap(CursorWrong)
 	} else {
-		pl.SetMap(Cursor)
+		p.SetMap(Cursor)
 	}
 }
 
 //This function returns real position of the map by calculating cursor position and problem position.
 
-func (pl *Player) RealPos() (realXPos int, realYPos int) {
-	realXPos, realYPos = (pl.xPos-pl.xProblemPos)/2, pl.yPos-pl.yProblemPos-1
+func (p *player) RealPos() (realXPos int, realYPos int) {
+	realXPos, realYPos = (p.xPos-p.xProblemPos)/2, p.yPos-p.yProblemPos-1
 	return
 }
 
 //This function returns current state of current cell of cursor
 
-func (pl *Player) GetMapSignal() Signal {
-	realXPos, realYPos := pl.RealPos()
-	return pl.playerMap[realYPos][realXPos]
+func (p *player) GetMapSignal() Signal {
+	realXPos, realYPos := p.RealPos()
+	return p.playerMap[realYPos][realXPos]
 }
 
 //This function change state of cell in map
 
-func (pl *Player) SetMapSignal(signal Signal) {
-	realXPos, realYPos := pl.RealPos()
-	pl.playerMap[realYPos][realXPos] = signal
+func (p *player) SetMapSignal(signal Signal) {
+	realXPos, realYPos := p.RealPos()
+	p.playerMap[realYPos][realXPos] = signal
 }
 
 /*
@@ -139,11 +151,11 @@ func (pl *Player) SetMapSignal(signal Signal) {
 	This function will be called when cursor moves
 */
 
-func (pl *Player) moveCursor(condition bool, function func()) {
+func (p *player) moveCursor(condition bool, function func()) {
 	if condition {
-		pl.SetMap(pl.GetMapSignal())
+		p.SetMap(p.GetMapSignal())
 		function()
-		pl.SetCursor(pl.GetMapSignal())
+		p.SetCursor(p.GetMapSignal())
 	}
 }
 
@@ -152,16 +164,16 @@ func (pl *Player) moveCursor(condition bool, function func()) {
 	This function will be called when cursor moves
 */
 
-func (pl *Player) Move(direction Direction) {
+func (p *player) Move(direction Direction) {
 	switch direction {
 	case Up:
-		pl.moveCursor(pl.yPos-1 >= pl.yProblemPos+1, func() { pl.yPos-- })
+		p.moveCursor(p.yPos-1 >= p.yProblemPos+1, func() { p.yPos-- })
 	case Down:
-		pl.moveCursor(pl.yPos+1 < pl.yProblemPos+1+len(pl.playerMap), func() { pl.yPos++ })
+		p.moveCursor(p.yPos+1 < p.yProblemPos+1+len(p.playerMap), func() { p.yPos++ })
 	case Left:
-		pl.moveCursor(pl.xPos-2 >= pl.xProblemPos, func() { pl.xPos -= 2 })
+		p.moveCursor(p.xPos-2 >= p.xProblemPos, func() { p.xPos -= 2 })
 	case Right:
-		pl.moveCursor(pl.xPos+2 < pl.xProblemPos+(2*len(pl.playerMap[0])), func() { pl.xPos += 2 })
+		p.moveCursor(p.xPos+2 < p.xProblemPos+(2*len(p.playerMap[0])), func() { p.xPos += 2 })
 	}
 }
 
@@ -170,12 +182,12 @@ func (pl *Player) Move(direction Direction) {
 	This function will be called when user finish making map in create mode.
 */
 
-func (pl *Player) ConvertToBitMap() (result [][]bool) {
-	result = make([][]bool, len(pl.playerMap))
+func (p *player) ConvertToBitMap() (result [][]bool) {
+	result = make([][]bool, len(p.playerMap))
 	for n := range result {
-		result[n] = make([]bool, len(pl.playerMap[0]))
+		result[n] = make([]bool, len(p.playerMap[0]))
 		for m := range result[n] {
-			if pl.playerMap[n][m] == Fill {
+			if p.playerMap[n][m] == Fill {
 				result[n][m] = true
 			} else {
 				result[n][m] = false

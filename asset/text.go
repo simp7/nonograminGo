@@ -69,11 +69,11 @@ func (t *textData) MainMenu() []string {
 }
 
 func (t *textData) GetSelectHeader() []string {
-	return []string{"[" + t.MapList + "]", "[<-" + t.Prev + " | " + t.Next + "->]    " + t.MapListDelimiter, ""}
+	return []string{"[" + t.MapList + "]", "[<-" + t.Prev + " | " + t.Next + "->]    ", t.MapListDelimiter, ""}
 }
 
 func (t *textData) GetResult() []string {
-	return []string{t.ResultDelimiter + "       " + t.Clear, t.ResultDelimiter, t.MapName + "    : ", t.ClearTime + "  : ", t.WrongCells + " : "}
+	return []string{t.ResultDelimiter, "       " + t.Clear, t.ResultDelimiter, t.MapName + "    : ", t.ClearTime + "  : ", t.WrongCells + " : "}
 }
 
 func (t *textData) Complete() string {
