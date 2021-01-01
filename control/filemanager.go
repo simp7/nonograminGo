@@ -27,6 +27,7 @@ type fileManager struct {
 	files       []os.FileInfo
 	currentFile string
 	order       int
+	*asset.Setting
 }
 
 func NewFileManager() FileManager {
@@ -39,6 +40,7 @@ func NewFileManager() FileManager {
 
 	fm.files, err = ioutil.ReadDir(pf.GetPath("maps"))
 	util.CheckErr(err)
+	fm.Setting = asset.GetSetting()
 
 	return fm
 }
@@ -105,7 +107,7 @@ func (fm *fileManager) GetOrder() string {
 func (fm *fileManager) GetMapDataByNumber(target int) string {
 
 	if target >= len(fm.files) {
-		return asset.StringMsgFileNotExist
+		return fm.FileNotExist()
 	}
 	fm.currentFile = fm.files[target+10*fm.order].Name()
 
