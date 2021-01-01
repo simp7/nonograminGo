@@ -32,8 +32,8 @@ func GetSetting() *Setting {
 		instance.Figure = defaultFigure()
 
 		instance.Language = EN
-		languageFile := pf.GetPath(instance.Language)
-		content, _ := ioutil.ReadFile(languageFile + ".json")
+		languageFile := pf.GetPath("asset", "language", instance.Language+".json")
+		content, _ := ioutil.ReadFile(languageFile)
 		instance.Text = NewText(content)
 
 	})
