@@ -27,6 +27,7 @@ type fileManager struct {
 	files       []os.FileInfo
 	currentFile string
 	order       int
+	util.PathFormatter
 	*asset.Setting
 }
 
@@ -34,11 +35,11 @@ func NewFileManager() FileManager {
 	fm := new(fileManager)
 	fm.currentFile = ""
 	fm.order = 0
-	pf := util.GetPathFormatter()
+	fm.PathFormatter = util.GetPathFormatter()
 
 	var err error
 
-	fm.files, err = ioutil.ReadDir(pf.GetPath("maps"))
+	fm.files, err = ioutil.ReadDir(fm.GetPath("maps"))
 	util.CheckErr(err)
 	fm.Setting = asset.GetSetting()
 
@@ -160,7 +161,7 @@ func (fm *fileManager) CreateMap(name string, width int, height int, bitmap [][]
 		nonoMapData += fmt.Sprintf("/%d", v)
 	}
 
-	err := ioutil.WriteFile(fmt.Sprintf("./maps/%s.nm", name), []byte(nonoMapData), 0644)
+	err := ioutil.WriteFile(fm.GetPath("maps", name+".nm"), []byte(nonoMapData), 0644)
 	util.CheckErr(err)
 
 }
