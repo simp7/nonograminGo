@@ -6,7 +6,7 @@ import (
 )
 
 type PathFormatter interface {
-	GetPath(of string) string
+	GetPath(of ...string) string
 }
 
 type pathFormatter struct {
@@ -32,8 +32,14 @@ func newPathFormatter() PathFormatter {
 
 }
 
-func (p *pathFormatter) GetPath(target string) string {
+func (p *pathFormatter) GetPath(target ...string) string {
 
-	return path.Join(".", target)
+	current := "."
+
+	for _, element := range target {
+		current = path.Join(current, element)
+	}
+
+	return current
 
 }

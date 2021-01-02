@@ -127,7 +127,7 @@ func (cc *cliController) println(x int, y int, texts []string) {
 	for _, msg := range texts {
 
 		for _, ch := range msg {
-			termbox.SetCell(x, y, ch, cc.Color.Text, cc.Empty)
+			termbox.SetCell(x, y, ch, cc.Char, cc.Empty)
 			x++
 		}
 
