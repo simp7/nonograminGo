@@ -14,24 +14,24 @@ import (
 */
 
 type Nonomap struct {
-	width   int
-	height  int
-	mapData []int
-	bitmap  [][]bool
+	Width   int
+	Height  int
+	MapData []int
+	Bitmap  [][]bool
 }
 
 /*
 	nonomap is divided into 3 parts and has arguments equal or more than 3, which is separated by '/'.
 
-	First two elements indicates width and height respectively.
+	First two elements indicates Width and Height respectively.
 
 	Rest elements indicates actual map which player has to solve.
 	Each elements indicates map data of each line.
-	They are designated by bitmap, which 0 is blank and 1 is filled one.
+	They are designated by Bitmap, which 0 is blank and 1 is filled one.
 
-	Because the size of int is 32bits, width of maps can't be more than 32 mathematically.
+	Because the size of int is 32bits, Width of maps can't be more than 32 mathematically.
 
-	But because of display's limit, width and height can't be more than 25
+	But because of display's limit, Width and Height can't be more than 25
 
 	When it comes to player's map, 2 is checked one where player thinks that cell is blank.
 
@@ -40,7 +40,7 @@ type Nonomap struct {
 
 func NewNonomap(data string) *Nonomap {
 
-	var imported Nonomap
+	imported := new(Nonomap)
 	var err error
 	setting := asset.GetSetting()
 
@@ -48,34 +48,34 @@ func NewNonomap(data string) *Nonomap {
 	elements := strings.Split(data, "/")
 	//Extract all data from wanted file.
 
-	imported.width, err = strconv.Atoi(elements[0])
-	imported.height, err = strconv.Atoi(elements[1])
+	imported.Width, err = strconv.Atoi(elements[0])
+	imported.Height, err = strconv.Atoi(elements[1])
 	util.CheckErr(err)
 	//Extract map's size from file.
 
 	for _, v := range elements[2:] {
 		temp, err := strconv.Atoi(v)
-		imported.mapData = append(imported.mapData, temp)
+		imported.MapData = append(imported.MapData, temp)
 		util.CheckErr(err)
 	}
 	//Extract map's answer from file.
 
-	if imported.height > setting.HeightMax || imported.width > setting.WidthMax || imported.height <= 0 || imported.width <= 0 {
+	if imported.Height > setting.HeightMax || imported.Width > setting.WidthMax || imported.Height <= 0 || imported.Width <= 0 {
 		util.CheckErr(util.InvalidMap)
-	} //Check if height and width meets criteria of size.
+	} //Check if Height and Width meets criteria of size.
 
-	for _, v := range imported.mapData {
-		if float64(v) >= math.Pow(2, float64(imported.width)) {
+	for _, v := range imported.MapData {
+		if float64(v) >= math.Pow(2, float64(imported.Width)) {
 			util.CheckErr(util.InvalidMap)
-		} //Check whether height matches mapData.
+		} //Check whether Height matches MapData.
 	}
-	if len(imported.mapData) != imported.height {
+	if len(imported.MapData) != imported.Height {
 		util.CheckErr(util.InvalidMap)
-	} //Check whether height matches mapData.
+	} //Check whether Height matches MapData.
 
 	//Check validity of file.
-	imported.bitmap = convertToBitmap(imported.width, imported.height, imported.mapData)
-	return &imported
+	imported.Bitmap = convertToBitmap(imported.Width, imported.Height, imported.MapData)
+	return imported
 
 }
 
@@ -86,7 +86,7 @@ func NewNonomap(data string) *Nonomap {
 
 func (nm *Nonomap) CompareValidity(x int, y int) bool {
 
-	return nm.bitmap[y][x]
+	return nm.Bitmap[y][x]
 
 }
 
@@ -97,19 +97,19 @@ func (nm *Nonomap) CompareValidity(x int, y int) bool {
 
 func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hMax int, vMax int) {
 
-	horizontal = make([][]int, nm.height)
-	vertical = make([][]int, nm.width)
+	horizontal = make([][]int, nm.Height)
+	vertical = make([][]int, nm.Width)
 	hMax = 0
 	vMax = 0
 
-	for i := 0; i < nm.height; i++ {
+	for i := 0; i < nm.Height; i++ {
 
 		previousCell := false
 		temp := 0
 
-		for j := 0; j < nm.width; j++ {
+		for j := 0; j < nm.Width; j++ {
 
-			if nm.bitmap[i][j] == true {
+			if nm.Bitmap[i][j] == true {
 				temp++
 				previousCell = true
 			} else {
@@ -134,13 +134,13 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 
 	}
 
-	for i := 0; i < nm.width; i++ {
+	for i := 0; i < nm.Width; i++ {
 
 		previousCell := false
 		temp := 0
 
-		for j := 0; j < nm.height; j++ {
-			if nm.bitmap[j][i] == true {
+		for j := 0; j < nm.Height; j++ {
+			if nm.Bitmap[j][i] == true {
 				temp++
 				previousCell = true
 			} else {
@@ -176,10 +176,10 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 
 	hData, vData, hMax, vMax := nm.createProblemData()
 
-	hProblem = make([]string, nm.height)
+	hProblem = make([]string, nm.Height)
 	vProblem = make([]string, vMax)
 
-	for i := 0; i < nm.height; i++ {
+	for i := 0; i < nm.Height; i++ {
 		hProblem[i] = ""
 		for j := hMax; j > 0; j-- {
 			if len(hData[i]) < j {
@@ -195,7 +195,7 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 
 	for i := vMax; i > 0; i-- {
 		vProblem[vMax-i] = ""
-		for j := 0; j < nm.width; j++ {
+		for j := 0; j < nm.Width; j++ {
 			if i > len(vData[j]) {
 				vProblem[vMax-i] += "  "
 			} else {
@@ -211,20 +211,20 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 
 }
 
-//This function returns height of nonomap
+//This function returns Height of nonomap
 
 func (nm *Nonomap) GetHeight() int {
-	return nm.height
+	return nm.Height
 }
 
-//This function returns width of nonomap
+//This function returns Width of nonomap
 
 func (nm *Nonomap) GetWidth() int {
-	return nm.width
+	return nm.Width
 }
 
 /*
-	This function generates answer bitmap of Nonomap via mapData.
+	This function generates answer Bitmap of Nonomap via MapData.
 	This function will be called when Nonomap is initialized.
 */
 
@@ -247,10 +247,10 @@ func convertToBitmap(width int, height int, mapData []int) [][]bool {
 }
 
 func (nm *Nonomap) ShowBitMap() (result []string) {
-	result = make([]string, nm.height)
-	for i := 0; i < nm.height; i++ {
-		for j := 0; j < nm.width; j++ {
-			if nm.bitmap[i][j] {
+	result = make([]string, nm.Height)
+	for i := 0; i < nm.Height; i++ {
+		for j := 0; j < nm.Width; j++ {
+			if nm.Bitmap[i][j] {
 				result[i] += "1"
 			} else {
 				result[i] += "0"
@@ -263,7 +263,7 @@ func (nm *Nonomap) ShowBitMap() (result []string) {
 func (nm *Nonomap) ShowProblemHorizontal() (result []string) {
 	a, _, _, _ := nm.createProblemData()
 
-	result = make([]string, nm.height)
+	result = make([]string, nm.Height)
 	for n := range a {
 		for _, v := range a[n] {
 			result[n] += strconv.Itoa(v)
@@ -276,7 +276,7 @@ func (nm *Nonomap) ShowProblemHorizontal() (result []string) {
 func (nm *Nonomap) ShowProblemVertical() (result []string) {
 	_, b, _, _ := nm.createProblemData()
 
-	result = make([]string, nm.width)
+	result = make([]string, nm.Width)
 	for n := range b {
 		for _, v := range b[n] {
 			result[n] += strconv.Itoa(v)
@@ -295,8 +295,8 @@ func (nm *Nonomap) TotalCells() (total int) {
 
 	total = 0
 
-	for n := range nm.bitmap {
-		for _, v := range nm.bitmap[n] {
+	for n := range nm.Bitmap {
+		for _, v := range nm.Bitmap[n] {
 			if v {
 				total++
 			}

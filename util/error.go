@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	InvalidMap = errors.New("map file has been broken")
+	InvalidMap  = errors.New("map file has been broken")
+	InvalidType = errors.New("type of two didn't match")
 )
 
 func CheckErr(e error) {
