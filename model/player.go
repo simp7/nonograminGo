@@ -46,7 +46,7 @@ type player struct {
 }
 
 /*
-	This function Creates player structure with problem position, width, and height of map.
+	This function Creates player structure with problem position, Width, and Height of map.
 	This function will be called when player enter the game or create the map.
 */
 
@@ -178,7 +178,7 @@ func (p *player) Move(direction Direction) {
 }
 
 /*
-	This function process playerMap into bitmap that is just composed with Fill and empty.
+	This function process playerMap into Bitmap that is just composed with Fill and empty.
 	This function will be called when user finish making map in create mode.
 */
 
