@@ -10,6 +10,13 @@ import (
 
 type mapFormatter struct {
 	data *Nonomap
+	raw  []byte
+}
+
+func NewMapFormatter() util.FileFormatter {
+	formatter := new(mapFormatter)
+	formatter.raw = make([]byte, 0)
+	return formatter
 }
 
 func (m *mapFormatter) Encode(i interface{}) error {
@@ -34,6 +41,7 @@ func (m *mapFormatter) Decode(i interface{}) error {
 
 func (m *mapFormatter) GetRaw(from []byte) {
 	var err error
+	m.raw = from
 	data := string(from)
 	imported := m.data
 	setting := asset.GetSetting()
@@ -72,5 +80,5 @@ func (m *mapFormatter) GetRaw(from []byte) {
 }
 
 func (m *mapFormatter) Content() []byte {
-	panic("implement me")
+	return m.raw
 }
