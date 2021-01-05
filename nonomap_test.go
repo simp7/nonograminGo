@@ -1,6 +1,7 @@
-package model
+package main
 
 import (
+	"github.com/simp7/nonograminGo/model"
 	"strings"
 	"testing"
 )
@@ -42,6 +43,13 @@ func strArrayCompare(s1 []string, s2 []string, idx int, t *testing.T) {
 	}
 }
 
-func getExampleMap() []*Nonomap {
-	return []*Nonomap{NewNonomap("3/2/5/2"), NewNonomap("3/3/7/5/2"), NewNonomap("4/4/13/7/14/11")}
+func getExampleMap() []model.Nonomap {
+	newMap := func(data string) model.Nonomap {
+		var result model.Nonomap
+		f := model.NewMapFormatter()
+		f.GetRaw([]byte(data))
+		f.Decode(result)
+		return result
+	}
+	return []model.Nonomap{newMap("3/2/5/2"), newMap("3/3/7/5/2"), newMap("4/4/13/7/14/11")}
 }

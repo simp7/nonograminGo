@@ -193,8 +193,8 @@ func (cc *cliController) selectMap() {
 		case cc.event.Key == termbox.KeyArrowLeft:
 			cc.fm.PrevList()
 		case cc.event.Ch >= '0' && cc.event.Ch <= '9':
-			nonomapData := cc.fm.GetMapDataByNumber(int(cc.event.Ch - '0'))
-			if nonomapData == cc.FileNotExist() {
+			nonomapData, ok := cc.fm.GetMapDataByNumber(int(cc.event.Ch - '0'))
+			if !ok {
 				continue
 			} else {
 				cc.inGame(nonomapData)
@@ -227,12 +227,11 @@ This function shows the map current player plays and change its appearance when 
 This function will be called when player select map.
 */
 
-func (cc *cliController) inGame(data string) {
+func (cc *cliController) inGame(correctMap model.Nonomap) {
 
 	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
-	correctMap := model.NewNonomap(data)
 
-	remainedCell := correctMap.TotalCells()
+	remainedCell := correctMap.FilledTotal()
 	wrongCell := 0
 
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
@@ -265,7 +264,7 @@ func (cc *cliController) inGame(data string) {
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
 			if player.GetMapSignal() == model.Empty {
-				if correctMap.CompareValidity(player.RealPos()) {
+				if correctMap.ShouldFilled(player.RealPos()) {
 					player.SetMap(model.CursorFilled)
 					player.SetMapSignal(model.Fill)
 					remainedCell--

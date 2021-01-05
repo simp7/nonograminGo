@@ -3,6 +3,7 @@ package control
 import (
 	"fmt"
 	"github.com/simp7/nonograminGo/asset"
+	"github.com/simp7/nonograminGo/model"
 	"github.com/simp7/nonograminGo/util"
 	"io/ioutil"
 	"math"
@@ -15,8 +16,8 @@ type FileManager interface {
 	NextList()
 	PrevList()
 	GetOrder() string
-	GetMapDataByNumber(int) string
-	GetMapDataByName(string) string
+	GetMapDataByNumber(int) (nonomap model.Nonomap, ok bool)
+	GetMapDataByName(string) (nonomap model.Nonomap, ok bool)
 	GetCurrentMapName() string
 	CreateMap(name string, width int, height int, bitmap [][]bool)
 	RefreshMapList()
@@ -28,14 +29,17 @@ type fileManager struct {
 	currentFile string
 	order       int
 	util.PathFormatter
+	util.FileFormatter
 	*asset.Setting
 }
 
 func NewFileManager() FileManager {
+
 	fm := new(fileManager)
 	fm.currentFile = ""
 	fm.order = 0
 	fm.PathFormatter = util.GetPathFormatter()
+	fm.FileFormatter = model.NewMapFormatter()
 
 	var err error
 
@@ -44,6 +48,7 @@ func NewFileManager() FileManager {
 	fm.Setting = asset.GetSetting()
 
 	return fm
+
 }
 
 /*
@@ -105,14 +110,14 @@ func (fm *fileManager) GetOrder() string {
 	This function will be called when user inputs number in select.
 */
 
-func (fm *fileManager) GetMapDataByNumber(target int) string {
+func (fm *fileManager) GetMapDataByNumber(target int) (model.Nonomap, bool) {
 
 	if target >= len(fm.files) {
-		return fm.FileNotExist()
+		return nil, false
 	}
 	fm.currentFile = fm.files[target+10*fm.order].Name()
 
-	return fm.GetMapDataByName(fmt.Sprintf("./maps/%s", fm.currentFile))
+	return fm.GetMapDataByName(fm.GetPath("maps", fm.currentFile))
 
 }
 
@@ -121,11 +126,15 @@ func (fm *fileManager) GetMapDataByNumber(target int) string {
 	This function will be called in GetMapDataByNumber.
 */
 
-func (fm *fileManager) GetMapDataByName(target string) string {
+func (fm *fileManager) GetMapDataByName(target string) (model.Nonomap, bool) {
 	file, err := ioutil.ReadFile(target)
 	util.CheckErr(err)
 
-	return string(file)
+	fm.GetRaw(file)
+	var result model.Nonomap
+	fm.Decode(&result)
+
+	return result, true
 }
 
 /*
