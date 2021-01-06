@@ -1,15 +1,14 @@
 package model
 
 import (
-	"github.com/simp7/nonograminGo/asset"
 	"github.com/simp7/nonograminGo/util"
-	"math"
+	"reflect"
 	"strconv"
 	"strings"
 )
 
 type mapFormatter struct {
-	data *Nonomap
+	data Nonomap
 	raw  []byte
 }
 
@@ -22,7 +21,7 @@ func NewMapFormatter() util.FileFormatter {
 func (m *mapFormatter) Encode(i interface{}) error {
 	switch i.(type) {
 	case Nonomap:
-		m.data = i.(*Nonomap)
+		m.data = i.(Nonomap)
 	default:
 		return util.InvalidType
 	}
@@ -30,53 +29,36 @@ func (m *mapFormatter) Encode(i interface{}) error {
 }
 
 func (m *mapFormatter) Decode(i interface{}) error {
-	switch i.(type) {
-	case *Nonomap:
-		i = m.data
+
+	rv := reflect.ValueOf(i)
+	switch rv.Type() {
 	default:
 		return util.InvalidType
+	case reflect.TypeOf(m.data):
+		rv.Elem().Set(reflect.ValueOf(m.data).Elem())
 	}
 	return nil
+
 }
 
-func (m *mapFormatter) GetRaw(from []byte) {
-	var err error
-	m.raw = from
-	data := string(from)
-	imported := m.data
-	setting := asset.GetSetting()
+func (m *mapFormatter) GetRaw(content []byte) {
+
+	m.raw = content
+
+	data := string(content)
+	builder := NewNonomapBuilder()
 
 	data = strings.TrimSpace(data)
 	elements := strings.Split(data, "/")
-	//Extract all data from wanted file.
 
-	imported.Width, err = strconv.Atoi(elements[0])
-	imported.Height, err = strconv.Atoi(elements[1])
+	width, err := strconv.Atoi(elements[0])
 	util.CheckErr(err)
-	//Extract map's size from file.
+	height, err := strconv.Atoi(elements[1])
+	util.CheckErr(err)
 
-	for _, v := range elements[2:] {
-		temp, err := strconv.Atoi(v)
-		imported.MapData = append(imported.MapData, temp)
-		util.CheckErr(err)
-	}
-	//Extract map's answer from file.
+	m.data = builder.BuildWidth(width).BuildHeight(height).BuildMap(elements[2:]).GetMap()
+	m.data.checkValidity()
 
-	if imported.Height > setting.HeightMax || imported.Width > setting.WidthMax || imported.Height <= 0 || imported.Width <= 0 {
-		util.CheckErr(util.InvalidMap)
-	} //Check if Height and Width meets criteria of size.
-
-	for _, v := range imported.MapData {
-		if float64(v) >= math.Pow(2, float64(imported.Width)) {
-			util.CheckErr(util.InvalidMap)
-		} //Check whether Height matches MapData.
-	}
-	if len(imported.MapData) != imported.Height {
-		util.CheckErr(util.InvalidMap)
-	} //Check whether Height matches MapData.
-
-	//Check validity of file.
-	imported.Bitmap = convertToBitmap(imported.Width, imported.Height, imported.MapData)
 }
 
 func (m *mapFormatter) Content() []byte {

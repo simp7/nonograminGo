@@ -5,7 +5,6 @@ import (
 	"github.com/simp7/nonograminGo/util"
 	"math"
 	"strconv"
-	"strings"
 )
 
 /*
@@ -13,7 +12,19 @@ import (
 	User's control or display should be separated from this file.
 */
 
-type Nonomap struct {
+type Nonomap interface {
+	ShouldFilled(x, y int) bool
+	CreateProblemFormat() (hProblem, vProblem []string, hMax, vMax int)
+	GetHeight() int
+	GetWidth() int
+	ShowBitMap() []string
+	ShowProblemHorizontal() []string
+	ShowProblemVertical() []string
+	FilledTotal() int
+	checkValidity()
+}
+
+type nonomap struct {
 	Width   int
 	Height  int
 	MapData []int
@@ -38,53 +49,16 @@ type Nonomap struct {
 	The extension of file is nm(*.nm)
 */
 
-func NewNonomap(data string) *Nonomap {
-
-	imported := new(Nonomap)
-	var err error
-	setting := asset.GetSetting()
-
-	data = strings.TrimSpace(data)
-	elements := strings.Split(data, "/")
-	//Extract all data from wanted file.
-
-	imported.Width, err = strconv.Atoi(elements[0])
-	imported.Height, err = strconv.Atoi(elements[1])
-	util.CheckErr(err)
-	//Extract map's size from file.
-
-	for _, v := range elements[2:] {
-		temp, err := strconv.Atoi(v)
-		imported.MapData = append(imported.MapData, temp)
-		util.CheckErr(err)
-	}
-	//Extract map's answer from file.
-
-	if imported.Height > setting.HeightMax || imported.Width > setting.WidthMax || imported.Height <= 0 || imported.Width <= 0 {
-		util.CheckErr(util.InvalidMap)
-	} //Check if Height and Width meets criteria of size.
-
-	for _, v := range imported.MapData {
-		if float64(v) >= math.Pow(2, float64(imported.Width)) {
-			util.CheckErr(util.InvalidMap)
-		} //Check whether Height matches MapData.
-	}
-	if len(imported.MapData) != imported.Height {
-		util.CheckErr(util.InvalidMap)
-	} //Check whether Height matches MapData.
-
-	//Check validity of file.
-	imported.Bitmap = convertToBitmap(imported.Width, imported.Height, imported.MapData)
-	return imported
-
-}
-
 /*
 	This function compares selected row's player data and answer data so it can judge if player painted wrong cell.
 	This function will be called when player paints cell(NOT when checking).
 */
 
-func (nm *Nonomap) CompareValidity(x int, y int) bool {
+func NewNonomap() Nonomap {
+	return new(nonomap)
+}
+
+func (nm *nonomap) ShouldFilled(x int, y int) bool {
 
 	return nm.Bitmap[y][x]
 
@@ -95,7 +69,7 @@ func (nm *Nonomap) CompareValidity(x int, y int) bool {
 	This function will be called in CreateProblemFormat().
 */
 
-func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hMax int, vMax int) {
+func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hMax int, vMax int) {
 
 	horizontal = make([][]int, nm.Height)
 	vertical = make([][]int, nm.Width)
@@ -172,7 +146,7 @@ func (nm *Nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 	This function will be called when player enter the game.
 */
 
-func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hMax int, vMax int) {
+func (nm *nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hMax int, vMax int) {
 
 	hData, vData, hMax, vMax := nm.createProblemData()
 
@@ -213,40 +187,22 @@ func (nm *Nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 
 //This function returns Height of nonomap
 
-func (nm *Nonomap) GetHeight() int {
+func (nm *nonomap) GetHeight() int {
 	return nm.Height
 }
 
 //This function returns Width of nonomap
 
-func (nm *Nonomap) GetWidth() int {
+func (nm *nonomap) GetWidth() int {
 	return nm.Width
 }
 
 /*
-	This function generates answer Bitmap of Nonomap via MapData.
-	This function will be called when Nonomap is initialized.
+	This function generates answer Bitmap of nonomap via MapData.
+	This function will be called when nonomap is initialized.
 */
 
-func convertToBitmap(width int, height int, mapData []int) [][]bool {
-
-	bitmap := make([][]bool, height)
-	for n := range bitmap {
-		bitmap[n] = make([]bool, width)
-	}
-
-	for n, v := range mapData {
-		for i := 1; i <= width; i++ {
-			bitmap[n][width-i] = v%2 == 1
-			v = v / 2
-		}
-	}
-
-	return bitmap
-
-}
-
-func (nm *Nonomap) ShowBitMap() (result []string) {
+func (nm *nonomap) ShowBitMap() (result []string) {
 	result = make([]string, nm.Height)
 	for i := 0; i < nm.Height; i++ {
 		for j := 0; j < nm.Width; j++ {
@@ -260,7 +216,7 @@ func (nm *Nonomap) ShowBitMap() (result []string) {
 	return
 }
 
-func (nm *Nonomap) ShowProblemHorizontal() (result []string) {
+func (nm *nonomap) ShowProblemHorizontal() (result []string) {
 	a, _, _, _ := nm.createProblemData()
 
 	result = make([]string, nm.Height)
@@ -273,7 +229,7 @@ func (nm *Nonomap) ShowProblemHorizontal() (result []string) {
 	return
 }
 
-func (nm *Nonomap) ShowProblemVertical() (result []string) {
+func (nm *nonomap) ShowProblemVertical() (result []string) {
 	_, b, _, _ := nm.createProblemData()
 
 	result = make([]string, nm.Width)
@@ -291,7 +247,7 @@ func (nm *Nonomap) ShowProblemVertical() (result []string) {
 	This function will be called when player enter the game.
 */
 
-func (nm *Nonomap) TotalCells() (total int) {
+func (nm *nonomap) FilledTotal() (total int) {
 
 	total = 0
 
@@ -303,5 +259,29 @@ func (nm *Nonomap) TotalCells() (total int) {
 		}
 	}
 	return
+
+}
+
+func (nm *nonomap) checkValidity() {
+
+	setting := asset.GetSetting()
+	hMax := setting.HeightMax
+	wMax := setting.WidthMax
+
+	if nm.Height > hMax || nm.Width > wMax || nm.Height <= 0 || nm.Width <= 0 {
+		util.CheckErr(util.InvalidMap)
+	} //Check if Height and Width meets criteria of size.
+
+	//Extract map's answer content file.
+
+	for _, v := range nm.MapData {
+		if float64(v) >= math.Pow(2, float64(nm.Width)) {
+			util.CheckErr(util.InvalidMap)
+		} //Check whether Height matches MapData.
+	}
+
+	if len(nm.MapData) != nm.Height {
+		util.CheckErr(util.InvalidMap)
+	} //Check whether Height matches MapData.
 
 }
