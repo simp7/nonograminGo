@@ -1,8 +1,8 @@
 package model
 
 import (
-	"fmt"
 	"github.com/simp7/nonograminGo/util"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -29,18 +29,21 @@ func (m *mapFormatter) Encode(i interface{}) error {
 }
 
 func (m *mapFormatter) Decode(i interface{}) error {
-	switch i.(type) {
-	case Nonomap:
-		i = m.data
+
+	rv := reflect.ValueOf(i)
+	switch rv.Type() {
 	default:
 		return util.InvalidType
+	case reflect.TypeOf(m.data):
+		rv.Elem().Set(reflect.ValueOf(m.data).Elem())
 	}
 	return nil
+
 }
 
 func (m *mapFormatter) GetRaw(content []byte) {
 
-	copy(m.raw, content)
+	m.raw = content
 
 	data := string(content)
 	builder := NewNonomapBuilder()
@@ -53,9 +56,8 @@ func (m *mapFormatter) GetRaw(content []byte) {
 	height, err := strconv.Atoi(elements[1])
 	util.CheckErr(err)
 
-	m.data = builder.BuildWidth(width).BuildHeight(height).BuildMap(elements[:2]).GetMap()
+	m.data = builder.BuildWidth(width).BuildHeight(height).BuildMap(elements[2:]).GetMap()
 	m.data.checkValidity()
-	fmt.Println(m.data)
 
 }
 

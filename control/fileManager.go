@@ -127,14 +127,17 @@ func (fm *fileManager) GetMapDataByNumber(target int) (model.Nonomap, bool) {
 */
 
 func (fm *fileManager) GetMapDataByName(target string) (model.Nonomap, bool) {
+
 	file, err := ioutil.ReadFile(target)
 	util.CheckErr(err)
 
 	fm.GetRaw(file)
-	var result model.Nonomap
-	fm.Decode(&result)
+	result := model.NewNonomap()
+	err = fm.Decode(result)
+	util.CheckErr(err)
 
 	return result, true
+
 }
 
 /*

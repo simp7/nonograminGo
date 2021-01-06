@@ -49,51 +49,14 @@ type nonomap struct {
 	The extension of file is nm(*.nm)
 */
 
-//func NewNonomap(data string) Nonomap {
-//
-//	imported := new(nonomap)
-//	var err error
-//	setting := asset.GetSetting()
-//
-//	data = strings.TrimSpace(data)
-//	elements := strings.Split(data, "/")
-//	//Extract all data from wanted file.
-//
-//	imported.Width, err = strconv.Atoi(elements[0])
-//	imported.Height, err = strconv.Atoi(elements[1])
-//	util.CheckErr(err)
-//	//Extract map's size from file.
-//
-//	for _, v := range elements[2:] {
-//		temp, err := strconv.Atoi(v)
-//		imported.MapData = append(imported.MapData, temp)
-//		util.CheckErr(err)
-//	}
-//	//Extract map's answer from file.
-//
-//	if imported.Height > setting.HeightMax || imported.Width > setting.WidthMax || imported.Height <= 0 || imported.Width <= 0 {
-//		util.CheckErr(util.InvalidMap)
-//	} //Check if Height and Width meets criteria of size.
-//
-//	for _, v := range imported.MapData {
-//		if float64(v) >= math.Pow(2, float64(imported.Width)) {
-//			util.CheckErr(util.InvalidMap)
-//		} //Check whether Height matches MapData.
-//	}
-//	if len(imported.MapData) != imported.Height {
-//		util.CheckErr(util.InvalidMap)
-//	} //Check whether Height matches MapData.
-//
-//	//Check validity of file.
-//	imported.Bitmap = convertToBitmap(imported.Width, imported.Height, imported.MapData)
-//	return imported
-//
-//}
-
 /*
 	This function compares selected row's player data and answer data so it can judge if player painted wrong cell.
 	This function will be called when player paints cell(NOT when checking).
 */
+
+func NewNonomap() Nonomap {
+	return new(nonomap)
+}
 
 func (nm *nonomap) ShouldFilled(x int, y int) bool {
 
@@ -238,24 +201,6 @@ func (nm *nonomap) GetWidth() int {
 	This function generates answer Bitmap of nonomap via MapData.
 	This function will be called when nonomap is initialized.
 */
-
-func convertToBitmap(width int, height int, mapData []int) [][]bool {
-
-	bitmap := make([][]bool, height)
-	for n := range bitmap {
-		bitmap[n] = make([]bool, width)
-	}
-
-	for n, v := range mapData {
-		for i := 1; i <= width; i++ {
-			bitmap[n][width-i] = v%2 == 1
-			v = v / 2
-		}
-	}
-
-	return bitmap
-
-}
 
 func (nm *nonomap) ShowBitMap() (result []string) {
 	result = make([]string, nm.Height)
