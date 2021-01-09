@@ -9,7 +9,5 @@ type window struct {
 	objects []object.Object
 }
 
-func NewWindow() Window {
-	w := new(window)
-	return w
+func (w *window) Refresh() {
 }

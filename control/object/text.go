@@ -18,6 +18,10 @@ func NewText(p util.Pos, content string) Text {
 	return t
 }
 
+func (t *text) String() string {
+	return t.content
+}
+
 type texts struct {
 	Object
 	contents []Text

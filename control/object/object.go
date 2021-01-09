@@ -6,6 +6,7 @@ import (
 
 type Object interface {
 	GetPos() util.Pos
+	String() string
 }
 
 type object struct {
@@ -18,10 +19,10 @@ func NewObject(p util.Pos) Object {
 	return obj
 }
 
-func (obj *object) Draw() {
-
-}
-
 func (obj *object) GetPos() util.Pos {
 	return obj.pos
+}
+
+func (obj *object) String() string {
+	return ""
 }
