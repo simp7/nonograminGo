@@ -1,9 +1,9 @@
 package window
 
 type Stack interface {
-	push(Window)
-	pop()
-	front() Window
+	Push(Window)
+	Pop()
+	Top() Window
 	Size() int
 }
 
@@ -17,15 +17,15 @@ func NewStack() Stack {
 	return s
 }
 
-func (s *stack) push(window Window) {
+func (s *stack) Push(window Window) {
 	s.windows = append(s.windows, window)
 }
 
-func (s *stack) pop() {
+func (s *stack) Pop() {
 	s.windows = s.windows[:s.Size()-1]
 }
 
-func (s *stack) front() Window {
+func (s *stack) Top() Window {
 	return s.windows[s.Size()-1]
 }
 

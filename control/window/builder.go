@@ -1,6 +1,8 @@
 package window
 
 import (
+	"github.com/simp7/nonograminGo/asset"
+	"github.com/simp7/nonograminGo/control"
 	"github.com/simp7/nonograminGo/control/object"
 	"github.com/simp7/nonograminGo/util"
 )
@@ -26,6 +28,7 @@ func NewBuilder() Builder {
 
 func (b *builder) InitWindow() Builder {
 	b.window = new(window)
+	b.window.Drawer = control.NewDrawer(asset.GetSetting())
 	return b
 }
 
@@ -38,7 +41,9 @@ func (b *builder) AddText(pos util.Pos, content string) Builder {
 
 func (b *builder) AddTexts(pos util.Pos, contents []string) Builder {
 	b.appendAction(func() {
-		b.window.objects = append(b.window.objects, object.NewTexts(pos, contents))
+		for i, content := range contents {
+			b.AddText(util.NewPos(pos.X, pos.Y+i), content)
+		}
 	})
 	return b
 }
