@@ -17,6 +17,7 @@ type improvedController struct {
 
 func NewImprovedController() Controller {
 	c := new(improvedController)
+	c.windows = window.NewStack()
 	c.Setting = asset.GetSetting()
 	c.eventChan = make(chan termbox.Event)
 	c.endChan = make(chan struct{})
@@ -37,17 +38,20 @@ func (c *improvedController) Start() {
 
 func (c *improvedController) openWindow(v View) {
 	c.windows.Push(c.view[v])
+	c.showWindow()
 }
 
 func (c *improvedController) closeWindow() {
 	c.windows.Pop()
 	if c.windows.Size() == 0 {
 		close(c.endChan)
+	} else {
+		c.showWindow()
 	}
 }
 
 func (c *improvedController) showWindow() {
-
+	c.windows.Top().Refresh()
 }
 
 func (c *improvedController) terminate() {

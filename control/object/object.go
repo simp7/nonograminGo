@@ -6,14 +6,14 @@ import (
 
 type Object interface {
 	GetPos() util.Pos
-	String() string
+	Content() <-chan string
 }
 
 type object struct {
 	pos util.Pos
 }
 
-func NewObject(p util.Pos) Object {
+func newObject(p util.Pos) Object {
 	obj := new(object)
 	obj.pos = p
 	return obj
@@ -23,6 +23,6 @@ func (obj *object) GetPos() util.Pos {
 	return obj.pos
 }
 
-func (obj *object) String() string {
-	return ""
+func (obj *object) Content() <-chan string {
+	return nil
 }
