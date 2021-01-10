@@ -29,9 +29,12 @@ func (d *drawer) Draw(target object.Object) {
 	go func() {
 		for {
 
-			text := []rune(<-target.Content())
+			text, ok := <-target.Content()
+			if !ok {
+				return
+			}
 
-			for i, character := range text {
+			for i, character := range []rune(text) {
 				termbox.SetCell(p.X+i, p.Y, character, d.Color.Char, d.Color.Empty)
 			}
 
