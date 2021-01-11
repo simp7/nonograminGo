@@ -1,15 +1,18 @@
 package object
 
-import "github.com/simp7/nonograminGo/util"
+import (
+	"github.com/nsf/termbox-go"
+	"github.com/simp7/nonograminGo/util"
+)
 
 type text struct {
 	Object
 	content string
 }
 
-func NewText(p util.Pos, content string) Object {
+func NewText(p util.Pos, fg, bg termbox.Attribute, content string) Object {
 	t := new(text)
-	t.Object = newObject(p)
+	t.Object = newObject(p, fg, bg)
 	t.content = content
 	return t
 }

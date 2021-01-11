@@ -1,13 +1,22 @@
 package object
 
-import "github.com/simp7/nonograminGo/util"
+import (
+	"github.com/nsf/termbox-go"
+	"github.com/simp7/nonograminGo/util"
+)
 
 type timer struct {
-	object
+	Object
 	util.Timer
 }
 
-func NewTimer() Object {
+func NewTimer(p util.Pos, fg, bg termbox.Attribute) Object {
 	t := new(timer)
+	t.Timer = util.StartTimer()
+	t.Object = newObject(p, fg, bg)
 	return t
+}
+
+func (t *timer) String() <-chan string {
+	return nil
 }

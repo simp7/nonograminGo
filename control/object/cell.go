@@ -1,6 +1,7 @@
 package object
 
 import (
+	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/util"
 	"sync"
 )
@@ -32,8 +33,8 @@ func GetCell(state CellState) Object {
 	return cells[state]
 }
 
-func NewCell(p util.Pos) Object {
+func NewCell(p util.Pos, bg, fg termbox.Attribute) Object {
 	c := new(cell)
-	c.Object = newObject(p)
+	c.Object = newObject(p, bg, fg)
 	return c
 }
