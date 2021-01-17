@@ -11,3 +11,7 @@ func NewPos(x, y int) Pos {
 func (p Pos) Add(another Pos) Pos {
 	return NewPos(p.X+another.X, p.Y+another.Y)
 }
+
+func NilPos() Pos {
+	return NewPos(-1, -1)
+}

@@ -2,7 +2,7 @@ package control
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/control/object"
+	"github.com/simp7/nonograminGo/control/window/object"
 )
 
 type Drawer interface {

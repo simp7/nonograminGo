@@ -1,23 +1,21 @@
 package window
 
 import (
-	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/control"
-	"github.com/simp7/nonograminGo/control/object"
+	"github.com/simp7/nonograminGo/control/window/object"
 )
 
 type Window interface {
-	Refresh()
+	getObjects() []object.Object
 }
 
 type window struct {
-	objects []object.Object
-	control.Drawer
+	texts      []object.Text
+	textFields []object.TextField
+	timer      object.Timer
+	cells      []object.Cell
+	objects    []object.Object
 }
 
-func (w *window) Refresh() {
-	for _, object := range w.objects {
-		w.Drawer.Draw(object)
-	}
-	termbox.Flush()
+func (w *window) getObjects() []object.Object {
+	return w.objects
 }

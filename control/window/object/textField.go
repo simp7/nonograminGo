@@ -16,7 +16,7 @@ type textField struct {
 	content  chan string
 }
 
-func NewTextField(p util.Pos, fg, bg termbox.Attribute) Object {
+func NewTextField(p util.Pos, fg, bg termbox.Attribute) TextField {
 	t := new(textField)
 	t.Object = newObject(p, fg, bg)
 	t.isActive = false
