@@ -8,6 +8,7 @@ import (
 type TextField interface {
 	Object
 	Activate()
+	Deactivate()
 }
 
 type textField struct {
@@ -29,4 +30,8 @@ func (t *textField) Content() <-chan string {
 
 func (t *textField) Activate() {
 	t.isActive = true
+}
+
+func (t *textField) Deactivate() {
+	t.isActive = false
 }

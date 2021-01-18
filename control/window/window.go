@@ -12,7 +12,7 @@ type window struct {
 	texts      []object.Text
 	textFields []object.TextField
 	timer      object.Timer
-	cells      []object.Cell
+	board      object.Board
 	objects    []object.Object
 }
 

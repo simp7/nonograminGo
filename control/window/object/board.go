@@ -43,8 +43,19 @@ func NewBoard(p util.Pos, w, h int) Board {
 
 	for i := 0; i < h; i++ {
 		b.cells = append(b.cells, make([]Cell, w))
+		b.initRow(i, p)
 	}
 
 	return b
+
+}
+
+func (b *board) initRow(idx int, origin util.Pos) {
+
+	col := origin.Y + idx
+
+	for i := range b.cells[idx] {
+		b.cells[i][idx] = GetCell(util.NewPos(col, origin.X+i), Empty)
+	}
 
 }

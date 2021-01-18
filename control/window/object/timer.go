@@ -21,6 +21,13 @@ func NewTimer(p util.Pos, fg, bg termbox.Attribute) Timer {
 	return t
 }
 
-func (t *timer) String() <-chan string {
-	return nil
+func (t *timer) Content() <-chan string {
+
+	c := make(chan string, 1)
+	go t.Do(func(current string) {
+		c <- current
+	})
+
+	return c
+
 }

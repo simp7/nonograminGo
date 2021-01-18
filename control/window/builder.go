@@ -14,7 +14,7 @@ type Builder interface {
 	AddTexts(util.Pos, []string) Builder
 	AddTextField(util.Pos) Builder
 	AddTimer(util.Pos) Builder
-	AddCell(pos util.Pos, width, height int) Builder
+	AddBoard(pos util.Pos, width, height int) Builder
 	GetWindow() Window
 }
 
@@ -65,9 +65,9 @@ func (b *builder) AddTimer(pos util.Pos) Builder {
 	return b
 }
 
-func (b *builder) AddCell(pos util.Pos, width, height int) Builder {
+func (b *builder) AddBoard(pos util.Pos, width, height int) Builder {
 	b.appendAction(func() {
-
+		b.window.board = object.NewBoard(pos, width, height)
 	})
 	return b
 }
