@@ -2,9 +2,7 @@ package control
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/asset"
-	"github.com/simp7/nonograminGo/control/object"
-	"github.com/simp7/nonograminGo/util"
+	"github.com/simp7/nonograminGo/control/window/object"
 )
 
 type Drawer interface {
@@ -13,18 +11,17 @@ type Drawer interface {
 }
 
 type drawer struct {
-	asset.Color
 }
 
-func NewDrawer(setting *asset.Setting) Drawer {
+func NewDrawer() Drawer {
 	d := new(drawer)
-	d.Color = setting.Color
 	return d
 }
 
 func (d *drawer) Draw(target object.Object) {
 
 	p := target.GetPos()
+	fg, bg := target.GetAttribute()
 
 	go func() {
 		for {
@@ -35,7 +32,7 @@ func (d *drawer) Draw(target object.Object) {
 			}
 
 			for i, character := range []rune(text) {
-				termbox.SetCell(p.X+i, p.Y, character, d.Color.Char, d.Color.Empty)
+				termbox.SetCell(p.X+i, p.Y, character, fg, bg)
 			}
 
 		}
@@ -44,5 +41,5 @@ func (d *drawer) Draw(target object.Object) {
 }
 
 func (d *drawer) Empty() {
-	util.CheckErr(termbox.Clear(d.Color.Empty, d.Color.Empty))
+	//util.CheckErr(termbox.Clear(d.Color.Empty, d.Color.Empty))
 }

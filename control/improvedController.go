@@ -51,7 +51,7 @@ func (c *improvedController) closeWindow() {
 }
 
 func (c *improvedController) showWindow() {
-	c.windows.Top().Refresh()
+	c.windows.Top()
 }
 
 func (c *improvedController) terminate() {
