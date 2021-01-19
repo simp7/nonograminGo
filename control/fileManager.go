@@ -36,7 +36,6 @@ type fileManager struct {
 func NewFileManager() FileManager {
 
 	fm := new(fileManager)
-	fm.currentFile = ""
 	fm.order = 0
 	fm.PathFormatter = util.GetPathFormatter()
 	fm.FileFormatter = model.NewMapFormatter()

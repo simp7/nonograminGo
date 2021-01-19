@@ -19,3 +19,8 @@ type window struct {
 func (w *window) getObjects() []object.Object {
 	return w.objects
 }
+
+func (w *window) ShowObjects() {
+	objects := w.getObjects()
+	objects[1].GetAttribute()
+}

@@ -3,6 +3,7 @@ package object
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/util"
+	"strconv"
 )
 
 type TextField interface {
@@ -34,4 +35,14 @@ func (t *textField) Activate() {
 
 func (t *textField) Deactivate() {
 	t.isActive = false
+}
+
+func (t *textField) GetString() string {
+	return <-t.content
+}
+
+func (t *textField) GetInt() int {
+	result, err := strconv.Atoi(<-t.content)
+	util.CheckErr(err)
+	return result
 }

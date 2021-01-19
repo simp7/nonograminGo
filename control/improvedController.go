@@ -4,15 +4,16 @@ import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/asset"
 	"github.com/simp7/nonograminGo/control/window"
+	"github.com/simp7/nonograminGo/util"
 )
 
 type improvedController struct {
 	*asset.Setting
-	windows   window.Stack
-	eventChan chan termbox.Event
-	endChan   chan struct{}
-	event     termbox.Event
-	view      map[View]window.Window
+	windows     window.Stack
+	eventChan   chan termbox.Event
+	endChan     chan struct{}
+	event       termbox.Event
+	winConstant window.Constant
 }
 
 func NewImprovedController() Controller {
@@ -21,11 +22,12 @@ func NewImprovedController() Controller {
 	c.Setting = asset.GetSetting()
 	c.eventChan = make(chan termbox.Event)
 	c.endChan = make(chan struct{})
+	c.winConstant = window.GetManager()
 	return c
 }
 
 func (c *improvedController) Start() {
-	c.openWindow(MainMenu)
+	util.CheckErr(termbox.Init())
 	go func() {
 		select {
 		case c.eventChan <- termbox.PollEvent():
@@ -34,10 +36,11 @@ func (c *improvedController) Start() {
 			return
 		}
 	}()
+	c.openWindow(window.MainMenu)
 }
 
-func (c *improvedController) openWindow(v View) {
-	c.windows.Push(c.view[v])
+func (c *improvedController) openWindow(v window.View) {
+	c.windows.Push(c.winConstant.Get(v))
 	c.showWindow()
 }
 
@@ -51,7 +54,9 @@ func (c *improvedController) closeWindow() {
 }
 
 func (c *improvedController) showWindow() {
-	c.windows.Top()
+	for {
+		c.windows.Top()
+	}
 }
 
 func (c *improvedController) terminate() {

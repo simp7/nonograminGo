@@ -9,7 +9,7 @@ import (
 type buildAction func()
 
 type Builder interface {
-	InitWindow() Builder
+	initWindow() Builder
 	AddText(util.Pos, string) Builder
 	AddTexts(util.Pos, []string) Builder
 	AddTextField(util.Pos) Builder
@@ -26,10 +26,11 @@ type builder struct {
 
 func NewBuilder() Builder {
 	b := new(builder)
+	b.initWindow()
 	return b
 }
 
-func (b *builder) InitWindow() Builder {
+func (b *builder) initWindow() Builder {
 	b.window = new(window)
 	b.Setting = asset.GetSetting()
 	return b
