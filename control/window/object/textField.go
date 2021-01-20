@@ -1,7 +1,6 @@
 package object
 
 import (
-	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/util"
 	"strconv"
 )
@@ -18,9 +17,9 @@ type textField struct {
 	content  chan string
 }
 
-func NewTextField(p util.Pos, fg, bg termbox.Attribute) TextField {
+func NewTextField(p util.Pos, parent Object) TextField {
 	t := new(textField)
-	t.Object = newObject(p, fg, bg)
+	t.Object = newObject(p, parent)
 	t.isActive = false
 	return t
 }

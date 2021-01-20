@@ -8,8 +8,8 @@ func NewPos(x, y int) Pos {
 	return Pos{x, y}
 }
 
-func (p Pos) Add(another Pos) Pos {
-	return NewPos(p.X+another.X, p.Y+another.Y)
+func (p Pos) Move(deltaX, deltaY int) Pos {
+	return NewPos(p.X+deltaX, p.Y+deltaY)
 }
 
 func NilPos() Pos {

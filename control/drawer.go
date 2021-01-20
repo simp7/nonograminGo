@@ -1,7 +1,6 @@
 package control
 
 import (
-	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/control/window/object"
 )
 
@@ -20,20 +19,8 @@ func NewDrawer() Drawer {
 
 func (d *drawer) Draw(target object.Object) {
 
-	p := target.GetPos()
-	fg, bg := target.GetAttribute()
-
 	go func() {
 		for {
-
-			text, ok := <-target.Content()
-			if !ok {
-				return
-			}
-
-			for i, character := range []rune(text) {
-				termbox.SetCell(p.X+i, p.Y, character, fg, bg)
-			}
 
 		}
 	}()

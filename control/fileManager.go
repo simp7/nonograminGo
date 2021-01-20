@@ -67,7 +67,7 @@ func (fm *fileManager) GetMapList() []string {
 
 	return mapList
 
-}
+} //TODO: Separate suffix formatting function.
 
 /*
 	This function gets player to the next page of list.

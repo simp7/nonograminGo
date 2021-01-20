@@ -52,6 +52,9 @@ func (t *timer) timePassed() {
 		case <-t.C:
 			present += 1
 			t.clock <- convertTimeFormat(present)
+			if present > 3600*24-1 {
+				t.Stop()
+			}
 
 		case <-t.stopper:
 			t.clock <- convertTimeFormat(present) //To prevent situation that t.clock channel is empty.
@@ -99,13 +102,16 @@ func (t *timer) Do(someFunc func(current string)) {
 
 func convertTimeFormat(totalTime int) string {
 
-	minutes := totalTime / 60
 	seconds := totalTime % 60
+	minutes := (totalTime % 3600) / 60
+	hours := totalTime / 3600
 
 	if seconds < 10 {
 		return fmt.Sprintf("%d:0%d", minutes, seconds)
-	} else {
+	} else if hours == 0 {
 		return fmt.Sprintf("%d:%d", minutes, seconds)
+	} else {
+		return fmt.Sprintf("%d:%d:%d", hours, minutes, seconds)
 	}
 
 }
