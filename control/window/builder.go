@@ -36,9 +36,13 @@ func (b *builder) initWindow() Builder {
 	return b
 }
 
+func (b *builder) add(object object.Object) {
+	b.window.objects = append(b.window.objects, object)
+}
+
 func (b *builder) AddText(pos util.Pos, content string) Builder {
 	b.appendAction(func() {
-		b.window.texts = append(b.window.texts, object.NewText(pos, b.Char, b.Empty, content))
+		b.add(object.NewText(pos, b.window, content))
 	})
 	return b
 }
@@ -54,21 +58,21 @@ func (b *builder) AddTexts(pos util.Pos, contents []string) Builder {
 
 func (b *builder) AddTextField(pos util.Pos) Builder {
 	b.appendAction(func() {
-		b.window.textFields = append(b.window.textFields, object.NewTextField(pos, b.Char, b.Empty))
+		b.add(object.NewTextField(pos, b.window))
 	})
 	return b
 }
 
 func (b *builder) AddTimer(pos util.Pos) Builder {
 	b.appendAction(func() {
-		b.window.timer = object.NewTimer(pos, b.Char, b.Empty)
+		b.add(object.NewTimer(pos, b.window))
 	})
 	return b
 }
 
 func (b *builder) AddBoard(pos util.Pos, width, height int) Builder {
 	b.appendAction(func() {
-		b.window.board = object.NewBoard(pos, width, height)
+		b.add(object.NewBoard(pos, b.window, width, height))
 	})
 	return b
 }

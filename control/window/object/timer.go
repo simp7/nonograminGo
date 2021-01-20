@@ -1,7 +1,6 @@
 package object
 
 import (
-	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/util"
 )
 
@@ -10,14 +9,14 @@ type Timer interface {
 }
 
 type timer struct {
-	Object
+	Text
 	util.Timer
 }
 
-func NewTimer(p util.Pos, fg, bg termbox.Attribute) Timer {
+func NewTimer(p util.Pos, parent Object) Timer {
 	t := new(timer)
 	t.Timer = util.StartTimer()
-	t.Object = newObject(p, fg, bg)
+	t.Text = NewText(p, parent, "0:00")
 	return t
 }
 
