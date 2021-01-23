@@ -5,6 +5,7 @@ import (
 	"github.com/simp7/nonograminGo/asset"
 	"github.com/simp7/nonograminGo/model"
 	"github.com/simp7/nonograminGo/util"
+	"github.com/simp7/times/gadget/stopwatch"
 	"strconv"
 	"sync"
 )
@@ -29,7 +30,7 @@ type cliController struct {
 	currentView View
 	event       termbox.Event
 	fm          FileManager
-	timer       util.Timer
+	timer       stopwatch.Stopwatch
 	locker      sync.Mutex
 	*asset.Setting
 }
@@ -42,6 +43,7 @@ func NewCliController() Controller {
 	cc.currentView = MainMenu
 	cc.fm = NewFileManager()
 	cc.Setting = asset.GetSetting()
+	cc.timer = stopwatch.Standard
 
 	return cc
 
@@ -237,12 +239,14 @@ func (cc *cliController) inGame(correctMap model.Nonomap) {
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
 	cc.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
-	cc.timer = util.StartTimer()
-
 	player := model.NewPlayer(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
 	player.SetMap(model.Cursor)
 
-	go cc.showHeader()
+	cc.locker.Lock()
+	cc.showHeader()
+	cc.locker.Unlock()
+
+	go cc.timer.Start()
 
 	for {
 
@@ -322,7 +326,7 @@ func (cc *cliController) showResult(wrong int) {
 	copy(result, resultFormat)
 
 	result[3] += cc.fm.GetCurrentMapName()
-	result[4] += cc.timer.GetResult()
+	result[4] += cc.timer.End()
 	result[5] += strconv.Itoa(wrong)
 
 	cc.locker.Lock()
@@ -509,10 +513,7 @@ func (cc *cliController) showHeader() {
 
 	mapName := cc.fm.GetCurrentMapName()
 
-	cc.locker.Lock()
-	defer cc.locker.Unlock()
-
-	cc.timer.Do(func(current string) {
+	cc.timer.Add(func(current string) {
 		cc.println(cc.DefaultX, 0, []string{mapName + cc.BlankBetweenMapNameAndTimer() + current})
 		util.CheckErr(termbox.Flush())
 	})
