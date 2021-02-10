@@ -12,6 +12,6 @@ func (p Pos) Move(deltaX, deltaY int) Pos {
 	return NewPos(p.X+deltaX, p.Y+deltaY)
 }
 
-func NilPos() Pos {
+func Nil() Pos {
 	return NewPos(-1, -1)
 }

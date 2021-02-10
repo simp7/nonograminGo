@@ -40,6 +40,8 @@ func strArrayCompare(s1 []string, s2 []string, idx int, t *testing.T) {
 	for i, s := range s1 {
 		if strings.Compare(s, s2[i]) != 0 {
 			t.Errorf("error in example %d -- expected : %s, actual : %s", idx, s2[i], s)
+		} else {
+			t.Logf("Example %d has been passed", idx)
 		}
 	}
 }

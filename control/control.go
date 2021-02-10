@@ -242,9 +242,7 @@ func (cc *cliController) inGame(correctMap model.Nonomap) {
 	player := model.NewPlayer(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
 	player.SetMap(model.Cursor)
 
-	cc.locker.Lock()
 	cc.showHeader()
-	cc.locker.Unlock()
 
 	go cc.timer.Start()
 
@@ -297,7 +295,7 @@ func (cc *cliController) inGame(correctMap model.Nonomap) {
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
-			cc.timer.End()
+			cc.timer.Stop()
 			return
 		}
 
@@ -326,7 +324,7 @@ func (cc *cliController) showResult(wrong int) {
 	copy(result, resultFormat)
 
 	result[3] += cc.fm.GetCurrentMapName()
-	result[4] += cc.timer.End()
+	result[4] += cc.timer.Stop()
 	result[5] += strconv.Itoa(wrong)
 
 	cc.locker.Lock()
