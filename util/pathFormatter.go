@@ -1,6 +1,7 @@
 package util
 
 import (
+	"errors"
 	"os"
 	"path"
 	"sync"
@@ -20,8 +21,11 @@ var once sync.Once
 func GetPathFormatter() PathFormatter {
 
 	once.Do(func() {
-		workingDir, err := os.Getwd()
-		CheckErr(err)
+		workingDir, ok := os.LookupEnv("GOPATH")
+		if !ok {
+			CheckErr(errors.New("GOPATH not exist"))
+		}
+		workingDir = path.Join(workingDir, "src", "github.com", "simp7", "nonograminGo")
 		instance = newPathFormatter(workingDir)
 	})
 
