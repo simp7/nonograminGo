@@ -493,7 +493,7 @@ func (cc *cliController) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.fm.CreateMap(mapName, width, height, player.ConvertToBitMap())
+			cc.fm.CreateMap(mapName, width, height, player.FinishCreating())
 			cc.fm.RefreshMapList()
 			return
 		}

@@ -33,7 +33,7 @@ type Player interface {
 	GetMapSignal() Signal
 	SetMapSignal(Signal)
 	Move(Direction)
-	ConvertToBitMap() [][]bool
+	FinishCreating() [][]bool
 }
 
 type player struct {
@@ -42,6 +42,7 @@ type player struct {
 	xPos        int
 	yPos        int
 	playerMap   [][]Signal
+	bitmap      [][]bool
 	*asset.Setting
 }
 
@@ -114,13 +115,14 @@ func (p *player) SetMap(signal Signal) {
 */
 
 func (p *player) SetCursor(cellState Signal) {
-	if cellState == Fill {
+	switch cellState {
+	case Fill:
 		p.SetMap(CursorFilled)
-	} else if cellState == Check {
-		p.SetMap(CursorChecked)
-	} else if cellState == Wrong {
+	case Check:
+		p.SetMap(Check)
+	case Wrong:
 		p.SetMap(CursorWrong)
-	} else {
+	default:
 		p.SetMap(Cursor)
 	}
 }
@@ -182,17 +184,20 @@ func (p *player) Move(direction Direction) {
 	This function will be called when user finish making map in create mode.
 */
 
-func (p *player) ConvertToBitMap() (result [][]bool) {
-	result = make([][]bool, len(p.playerMap))
-	for n := range result {
-		result[n] = make([]bool, len(p.playerMap[0]))
-		for m := range result[n] {
-			if p.playerMap[n][m] == Fill {
-				result[n][m] = true
-			} else {
-				result[n][m] = false
-			}
-		}
+func (p *player) FinishCreating() [][]bool {
+
+	p.bitmap = make([][]bool, len(p.playerMap))
+	for n := range p.bitmap {
+		p.bitmap[n] = make([]bool, len(p.playerMap[0]))
+		p.convertByRow(n)
 	}
-	return
+
+	return p.bitmap
+
+}
+
+func (p *player) convertByRow(y int) {
+	for x := range p.bitmap[y] {
+		p.bitmap[y][x] = p.playerMap[y][x] == Fill
+	}
 }
