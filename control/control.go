@@ -5,6 +5,7 @@ import (
 	"github.com/simp7/nonograminGo/asset"
 	"github.com/simp7/nonograminGo/model"
 	"github.com/simp7/nonograminGo/util"
+	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
 	"strconv"
 	"sync"
@@ -30,7 +31,7 @@ type cliController struct {
 	currentView View
 	event       termbox.Event
 	fm          FileManager
-	timer       stopwatch.Stopwatch
+	timer       gadget.Stopwatch
 	locker      sync.Mutex
 	*asset.Setting
 }

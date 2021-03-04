@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/simp7/nonograminGo/model"
 	"github.com/simp7/nonograminGo/util"
-	"strings"
 	"testing"
 )
 
@@ -12,7 +11,7 @@ func TestNonomap_ShowBitMap(t *testing.T) {
 	ans := [][]string{{"101", "010"}, {"111", "101", "010"}, {"1101", "0111", "1110", "1011"}}
 
 	for i, m := range getExampleMap() {
-		s := m.ShowBitMap()
+		s := m.BitmapToStrings()
 		strArrayCompare(s, ans[i], i, t)
 	}
 
@@ -37,12 +36,16 @@ func TestNonomap_ShowProblemVertical(t *testing.T) {
 }
 
 func strArrayCompare(s1 []string, s2 []string, idx int, t *testing.T) {
-	for i, s := range s1 {
-		if strings.Compare(s, s2[i]) != 0 {
-			t.Errorf("error in example %d -- expected : %s, actual : %s", idx, s2[i], s)
-		} else {
-			t.Logf("Example %d has been passed", idx)
-		}
+	for i := range s1 {
+		stringCompare(s1[i], s2[i], idx, t)
+	}
+}
+
+func stringCompare(s1 string, s2 string, idx int, t *testing.T) {
+	if s1 != s2 {
+		t.Errorf("error in example %d -- expected : %s, actual %s", idx, s2, s1)
+	} else {
+		t.Logf("example %d has been passed", idx)
 	}
 }
 

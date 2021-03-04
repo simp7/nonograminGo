@@ -56,6 +56,15 @@ func NewPlayer(x int, y int, width int, height int) Player {
 	p := new(player)
 	p.xProblemPos, p.yProblemPos = x, y
 
+	p.initMap(width, height)
+
+	p.xPos, p.yPos = p.xProblemPos, p.yProblemPos+1
+	p.Setting = asset.GetSetting()
+
+	return p
+}
+
+func (p *player) initMap(width int, height int) {
 	p.playerMap = make([][]Signal, height)
 	for n := range p.playerMap {
 		p.playerMap[n] = make([]Signal, width)
@@ -63,11 +72,6 @@ func NewPlayer(x int, y int, width int, height int) Player {
 			p.playerMap[n][m] = Empty
 		}
 	}
-
-	p.xPos, p.yPos = p.xProblemPos, p.yProblemPos+1
-	p.Setting = asset.GetSetting()
-
-	return p
 }
 
 /*

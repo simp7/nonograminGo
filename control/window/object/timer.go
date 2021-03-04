@@ -2,6 +2,7 @@ package object
 
 import (
 	"github.com/simp7/nonograminGo/util"
+	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
 )
 
@@ -11,7 +12,7 @@ type Timer interface {
 
 type timer struct {
 	Text
-	stopwatch.Stopwatch
+	gadget.Stopwatch
 }
 
 func NewTimer(p util.Pos, parent Object) Timer {

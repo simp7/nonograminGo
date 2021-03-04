@@ -17,7 +17,7 @@ type Nonomap interface {
 	CreateProblemFormat() (hProblem, vProblem []string, hMax, vMax int)
 	GetHeight() int
 	GetWidth() int
-	ShowBitMap() []string
+	BitmapToStrings() []string
 	ShowProblemHorizontal() []string
 	ShowProblemVertical() []string
 	FilledTotal() int
@@ -96,7 +96,7 @@ func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 
 		}
 
-		if previousCell == true {
+		if previousCell {
 			horizontal[i] = append(horizontal[i], temp)
 		} else if len(horizontal[i]) == 0 {
 			horizontal[i] = append(horizontal[i], 0)
@@ -202,18 +202,26 @@ func (nm *nonomap) GetWidth() int {
 	This function will be called when nonomap is initialized.
 */
 
-func (nm *nonomap) ShowBitMap() (result []string) {
-	result = make([]string, nm.Height)
-	for i := 0; i < nm.Height; i++ {
-		for j := 0; j < nm.Width; j++ {
-			if nm.Bitmap[i][j] {
-				result[i] += "1"
-			} else {
-				result[i] += "0"
-			}
-		}
+func (nm *nonomap) BitmapToStrings() []string {
+	result := make([]string, nm.Height)
+	for y := 0; y < nm.Height; y++ {
+		result[y] = nm.rowToString(y)
+	}
+	return result
+}
+
+func (nm *nonomap) rowToString(y int) (result string) {
+	for x := 0; x < nm.Width; x++ {
+		result += nm.cellToString(x, y)
 	}
 	return
+}
+
+func (nm *nonomap) cellToString(x, y int) string {
+	if nm.Bitmap[y][x] {
+		return "1"
+	}
+	return "0"
 }
 
 func (nm *nonomap) ShowProblemHorizontal() (result []string) {
@@ -252,36 +260,49 @@ func (nm *nonomap) FilledTotal() (total int) {
 	total = 0
 
 	for n := range nm.Bitmap {
-		for _, v := range nm.Bitmap[n] {
-			if v {
-				total++
-			}
-		}
+		total += nm.countRow(n)
 	}
+
 	return
 
 }
 
+func (nm *nonomap) countRow(y int) int {
+	result := 0
+	for _, v := range nm.Bitmap[y] {
+		if v {
+			result++
+		}
+	}
+	return result
+}
+
 func (nm *nonomap) checkValidity() {
+	util.CheckErr(nm.checkSize())
+	util.CheckErr(nm.checkWidth())
+	util.CheckErr(nm.checkHeight())
+}
 
+func (nm *nonomap) checkSize() error {
 	setting := asset.GetSetting()
-	hMax := setting.HeightMax
-	wMax := setting.WidthMax
+	if nm.Height > setting.HeightMax || nm.Width > setting.WidthMax || nm.Height <= 0 || nm.Width <= 0 {
+		return util.InvalidMap
+	}
+	return nil
+}
 
-	if nm.Height > hMax || nm.Width > wMax || nm.Height <= 0 || nm.Width <= 0 {
-		util.CheckErr(util.InvalidMap)
-	} //Check if Height and Width meets criteria of size.
-
-	//Extract map's answer content file.
-
+func (nm *nonomap) checkWidth() error {
 	for _, v := range nm.MapData {
 		if float64(v) >= math.Pow(2, float64(nm.Width)) {
-			util.CheckErr(util.InvalidMap)
-		} //Check whether Height matches MapData.
+			return util.InvalidMap
+		}
 	}
+	return nil
+}
 
+func (nm *nonomap) checkHeight() error {
 	if len(nm.MapData) != nm.Height {
-		util.CheckErr(util.InvalidMap)
-	} //Check whether Height matches MapData.
-
+		return util.InvalidMap
+	}
+	return nil
 }
