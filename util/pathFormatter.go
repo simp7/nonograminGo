@@ -54,18 +54,28 @@ func (p *pathFormatter) GetPath(target ...string) string {
 
 }
 
+func (p *pathFormatter) moveFile(fileName, from, to string) {
+
+	f := path.Join(from, fileName)
+	t := path.Join(to, fileName)
+
+	CheckErr(os.Rename(f, t))
+
+}
+
 func (p *pathFormatter) MoveBase(to string) {
 
 	list := getAllFileNames(p.base)
 
 	for _, name := range list {
-		CheckErr(os.Rename(path.Join(p.base, name), path.Join(to, name)))
+		p.moveFile(name, p.base, to)
 	}
 
 	p.base = to
 
 }
 
+//TODO: when selected path contains directory, shown inner file should include that directory.
 func getAllFileNames(filePath string) []string {
 
 	result := make([]string, 0)
@@ -73,7 +83,7 @@ func getAllFileNames(filePath string) []string {
 
 	for _, file := range files {
 		if file.IsDir() {
-			inner := getAllFileNames(file.Name())
+			inner := getAllFileNames(filePath + file.Name())
 			for i := range inner {
 				inner[i] = path.Join(inner[i], file.Name())
 			}

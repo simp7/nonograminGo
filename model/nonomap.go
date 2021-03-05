@@ -83,11 +83,11 @@ func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 
 		for j := 0; j < nm.Width; j++ {
 
-			if nm.Bitmap[i][j] == true {
+			if nm.Bitmap[i][j] {
 				temp++
 				previousCell = true
 			} else {
-				if previousCell == true {
+				if previousCell {
 					horizontal[i] = append(horizontal[i], temp)
 					temp = 0
 				}
@@ -98,7 +98,9 @@ func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 
 		if previousCell {
 			horizontal[i] = append(horizontal[i], temp)
-		} else if len(horizontal[i]) == 0 {
+		}
+
+		if len(horizontal[i]) == 0 {
 			horizontal[i] = append(horizontal[i], 0)
 		}
 

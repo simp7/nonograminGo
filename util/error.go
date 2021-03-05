@@ -14,10 +14,14 @@ var (
 )
 
 func CheckErr(e error) {
-	if e != nil && e != io.EOF {
-		if termbox.IsInit {
-			termbox.Close()
-		}
-		log.Fatal(e)
+
+	if e == nil || e == io.EOF {
+		return
 	}
+
+	if termbox.IsInit {
+		termbox.Close()
+	}
+	log.Fatal(e)
+
 }
