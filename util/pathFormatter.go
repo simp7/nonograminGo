@@ -12,7 +12,7 @@ type PathFormatter interface {
 }
 
 type pathFormatter struct {
-	base string
+	root string
 }
 
 var instance PathFormatter
@@ -21,11 +21,12 @@ var once sync.Once
 func GetPathFormatter() PathFormatter {
 
 	once.Do(func() {
-		workingDir, ok := os.LookupEnv("GOPATH")
+		workingDir, ok := os.LookupEnv("HOME")
 		if !ok {
-			CheckErr(errors.New("GOPATH not exist"))
+			CheckErr(errors.New("HOME not exist"))
 		}
-		workingDir = path.Join(workingDir, "src", "github.com", "simp7", "nonograminGo")
+		workingDir = path.Join(workingDir, "nonogram")
+		os.Mkdir(workingDir, 755)
 		instance = newPathFormatter(workingDir)
 	})
 
@@ -33,10 +34,10 @@ func GetPathFormatter() PathFormatter {
 
 }
 
-func newPathFormatter(base string) PathFormatter {
+func newPathFormatter(root string) PathFormatter {
 
 	p := new(pathFormatter)
-	p.base = base
+	p.root = root
 
 	return p
 
@@ -44,7 +45,7 @@ func newPathFormatter(base string) PathFormatter {
 
 func (p *pathFormatter) GetPath(target ...string) string {
 
-	current := p.base
+	current := p.root
 
 	for _, element := range target {
 		current = path.Join(current, element)
@@ -65,31 +66,31 @@ func (p *pathFormatter) moveFile(fileName, from, to string) {
 
 func (p *pathFormatter) MoveBase(to string) {
 
-	list := getAllFileNames(p.base)
+	list := getAllFilesFrom(p.root)
 
 	for _, name := range list {
-		p.moveFile(name, p.base, to)
+		p.moveFile(name, p.root, to)
 	}
 
-	p.base = to
+	p.root = to
 
 }
 
-//TODO: when selected path contains directory, shown inner file should include that directory.
-func getAllFileNames(filePath string) []string {
+//getAllFilesFrom gets and returns absolute path.
+func getAllFilesFrom(parentDirectory string) []string {
 
 	result := make([]string, 0)
-	files, _ := os.ReadDir(filePath)
+	files, _ := os.ReadDir(parentDirectory)
 
 	for _, file := range files {
 		if file.IsDir() {
-			inner := getAllFileNames(filePath + file.Name())
+			inner := getAllFilesFrom(parentDirectory + file.Name())
 			for i := range inner {
 				inner[i] = path.Join(inner[i], file.Name())
 			}
 			result = append(result, inner...)
 		} else {
-			result = append(result, file.Name())
+			result = append(result, parentDirectory, file.Name())
 		}
 	}
 
