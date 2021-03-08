@@ -1,11 +1,18 @@
 package util
 
 import (
+	"embed"
 	"errors"
+	"io/ioutil"
 	"os"
 	"path"
 	"sync"
 )
+
+//go:embed default_setting.json
+//go:embed language
+//go:embed default_maps
+var f embed.FS
 
 type PathFormatter interface {
 	GetPath(of ...string) string
@@ -21,13 +28,20 @@ var once sync.Once
 func GetPathFormatter() PathFormatter {
 
 	once.Do(func() {
+
 		workingDir, ok := os.LookupEnv("HOME")
 		if !ok {
 			CheckErr(errors.New("HOME not exist"))
 		}
+
 		workingDir = path.Join(workingDir, "nonogram")
-		os.Mkdir(workingDir, 755)
+		os.Mkdir(workingDir, 0755)
 		instance = newPathFormatter(workingDir)
+
+		if isFirstTime() {
+			initialize()
+		}
+
 	})
 
 	return instance
@@ -41,6 +55,34 @@ func newPathFormatter(root string) PathFormatter {
 
 	return p
 
+}
+
+func isFirstTime() bool {
+	_, ok := os.Open(instance.GetPath("setting.json"))
+	return ok != nil
+}
+
+func initialize() {
+
+	os.Mkdir(instance.GetPath("maps"), 0755)
+	os.Mkdir(instance.GetPath("language"), 0755)
+
+	copy("default_setting.json", instance.GetPath("setting.json"))
+	copyDir("language", "language")
+	copyDir("default_maps", "maps")
+
+}
+
+func copyDir(from string, to string) {
+	files, _ := f.ReadDir(from)
+	for _, file := range files {
+		copy(from+string(os.PathSeparator)+file.Name(), instance.GetPath(to, file.Name()))
+	}
+}
+
+func copy(from string, to string) {
+	data, _ := f.ReadFile(from)
+	ioutil.WriteFile(to, data, 0644)
 }
 
 func (p *pathFormatter) GetPath(target ...string) string {

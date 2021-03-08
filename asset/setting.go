@@ -23,11 +23,11 @@ func GetSetting() *Setting {
 		instance = new(Setting)
 		pf := util.GetPathFormatter()
 
-		content, err := ioutil.ReadFile(pf.GetPath("asset", "setting.json"))
+		content, err := ioutil.ReadFile(pf.GetPath("setting.json"))
 		util.CheckErr(err)
 		Load(content)
 
-		languageFile := pf.GetPath("asset", "language", instance.Language+".json")
+		languageFile := pf.GetPath("language", instance.Language+".json")
 		content, err = ioutil.ReadFile(languageFile)
 		util.CheckErr(err)
 		instance.Text = NewText(content)
