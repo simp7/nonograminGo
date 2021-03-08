@@ -64,17 +64,19 @@ func (nm *nonomap) ShouldFilled(x int, y int) bool {
 
 }
 
-/*
-	This function convert nonomap's data into problem data so player can solve with it.
-	This function will be called in CreateProblemFormat().
-*/
+func getMaxLength(data [][]int) int {
+	max := 0
+	for _, v := range data {
+		if len(v) > max {
+			max = len(v)
+		}
+	}
+	return max
+}
 
-func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hMax int, vMax int) {
+func (nm *nonomap) createHorizontalProblemData() [][]int {
 
-	horizontal = make([][]int, nm.Height)
-	vertical = make([][]int, nm.Width)
-	hMax = 0
-	vMax = 0
+	horizontal := make([][]int, nm.Height)
 
 	for i := 0; i < nm.Height; i++ {
 
@@ -104,11 +106,15 @@ func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 			horizontal[i] = append(horizontal[i], 0)
 		}
 
-		if hMax < len(horizontal[i]) {
-			hMax = len(horizontal[i])
-		}
-
 	}
+
+	return horizontal
+
+}
+
+func (nm *nonomap) createVerticalProblemData() [][]int {
+
+	vertical := make([][]int, nm.Width)
 
 	for i := 0; i < nm.Width; i++ {
 
@@ -116,11 +122,11 @@ func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 		temp := 0
 
 		for j := 0; j < nm.Height; j++ {
-			if nm.Bitmap[j][i] == true {
+			if nm.Bitmap[j][i] {
 				temp++
 				previousCell = true
 			} else {
-				if previousCell == true {
+				if previousCell {
 					vertical[i] = append(vertical[i], temp)
 					temp = 0
 				}
@@ -128,19 +134,18 @@ func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 			}
 		}
 
-		if previousCell == true {
+		if previousCell {
 			vertical[i] = append(vertical[i], temp)
-		} else if len(vertical[i]) == 0 {
-			vertical[i] = append(vertical[i], 0)
 		}
 
-		if vMax < len(vertical[i]) {
-			vMax = len(vertical[i])
+		if len(vertical[i]) == 0 {
+			vertical[i] = append(vertical[i], 0)
 		}
 
 	}
 
-	return
+	return vertical
+
 }
 
 /*
@@ -150,7 +155,11 @@ func (nm *nonomap) createProblemData() (horizontal [][]int, vertical [][]int, hM
 
 func (nm *nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hMax int, vMax int) {
 
-	hData, vData, hMax, vMax := nm.createProblemData()
+	hData := nm.createHorizontalProblemData()
+	vData := nm.createVerticalProblemData()
+
+	hMax = len(hData)
+	vMax = len(vData)
 
 	hProblem = make([]string, nm.Height)
 	vProblem = make([]string, vMax)
@@ -227,28 +236,33 @@ func (nm *nonomap) cellToString(x, y int) string {
 }
 
 func (nm *nonomap) ShowProblemHorizontal() (result []string) {
-	a, _, _, _ := nm.createProblemData()
+
+	d := nm.createHorizontalProblemData()
 
 	result = make([]string, nm.Height)
-	for n := range a {
-		for _, v := range a[n] {
+	for n := range d {
+		for _, v := range d[n] {
 			result[n] += strconv.Itoa(v)
 		}
 	}
 
 	return
+
 }
 
 func (nm *nonomap) ShowProblemVertical() (result []string) {
-	_, b, _, _ := nm.createProblemData()
+
+	d := nm.createVerticalProblemData()
 
 	result = make([]string, nm.Width)
-	for n := range b {
-		for _, v := range b[n] {
+	for n := range d {
+		for _, v := range d[n] {
 			result[n] += strconv.Itoa(v)
 		}
 	}
+
 	return
+
 }
 
 /*
