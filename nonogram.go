@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-var rd control.Controller = control.NewCliController()
+var rd = control.NewCliController()
 
 func init() {
 
