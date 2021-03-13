@@ -184,6 +184,6 @@ func (fm *fileManager) CreateMap(name string, width int, height int, bitmap [][]
 
 func (fm *fileManager) RefreshMapList() {
 	var err error
-	fm.files, err = ioutil.ReadDir("./maps")
+	fm.files, err = ioutil.ReadDir(fm.GetPath("maps"))
 	util.CheckErr(err)
 }

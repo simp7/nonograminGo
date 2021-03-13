@@ -82,11 +82,13 @@ This function would be called when key input is needed.
 func (cc *cliController) pressKeyToContinue() {
 
 	for {
+
 		cc.event = <-cc.eventChan
 
 		if cc.event.Type == termbox.EventKey {
 			return
 		}
+
 	}
 
 }
