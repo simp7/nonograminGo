@@ -1,7 +1,7 @@
 package window
 
 import (
-	"github.com/simp7/nonograminGo/control/window/object"
+	"github.com/simp7/nonograminGo/nonogram/controller/window/object"
 )
 
 type Window interface {

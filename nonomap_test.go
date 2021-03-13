@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/simp7/nonograminGo/model"
+	"github.com/simp7/nonograminGo/nonogram/model"
 	"github.com/simp7/nonograminGo/util"
 	"testing"
 )

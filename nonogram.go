@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/simp7/nonograminGo/control"
+	"github.com/simp7/nonograminGo/nonogram/controller"
 	"os"
 )
 
-var rd = control.NewCliController()
+var rd = controller.CLI()
 
 func init() {
 
@@ -14,7 +14,7 @@ func init() {
 		return
 	case 2:
 		if os.Args[1] == "alpha" {
-			rd = control.NewImprovedController()
+			rd = controller.Improved()
 		}
 	default:
 		//util.CheckErr(util.TooManyArgs)

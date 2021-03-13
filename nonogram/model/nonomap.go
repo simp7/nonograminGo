@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/simp7/nonograminGo/asset"
+	"github.com/simp7/nonograminGo/nonogram/asset"
 	"github.com/simp7/nonograminGo/util"
 	"math"
 	"strconv"
@@ -158,8 +158,8 @@ func (nm *nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 	hData := nm.createHorizontalProblemData()
 	vData := nm.createVerticalProblemData()
 
-	hMax = len(hData)
-	vMax = len(vData)
+	hMax = getMaxLength(hData)
+	vMax = getMaxLength(vData)
 
 	hProblem = make([]string, nm.Height)
 	vProblem = make([]string, vMax)

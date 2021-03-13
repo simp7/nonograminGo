@@ -1,9 +1,10 @@
-package control
+package controller
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/asset"
-	"github.com/simp7/nonograminGo/model"
+	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/asset"
+	"github.com/simp7/nonograminGo/nonogram/model"
 	"github.com/simp7/nonograminGo/util"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
@@ -21,10 +22,6 @@ const (
 	Credit
 )
 
-type Controller interface {
-	Start()
-}
-
 type cliController struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
@@ -36,7 +33,7 @@ type cliController struct {
 	*asset.Setting
 }
 
-func NewCliController() Controller {
+func CLI() nonogram.Controller {
 
 	cc := new(cliController)
 	cc.eventChan = make(chan termbox.Event)
