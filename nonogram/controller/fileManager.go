@@ -1,9 +1,9 @@
-package control
+package controller
 
 import (
 	"fmt"
-	"github.com/simp7/nonograminGo/asset"
-	"github.com/simp7/nonograminGo/model"
+	"github.com/simp7/nonograminGo/nonogram/asset"
+	"github.com/simp7/nonograminGo/nonogram/model"
 	"github.com/simp7/nonograminGo/util"
 	"io/ioutil"
 	"math"

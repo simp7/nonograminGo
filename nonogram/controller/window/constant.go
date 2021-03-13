@@ -1,7 +1,7 @@
 package window
 
 import (
-	"github.com/simp7/nonograminGo/asset"
+	"github.com/simp7/nonograminGo/nonogram/asset"
 	"sync"
 )
 

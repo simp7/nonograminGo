@@ -1,8 +1,8 @@
 package window
 
 import (
-	"github.com/simp7/nonograminGo/asset"
-	"github.com/simp7/nonograminGo/control/window/object"
+	"github.com/simp7/nonograminGo/nonogram/asset"
+	"github.com/simp7/nonograminGo/nonogram/controller/window/object"
 	"github.com/simp7/nonograminGo/util"
 )
 

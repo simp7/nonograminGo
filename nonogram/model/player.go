@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/asset"
+	"github.com/simp7/nonograminGo/nonogram/asset"
 )
 
 type Signal uint8

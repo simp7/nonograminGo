@@ -1,9 +1,10 @@
-package control
+package controller
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/asset"
-	"github.com/simp7/nonograminGo/control/window"
+	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/asset"
+	"github.com/simp7/nonograminGo/nonogram/controller/window"
 	"github.com/simp7/nonograminGo/util"
 )
 
@@ -16,7 +17,7 @@ type improvedController struct {
 	winConstant window.Constant
 }
 
-func NewImprovedController() Controller {
+func Improved() nonogram.Controller {
 	c := new(improvedController)
 	c.windows = window.NewStack()
 	c.Setting = asset.GetSetting()

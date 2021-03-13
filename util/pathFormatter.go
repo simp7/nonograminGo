@@ -35,10 +35,11 @@ func GetPathFormatter() PathFormatter {
 		}
 
 		workingDir = path.Join(workingDir, "nonogram")
-		os.Mkdir(workingDir, 0755)
 		instance = newPathFormatter(workingDir)
 
-		if isFirstTime() {
+		_, err := os.ReadDir(workingDir)
+		if err != nil {
+			os.Mkdir(workingDir, 0755)
 			initialize()
 		}
 
@@ -57,17 +58,12 @@ func newPathFormatter(root string) PathFormatter {
 
 }
 
-func isFirstTime() bool {
-	_, ok := os.Open(instance.GetPath("setting.json"))
-	return ok != nil
-}
-
 func initialize() {
 
 	os.Mkdir(instance.GetPath("maps"), 0755)
 	os.Mkdir(instance.GetPath("language"), 0755)
 
-	copy("default_setting.json", instance.GetPath("setting.json"))
+	copyFile("default_setting.json", instance.GetPath("setting.json"))
 	copyDir("language", "language")
 	copyDir("default_maps", "maps")
 
@@ -76,13 +72,13 @@ func initialize() {
 func copyDir(from string, to string) {
 	files, _ := f.ReadDir(from)
 	for _, file := range files {
-		copy(from+string(os.PathSeparator)+file.Name(), instance.GetPath(to, file.Name()))
+		copyFile(from+string(os.PathSeparator)+file.Name(), instance.GetPath(to, file.Name()))
 	}
 }
 
-func copy(from string, to string) {
+func copyFile(from string, to string) {
 	data, _ := f.ReadFile(from)
-	ioutil.WriteFile(to, data, 0644)
+	CheckErr(ioutil.WriteFile(to, data, 0644))
 }
 
 func (p *pathFormatter) GetPath(target ...string) string {
@@ -132,7 +128,7 @@ func getAllFilesFrom(parentDirectory string) []string {
 			}
 			result = append(result, inner...)
 		} else {
-			result = append(result, parentDirectory, file.Name())
+			result = append(result, parentDirectory+file.Name())
 		}
 	}
 
