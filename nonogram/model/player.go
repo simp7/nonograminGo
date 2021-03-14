@@ -123,7 +123,7 @@ func (p *player) SetCursor(cellState Signal) {
 	case Fill:
 		p.SetMap(CursorFilled)
 	case Check:
-		p.SetMap(Check)
+		p.SetMap(CursorChecked)
 	case Wrong:
 		p.SetMap(CursorWrong)
 	default:

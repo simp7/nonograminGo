@@ -23,7 +23,5 @@ func init() {
 }
 
 func main() {
-
 	rd.Start()
-
 }
