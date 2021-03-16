@@ -32,6 +32,7 @@ type Player interface {
 	RealPos() (x, y int)
 	GetMapSignal() Signal
 	SetMapSignal(Signal)
+	Toggle(Signal)
 	Move(Direction)
 	FinishCreating() [][]bool
 }
@@ -150,6 +151,22 @@ func (p *player) GetMapSignal() Signal {
 func (p *player) SetMapSignal(signal Signal) {
 	realXPos, realYPos := p.RealPos()
 	p.playerMap[realYPos][realXPos] = signal
+}
+
+// Toggle is called when state of selected cell changed
+
+func (p *player) Toggle(signal Signal) {
+	p.SetMapSignal(signal)
+	switch signal {
+	case Fill:
+		p.SetMap(CursorFilled)
+	case Check:
+		p.SetMap(CursorChecked)
+	case Wrong:
+		p.SetMap(CursorWrong)
+	case Empty:
+		p.SetMap(Cursor)
+	}
 }
 
 /*

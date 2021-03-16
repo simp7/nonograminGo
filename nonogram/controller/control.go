@@ -266,9 +266,9 @@ func (cc *cliController) inGame(correctMap model.Nonomap) {
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
 			if player.GetMapSignal() == model.Empty {
+
 				if correctMap.ShouldFilled(player.RealPos()) {
-					player.SetMap(model.CursorFilled)
-					player.SetMapSignal(model.Fill)
+					player.Toggle(model.Fill)
 					remainedCell--
 
 					if remainedCell == 0 { //Enter when player complete the game
@@ -278,8 +278,7 @@ func (cc *cliController) inGame(correctMap model.Nonomap) {
 					}
 
 				} else {
-					player.SetMap(model.CursorWrong)
-					player.SetMapSignal(model.Wrong)
+					player.Toggle(model.Wrong)
 					wrongCell++
 				}
 
@@ -287,11 +286,9 @@ func (cc *cliController) inGame(correctMap model.Nonomap) {
 
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
 			if player.GetMapSignal() == model.Empty {
-				player.SetMap(model.CursorChecked)
-				player.SetMapSignal(model.Check)
+				player.Toggle(model.Check)
 			} else if player.GetMapSignal() == model.Check {
-				player.SetMap(model.Cursor)
-				player.SetMapSignal(model.Empty)
+				player.Toggle(model.Empty)
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
@@ -476,19 +473,15 @@ func (cc *cliController) inCreate(mapName string, width int, height int) {
 			player.Move(model.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 			if player.GetMapSignal() == model.Empty {
-				player.SetMap(model.CursorFilled)
-				player.SetMapSignal(model.Fill)
+				player.Toggle(model.Fill)
 			} else if player.GetMapSignal() == model.Fill {
-				player.SetMap(model.Cursor)
-				player.SetMapSignal(model.Empty)
+				player.Toggle(model.Empty)
 			}
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
 			if player.GetMapSignal() == model.Empty {
-				player.SetMap(model.CursorChecked)
-				player.SetMapSignal(model.Check)
+				player.Toggle(model.Check)
 			} else if player.GetMapSignal() == model.Check {
-				player.SetMap(model.Cursor)
-				player.SetMapSignal(model.Empty)
+				player.Toggle(model.Empty)
 			}
 		case cc.event.Key == termbox.KeyEsc:
 			return
