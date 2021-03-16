@@ -13,7 +13,8 @@ Visit and follow the instruction in https://golang.org/doc/install
 3. Execute nonograminGo
 
 # External package
-- [termbox-go](https://github.com/nsf/termbox-go) : for handling CLI environment
+- [termbox-go](https://github.com/nsf/termbox-go): for handling CLI environment
+- [times](https://github.com/simp7/times): for estimating time when playing
 
 ---------------------------------------------------------------------------------------------------------------------
 
@@ -31,4 +32,5 @@ https://golang.org/dl/의 지시대로 Go언어를 설치합니다.
 3. nonograminGo를 실행합니다.
 
 # 외부 패키지
-- [termbox-go](https://github.com/nsf/termbox-go) : CLI 환경 관련 패키지
+- [termbox-go](https://github.com/nsf/termbox-go): CLI 환경 관련 패키지
+- [times](https://github.com/simp7/times): 소요 시간 측정 패키지
