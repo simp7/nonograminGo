@@ -1,4 +1,4 @@
-package asset
+package setting
 
 import (
 	"github.com/simp7/nonograminGo/util"
@@ -16,7 +16,7 @@ type Setting struct {
 var instance *Setting
 var once sync.Once
 
-func GetSetting() *Setting {
+func Get() *Setting {
 
 	once.Do(func() {
 

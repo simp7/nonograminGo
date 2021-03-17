@@ -1,6 +1,8 @@
-package asset
+package setting
 
-import "github.com/simp7/nonograminGo/util"
+import (
+	"github.com/simp7/nonograminGo/nonogram/position"
+)
 
 type Figure struct {
 	NameMax    int
@@ -8,5 +10,5 @@ type Figure struct {
 	HeightMax  int
 	DefaultX   int
 	DefaultY   int
-	DefaultPos util.Pos
+	DefaultPos position.Pos
 }

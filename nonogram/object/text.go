@@ -1,22 +1,23 @@
 package object
 
 import (
-	"github.com/simp7/nonograminGo/util"
+	"github.com/simp7/nonograminGo/nonogram"
+	pos2 "github.com/simp7/nonograminGo/nonogram/position"
 )
 
 type Text interface {
-	Object
+	nonogram.Object
 	CopyText() Text
 }
 
 type text struct {
-	pos     util.Pos
+	pos     pos2.Pos
 	content string
 	chars   []Char
-	parent  Object
+	parent  nonogram.Object
 }
 
-func NewText(p util.Pos, parent Object, content string) Text {
+func NewText(p pos2.Pos, parent nonogram.Object, content string) Text {
 	t := new(text)
 	t.pos = p
 	t.content = content
@@ -35,31 +36,23 @@ func (t *text) initContent() {
 
 }
 
-func (t *text) GetPos() util.Pos {
+func (t *text) GetPos() pos2.Pos {
 	return t.pos
 }
 
-func (t *text) Move(pos util.Pos) {
+func (t *text) Move(pos pos2.Pos) {
 	t.pos = pos
 }
 
-func (t *text) Copy() Object {
-	result := new(text)
-	result.pos = t.pos
-	result.content = t.content
-	copy(result.chars, t.chars)
-	return result
-}
-
-func (t *text) Add(o Object) {
+func (t *text) Add(o nonogram.Object) {
 	t.chars = append(t.chars, o)
 }
 
-func (t *text) Parent() Object {
+func (t *text) Parent() nonogram.Object {
 	return t.parent
 }
 
-func (t *text) Child(idx int) Object {
+func (t *text) Child(idx int) nonogram.Object {
 	return t.chars[idx]
 }
 
@@ -69,7 +62,7 @@ func (t *text) CopyText() Text {
 	return copied
 }
 
-func (t *text) do(f func(object Object)) {
+func (t *text) do(f func(object nonogram.Object)) {
 	for _, v := range t.chars {
 		f(v)
 	}

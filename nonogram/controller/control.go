@@ -3,8 +3,8 @@ package controller
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/asset"
 	"github.com/simp7/nonograminGo/nonogram/model"
+	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/util"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
@@ -22,7 +22,7 @@ const (
 	Credit
 )
 
-type cliController struct {
+type cli struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
 	currentView View
@@ -30,17 +30,17 @@ type cliController struct {
 	fm          FileManager
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
-	*asset.Setting
+	*setting.Setting
 }
 
 func CLI() nonogram.Controller {
 
-	cc := new(cliController)
+	cc := new(cli)
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
 	cc.fm = NewFileManager()
-	cc.Setting = asset.GetSetting()
+	cc.Setting = setting.Get()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -52,7 +52,7 @@ This function takes player's input into channel.
 This function will be called when program starts.
 */
 
-func (cc *cliController) Start() {
+func (cc *cli) Start() {
 
 	err := termbox.Init()
 	util.CheckErr(err)
@@ -79,7 +79,7 @@ This function wait until player press some keys.
 This function would be called when key input is needed.
 */
 
-func (cc *cliController) pressKeyToContinue() {
+func (cc *cli) pressKeyToContinue() {
 
 	for {
 
@@ -98,7 +98,7 @@ This function refresh current display because of player's input or time passed
 This function will be called when player strokes key or time passed.
 */
 
-func (cc *cliController) refresh() {
+func (cc *cli) refresh() {
 
 	cc.redraw(func() {
 		switch cc.currentView {
@@ -122,7 +122,7 @@ This function prints a list of strings line by line.
 This function will be called when display refreshed
 */
 
-func (cc *cliController) println(x int, y int, texts []string) {
+func (cc *cli) println(x int, y int, texts []string) {
 
 	temp := x
 
@@ -140,7 +140,7 @@ func (cc *cliController) println(x int, y int, texts []string) {
 
 }
 
-func (cc *cliController) printStandard(texts []string) {
+func (cc *cli) printStandard(texts []string) {
 	cc.println(cc.DefaultX, cc.DefaultY, texts)
 }
 
@@ -149,7 +149,7 @@ This function listens player's input in main menu.
 This function will be called when player enters main menu.
 */
 
-func (cc *cliController) menu() {
+func (cc *cli) menu() {
 
 	for {
 
@@ -180,7 +180,7 @@ This function listens player's input in map-select
 This function will be called when player enters map-select.
 */
 
-func (cc *cliController) selectMap() {
+func (cc *cli) selectMap() {
 
 	for {
 
@@ -212,7 +212,7 @@ This function shows the list of the map
 This function will be called when refreshing display while being in the select mode
 */
 
-func (cc *cliController) showMapList() {
+func (cc *cli) showMapList() {
 
 	mapList := make([]string, len(cc.GetSelectHeader()))
 	copy(mapList, cc.GetSelectHeader())
@@ -229,7 +229,7 @@ This function shows the map current player plays and change its appearance when 
 This function will be called when player select map.
 */
 
-func (cc *cliController) inGame(correctMap model.Nonomap) {
+func (cc *cli) inGame(correctMap model.Nonomap) {
 
 	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
 
@@ -300,7 +300,7 @@ func (cc *cliController) inGame(correctMap model.Nonomap) {
 
 }
 
-func (cc *cliController) showProblem(hProblem []string, vProblem []string, xPos int, yPos int) {
+func (cc *cli) showProblem(hProblem []string, vProblem []string, xPos int, yPos int) {
 
 	cc.redraw(func() {
 		cc.println(xPos, 1, vProblem)
@@ -314,7 +314,7 @@ func (cc *cliController) showProblem(hProblem []string, vProblem []string, xPos 
 	This function will be called when player finally solve the problem and after seeing the whole answer picture.
 */
 
-func (cc *cliController) showResult(wrong int) {
+func (cc *cli) showResult(wrong int) {
 
 	resultFormat := cc.GetResult()
 	result := make([]string, len(resultFormat))
@@ -343,7 +343,7 @@ func (cc *cliController) showResult(wrong int) {
 	This function will be called when player enter the create mode from main menu.
 */
 
-func (cc *cliController) createNonomapInfo() {
+func (cc *cli) createNonomapInfo() {
 
 	width, height := 0, 0
 	var err error
@@ -390,7 +390,7 @@ func (cc *cliController) createNonomapInfo() {
 	This function will be called when player creates map so configures properties of map.
 */
 
-func (cc *cliController) stringReader(header string) (result string) {
+func (cc *cli) stringReader(header string) (result string) {
 
 	result = ""
 	resultByte := make([]rune, cc.NameMax)
@@ -448,7 +448,7 @@ func (cc *cliController) stringReader(header string) (result string) {
 	This function will be called when player finish writing name of nonomap that player would create.
 */
 
-func (cc *cliController) inCreate(mapName string, width int, height int) {
+func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	cc.redraw(func() { cc.println(1, 0, []string{mapName}) })
 
@@ -500,7 +500,7 @@ func (cc *cliController) inCreate(mapName string, width int, height int) {
 	This function should be called as goroutine and should finish when player finish the game.
 */
 
-func (cc *cliController) showHeader() {
+func (cc *cli) showHeader() {
 
 	mapName := cc.fm.GetCurrentMapName()
 
@@ -516,7 +516,7 @@ func (cc *cliController) showHeader() {
 	This function will be called when display has to be cleared.
 */
 
-func (cc *cliController) redraw(function func()) {
+func (cc *cli) redraw(function func()) {
 
 	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
 	function()

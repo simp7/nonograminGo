@@ -2,8 +2,8 @@ package controller
 
 import (
 	"fmt"
-	"github.com/simp7/nonograminGo/nonogram/asset"
 	"github.com/simp7/nonograminGo/nonogram/model"
+	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/util"
 	"io/ioutil"
 	"math"
@@ -30,7 +30,7 @@ type fileManager struct {
 	order       int
 	util.PathFormatter
 	util.FileFormatter
-	*asset.Setting
+	*setting.Setting
 }
 
 func NewFileManager() FileManager {
@@ -44,7 +44,7 @@ func NewFileManager() FileManager {
 
 	fm.files, err = ioutil.ReadDir(fm.GetPath("maps"))
 	util.CheckErr(err)
-	fm.Setting = asset.GetSetting()
+	fm.Setting = setting.Get()
 
 	return fm
 

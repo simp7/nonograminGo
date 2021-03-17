@@ -1,4 +1,4 @@
-package asset
+package setting
 
 import (
 	"github.com/nsf/termbox-go"

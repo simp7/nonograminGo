@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/nonogram/asset"
+	"github.com/simp7/nonograminGo/nonogram/setting"
 )
 
 type Signal uint8
@@ -44,7 +44,7 @@ type player struct {
 	yPos        int
 	playerMap   [][]Signal
 	bitmap      [][]bool
-	*asset.Setting
+	*setting.Setting
 }
 
 /*
@@ -60,7 +60,7 @@ func NewPlayer(x int, y int, width int, height int) Player {
 	p.initMap(width, height)
 
 	p.xPos, p.yPos = p.xProblemPos, p.yProblemPos+1
-	p.Setting = asset.GetSetting()
+	p.Setting = setting.Get()
 
 	return p
 }

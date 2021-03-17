@@ -3,13 +3,13 @@ package controller
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/asset"
-	"github.com/simp7/nonograminGo/nonogram/controller/window"
+	"github.com/simp7/nonograminGo/nonogram/setting"
+	"github.com/simp7/nonograminGo/nonogram/window"
 	"github.com/simp7/nonograminGo/util"
 )
 
-type improvedController struct {
-	*asset.Setting
+type improved struct {
+	*setting.Setting
 	windows     window.Stack
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
@@ -18,16 +18,16 @@ type improvedController struct {
 }
 
 func Improved() nonogram.Controller {
-	c := new(improvedController)
+	c := new(improved)
 	c.windows = window.NewStack()
-	c.Setting = asset.GetSetting()
+	c.Setting = setting.Get()
 	c.eventChan = make(chan termbox.Event)
 	c.endChan = make(chan struct{})
 	c.winConstant = window.GetManager()
 	return c
 }
 
-func (c *improvedController) Start() {
+func (c *improved) Start() {
 	util.CheckErr(termbox.Init())
 	go func() {
 		select {
@@ -40,12 +40,12 @@ func (c *improvedController) Start() {
 	c.openWindow(window.MainMenu)
 }
 
-func (c *improvedController) openWindow(v window.View) {
+func (c *improved) openWindow(v window.View) {
 	c.windows.Push(c.winConstant.Get(v))
 	c.showWindow()
 }
 
-func (c *improvedController) closeWindow() {
+func (c *improved) closeWindow() {
 	c.windows.Pop()
 	if c.windows.Size() == 0 {
 		close(c.endChan)
@@ -54,13 +54,13 @@ func (c *improvedController) closeWindow() {
 	}
 }
 
-func (c *improvedController) showWindow() {
+func (c *improved) showWindow() {
 	for {
 		c.windows.Top()
 	}
 }
 
-func (c *improvedController) terminate() {
+func (c *improved) terminate() {
 	close(c.eventChan)
 	termbox.Close()
 }

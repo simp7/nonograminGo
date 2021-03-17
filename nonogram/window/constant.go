@@ -1,7 +1,7 @@
 package window
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/asset"
+	"github.com/simp7/nonograminGo/nonogram/setting"
 	"sync"
 )
 
@@ -39,9 +39,9 @@ func (m *constant) Get(v View) Window {
 }
 
 func (m *constant) initialize() {
-	setting := asset.GetSetting()
+	st := setting.Get()
 
 	m.windows = make(map[View]Window)
-	m.windows[MainMenu] = NewBuilder().AddTexts(setting.DefaultPos, setting.MainMenu()).GetWindow()
-	m.windows[Select] = NewBuilder().AddTexts(setting.DefaultPos, setting.GetSelectHeader()).GetWindow()
+	m.windows[MainMenu] = NewBuilder().AddTexts(st.DefaultPos, st.MainMenu()).GetWindow()
+	m.windows[Select] = NewBuilder().AddTexts(st.DefaultPos, st.GetSelectHeader()).GetWindow()
 }

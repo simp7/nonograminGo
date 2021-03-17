@@ -1,25 +1,27 @@
 package object
 
 import (
+	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/position"
 	"github.com/simp7/nonograminGo/util"
 	"strconv"
 )
 
 type TextField interface {
-	Object
+	nonogram.Object
 	Activate()
 	Deactivate()
 }
 
 type textField struct {
-	Object
+	nonogram.Object
 	isActive bool
 	content  chan string
 }
 
-func NewTextField(p util.Pos, parent Object) TextField {
+func NewTextField(p position.Pos, parent nonogram.Object) TextField {
 	t := new(textField)
-	t.Object = newObject(p, parent)
+	t.Object = New(p, parent)
 	t.isActive = false
 	return t
 }

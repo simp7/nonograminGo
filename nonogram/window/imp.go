@@ -1,11 +1,11 @@
 package window
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/controller/window/object"
+	"github.com/simp7/nonograminGo/nonogram"
 )
 
 type Imp interface {
-	Draw(object object.Object)
+	Draw(object nonogram.Object)
 }
 
 type imp struct {
@@ -16,7 +16,7 @@ func NewImp() Imp {
 	return d
 }
 
-func (d *imp) Draw(object object.Object) {
+func (d *imp) Draw(object nonogram.Object) {
 	go func() {
 		for {
 		}

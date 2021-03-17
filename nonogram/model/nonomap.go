@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/asset"
+	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/util"
 	"math"
 	"strconv"
@@ -300,7 +300,7 @@ func (nm *nonomap) checkValidity() {
 }
 
 func (nm *nonomap) checkSize() error {
-	setting := asset.GetSetting()
+	setting := setting.Get()
 	if nm.Height > setting.HeightMax || nm.Width > setting.WidthMax || nm.Height <= 0 || nm.Width <= 0 {
 		return util.InvalidMap
 	}
