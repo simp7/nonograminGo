@@ -3,7 +3,9 @@ package controller
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/model"
+	"github.com/simp7/nonograminGo/nonogram/fileManager"
+	"github.com/simp7/nonograminGo/nonogram/nonomap"
+	"github.com/simp7/nonograminGo/nonogram/player"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/util"
 	"github.com/simp7/times/gadget"
@@ -27,7 +29,7 @@ type cli struct {
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
-	fm          FileManager
+	fm          nonogram.FileManager
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
 	*setting.Setting
@@ -39,7 +41,7 @@ func CLI() nonogram.Controller {
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
-	cc.fm = NewFileManager()
+	cc.fm = fileManager.New()
 	cc.Setting = setting.Get()
 	cc.timer = stopwatch.Standard
 
@@ -229,7 +231,7 @@ This function shows the map current player plays and change its appearance when 
 This function will be called when player select map.
 */
 
-func (cc *cli) inGame(correctMap model.Nonomap) {
+func (cc *cli) inGame(correctMap nonogram.Map) {
 
 	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
 
@@ -239,8 +241,8 @@ func (cc *cli) inGame(correctMap model.Nonomap) {
 	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
 	cc.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
-	player := model.NewPlayer(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
-	player.SetMap(model.Cursor)
+	p := player.New(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
+	p.SetMap(nonogram.Cursor)
 
 	cc.showHeader()
 
@@ -256,39 +258,39 @@ func (cc *cli) inGame(correctMap model.Nonomap) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			player.Move(model.Up)
+			p.Move(nonogram.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			player.Move(model.Down)
+			p.Move(nonogram.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			player.Move(model.Left)
+			p.Move(nonogram.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			player.Move(model.Right)
+			p.Move(nonogram.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
-			if player.GetMapSignal() == model.Empty {
+			if p.GetMapSignal() == nonogram.Empty {
 
-				if correctMap.ShouldFilled(player.RealPos()) {
-					player.Toggle(model.Fill)
+				if correctMap.ShouldFilled(p.RealPos()) {
+					p.Toggle(nonogram.Fill)
 					remainedCell--
 
-					if remainedCell == 0 { //Enter when player complete the game
-						player.SetMap(model.Fill)
+					if remainedCell == 0 { //Enter when p complete the game
+						p.SetMap(nonogram.Fill)
 						cc.showResult(wrongCell)
 						return
 					}
 
 				} else {
-					player.Toggle(model.Wrong)
+					p.Toggle(nonogram.Wrong)
 					wrongCell++
 				}
 
 			}
 
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if player.GetMapSignal() == model.Empty {
-				player.Toggle(model.Check)
-			} else if player.GetMapSignal() == model.Check {
-				player.Toggle(model.Empty)
+			if p.GetMapSignal() == nonogram.Empty {
+				p.Toggle(nonogram.Check)
+			} else if p.GetMapSignal() == nonogram.Check {
+				p.Toggle(nonogram.Empty)
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
@@ -347,6 +349,7 @@ func (cc *cli) createNonomapInfo() {
 
 	width, height := 0, 0
 	var err error
+	criteria := nonomap.New()
 
 	mapName := cc.stringReader(cc.RequestMapName())
 	if mapName == "" {
@@ -360,10 +363,10 @@ func (cc *cli) createNonomapInfo() {
 		} else {
 			width, err = strconv.Atoi(mapWidth)
 			util.CheckErr(err)
-			if width <= cc.WidthMax {
+			if width <= criteria.WidthLimit() {
 				break
 			}
-			mapWidth = cc.stringReader(cc.SizeError() + strconv.Itoa(cc.WidthMax))
+			mapWidth = cc.stringReader(cc.SizeError() + strconv.Itoa(criteria.WidthLimit()))
 		}
 	}
 
@@ -374,10 +377,10 @@ func (cc *cli) createNonomapInfo() {
 		} else {
 			height, err = strconv.Atoi(mapHeight)
 			util.CheckErr(err)
-			if height <= cc.HeightMax {
+			if height <= criteria.HeightLimit() {
 				break
 			}
-			mapHeight = cc.stringReader(cc.SizeError() + strconv.Itoa(cc.HeightMax))
+			mapHeight = cc.stringReader(cc.SizeError() + strconv.Itoa(criteria.HeightLimit()))
 		}
 	}
 
@@ -452,8 +455,8 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	cc.redraw(func() { cc.println(1, 0, []string{mapName}) })
 
-	player := model.NewPlayer(cc.DefaultX, cc.DefaultY, width, height)
-	player.SetMap(model.Cursor)
+	p := player.New(cc.DefaultX, cc.DefaultY, width, height)
+	p.SetMap(nonogram.Cursor)
 
 	for {
 		err := termbox.Flush()
@@ -464,29 +467,29 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			player.Move(model.Up)
+			p.Move(nonogram.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			player.Move(model.Down)
+			p.Move(nonogram.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			player.Move(model.Left)
+			p.Move(nonogram.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			player.Move(model.Right)
+			p.Move(nonogram.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
-			if player.GetMapSignal() == model.Empty {
-				player.Toggle(model.Fill)
-			} else if player.GetMapSignal() == model.Fill {
-				player.Toggle(model.Empty)
+			if p.GetMapSignal() == nonogram.Empty {
+				p.Toggle(nonogram.Fill)
+			} else if p.GetMapSignal() == nonogram.Fill {
+				p.Toggle(nonogram.Empty)
 			}
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if player.GetMapSignal() == model.Empty {
-				player.Toggle(model.Check)
-			} else if player.GetMapSignal() == model.Check {
-				player.Toggle(model.Empty)
+			if p.GetMapSignal() == nonogram.Empty {
+				p.Toggle(nonogram.Check)
+			} else if p.GetMapSignal() == nonogram.Check {
+				p.Toggle(nonogram.Empty)
 			}
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.fm.CreateMap(mapName, width, height, player.FinishCreating())
+			cc.fm.CreateMap(mapName, width, height, p.FinishCreating())
 			cc.fm.RefreshMapList()
 			return
 		}

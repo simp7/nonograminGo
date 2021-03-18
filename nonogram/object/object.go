@@ -35,7 +35,3 @@ func (obj *object) Parent() nonogram.Object {
 func (obj *object) Child(idx int) nonogram.Object {
 	panic("Implement this")
 }
-
-func (obj *object) do(f func(object nonogram.Object)) {
-	panic("Implement this")
-}

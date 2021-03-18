@@ -1,8 +1,10 @@
-package controller
+package fileManager
 
 import (
 	"fmt"
-	"github.com/simp7/nonograminGo/nonogram/model"
+	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
+	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/util"
 	"io/ioutil"
@@ -11,34 +13,22 @@ import (
 	"strings"
 )
 
-type FileManager interface {
-	GetMapList() []string
-	NextList()
-	PrevList()
-	GetOrder() string
-	GetMapDataByNumber(int) (nonomap model.Nonomap, ok bool)
-	GetMapDataByName(string) (nonomap model.Nonomap, ok bool)
-	GetCurrentMapName() string
-	CreateMap(name string, width int, height int, bitmap [][]bool)
-	RefreshMapList()
-}
-
 type fileManager struct {
 	dirPath     []byte
 	files       []os.FileInfo
 	currentFile string
 	order       int
 	util.PathFormatter
-	util.FileFormatter
+	nonogram.FileFormatter
 	*setting.Setting
 }
 
-func NewFileManager() FileManager {
+func New() nonogram.FileManager {
 
 	fm := new(fileManager)
 	fm.order = 0
 	fm.PathFormatter = util.GetPathFormatter()
-	fm.FileFormatter = model.NewMapFormatter()
+	fm.FileFormatter = fileFormatter.Map()
 
 	var err error
 
@@ -109,7 +99,7 @@ func (fm *fileManager) GetOrder() string {
 	This function will be called when user inputs number in select.
 */
 
-func (fm *fileManager) GetMapDataByNumber(target int) (model.Nonomap, bool) {
+func (fm *fileManager) GetMapDataByNumber(target int) (nonogram.Map, bool) {
 
 	if target >= len(fm.files) {
 		return nil, false
@@ -125,13 +115,13 @@ func (fm *fileManager) GetMapDataByNumber(target int) (model.Nonomap, bool) {
 	This function will be called in GetMapDataByNumber.
 */
 
-func (fm *fileManager) GetMapDataByName(target string) (model.Nonomap, bool) {
+func (fm *fileManager) GetMapDataByName(target string) (nonogram.Map, bool) {
 
 	file, err := ioutil.ReadFile(target)
 	util.CheckErr(err)
 
 	fm.GetRaw(file)
-	result := model.NewNonomap()
+	result := nonomap.New()
 	err = fm.Decode(result)
 	util.CheckErr(err)
 

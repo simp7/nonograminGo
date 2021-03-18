@@ -1,6 +1,9 @@
 package setting
 
-import "github.com/simp7/nonograminGo/util"
+import (
+	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
+	"github.com/simp7/nonograminGo/util"
+)
 
 type Text interface {
 	MainMenu() []string
@@ -58,7 +61,7 @@ type textData struct {
 
 func NewText(data []byte) Text {
 	t := new(textData)
-	f := util.NewFileFormatter()
+	f := fileFormatter.New()
 	f.GetRaw(data)
 	util.CheckErr(f.Decode(&t))
 	return t

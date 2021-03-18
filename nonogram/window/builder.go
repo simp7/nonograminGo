@@ -2,8 +2,10 @@ package window
 
 import (
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/object"
 	"github.com/simp7/nonograminGo/nonogram/object/board"
+	"github.com/simp7/nonograminGo/nonogram/object/text"
+	"github.com/simp7/nonograminGo/nonogram/object/textField"
+	"github.com/simp7/nonograminGo/nonogram/object/timer"
 	"github.com/simp7/nonograminGo/nonogram/position"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 )
@@ -44,7 +46,7 @@ func (b *builder) add(object nonogram.Object) {
 
 func (b *builder) AddText(pos position.Pos, content string) Builder {
 	b.appendAction(func() {
-		b.add(object.NewText(pos, b.window, content))
+		b.add(text.New(pos, b.window, content))
 	})
 	return b
 }
@@ -60,14 +62,14 @@ func (b *builder) AddTexts(pos position.Pos, contents []string) Builder {
 
 func (b *builder) AddTextField(pos position.Pos) Builder {
 	b.appendAction(func() {
-		b.add(object.NewTextField(pos, b.window))
+		b.add(textField.New(pos, b.window))
 	})
 	return b
 }
 
 func (b *builder) AddTimer(pos position.Pos) Builder {
 	b.appendAction(func() {
-		b.add(object.NewTimer(pos, b.window))
+		b.add(timer.New(pos, b.window))
 	})
 	return b
 }

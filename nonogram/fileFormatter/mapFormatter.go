@@ -1,6 +1,8 @@
-package model
+package fileFormatter
 
 import (
+	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/util"
 	"reflect"
 	"strconv"
@@ -8,11 +10,11 @@ import (
 )
 
 type mapFormatter struct {
-	data Nonomap
+	data nonogram.Map
 	raw  []byte
 }
 
-func NewMapFormatter() util.FileFormatter {
+func Map() nonogram.FileFormatter {
 	formatter := new(mapFormatter)
 	formatter.raw = make([]byte, 0)
 	return formatter
@@ -20,8 +22,8 @@ func NewMapFormatter() util.FileFormatter {
 
 func (m *mapFormatter) Encode(i interface{}) error {
 	switch i.(type) {
-	case Nonomap:
-		m.data = i.(Nonomap)
+	case nonogram.Map:
+		m.data = i.(nonogram.Map)
 	default:
 		return util.InvalidType
 	}
@@ -46,7 +48,7 @@ func (m *mapFormatter) GetRaw(content []byte) {
 	m.raw = content
 
 	data := string(content)
-	builder := NewNonomapBuilder()
+	builder := nonomap.NewNonomapBuilder()
 
 	data = strings.TrimSpace(data)
 	elements := strings.Split(data, "/")
@@ -57,7 +59,7 @@ func (m *mapFormatter) GetRaw(content []byte) {
 	util.CheckErr(err)
 
 	m.data = builder.BuildWidth(width).BuildHeight(height).BuildMap(elements[2:]).GetMap()
-	m.data.checkValidity()
+	m.data.CheckValidity()
 
 }
 

@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
 	"github.com/simp7/nonograminGo/util"
 	"io/ioutil"
 	"sync"
@@ -25,7 +26,7 @@ func Get() *Setting {
 
 		content, err := ioutil.ReadFile(pf.GetPath("setting.json"))
 		util.CheckErr(err)
-		Load(content)
+		util.CheckErr(Load(content))
 
 		languageFile := pf.GetPath("language", instance.Language+".json")
 		content, err = ioutil.ReadFile(languageFile)
@@ -38,8 +39,8 @@ func Get() *Setting {
 
 }
 
-func Load(content []byte) {
-	ff := util.NewFileFormatter()
+func Load(content []byte) error {
+	ff := fileFormatter.New()
 	ff.GetRaw(content)
-	ff.Decode(&instance)
+	return ff.Decode(&instance)
 }

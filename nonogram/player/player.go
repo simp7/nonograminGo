@@ -1,48 +1,17 @@
-package model
+package player
 
 import (
 	"github.com/nsf/termbox-go"
+	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 )
-
-type Signal uint8
-type Direction uint8
-
-const (
-	Empty Signal = iota
-	Fill
-	Check
-	Wrong
-	Cursor
-	CursorFilled
-	CursorChecked
-	CursorWrong
-)
-
-const (
-	Up Direction = iota
-	Down
-	Left
-	Right
-)
-
-type Player interface {
-	SetMap(Signal)
-	SetCursor(Signal)
-	RealPos() (x, y int)
-	GetMapSignal() Signal
-	SetMapSignal(Signal)
-	Toggle(Signal)
-	Move(Direction)
-	FinishCreating() [][]bool
-}
 
 type player struct {
 	xProblemPos int
 	yProblemPos int
 	xPos        int
 	yPos        int
-	playerMap   [][]Signal
+	playerMap   [][]nonogram.Signal
 	bitmap      [][]bool
 	*setting.Setting
 }
@@ -52,7 +21,7 @@ type player struct {
 	This function will be called when player enter the game or create the map.
 */
 
-func NewPlayer(x int, y int, width int, height int) Player {
+func New(x int, y int, width int, height int) nonogram.Player {
 
 	p := new(player)
 	p.xProblemPos, p.yProblemPos = x, y
@@ -66,11 +35,11 @@ func NewPlayer(x int, y int, width int, height int) Player {
 }
 
 func (p *player) initMap(width int, height int) {
-	p.playerMap = make([][]Signal, height)
+	p.playerMap = make([][]nonogram.Signal, height)
 	for n := range p.playerMap {
-		p.playerMap[n] = make([]Signal, width)
+		p.playerMap[n] = make([]nonogram.Signal, width)
 		for m := range p.playerMap[n] {
-			p.playerMap[n][m] = Empty
+			p.playerMap[n][m] = nonogram.Empty
 		}
 	}
 }
@@ -80,7 +49,7 @@ func (p *player) initMap(width int, height int) {
 	This function will be called when player inputs key in game or in create mode
 */
 
-func (p *player) SetMap(signal Signal) {
+func (p *player) SetMap(signal nonogram.Signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
 		termbox.SetCell(p.xPos, p.yPos, first, fg, bg)
@@ -88,28 +57,28 @@ func (p *player) SetMap(signal Signal) {
 	}
 
 	switch signal {
-	case Empty:
+	case nonogram.Empty:
 		setCell(' ', ' ', p.Empty, p.Empty)
 
-	case Fill:
+	case nonogram.Fill:
 		setCell(' ', ' ', p.Filled, p.Filled)
 
-	case Check:
+	case nonogram.Check:
 		setCell('>', '<', p.Checked, p.Empty)
 
-	case Wrong:
+	case nonogram.Wrong:
 		setCell('>', '<', p.Wrong, p.Empty)
 
-	case Cursor:
+	case nonogram.Cursor:
 		setCell('(', ')', p.Filled, p.Empty)
 
-	case CursorFilled:
+	case nonogram.CursorFilled:
 		setCell('(', ')', p.Empty, p.Filled)
 
-	case CursorChecked:
+	case nonogram.CursorChecked:
 		setCell('(', ')', p.Checked, p.Empty)
 
-	case CursorWrong:
+	case nonogram.CursorWrong:
 		setCell('(', ')', p.Wrong, p.Empty)
 	}
 }
@@ -119,16 +88,16 @@ func (p *player) SetMap(signal Signal) {
 	This function will be called when player move cursor.
 */
 
-func (p *player) SetCursor(cellState Signal) {
+func (p *player) SetCursor(cellState nonogram.Signal) {
 	switch cellState {
-	case Fill:
-		p.SetMap(CursorFilled)
-	case Check:
-		p.SetMap(CursorChecked)
-	case Wrong:
-		p.SetMap(CursorWrong)
+	case nonogram.Fill:
+		p.SetMap(nonogram.CursorFilled)
+	case nonogram.Check:
+		p.SetMap(nonogram.CursorChecked)
+	case nonogram.Wrong:
+		p.SetMap(nonogram.CursorWrong)
 	default:
-		p.SetMap(Cursor)
+		p.SetMap(nonogram.Cursor)
 	}
 }
 
@@ -141,31 +110,31 @@ func (p *player) RealPos() (realXPos int, realYPos int) {
 
 //This function returns current state of current cell of cursor
 
-func (p *player) GetMapSignal() Signal {
+func (p *player) GetMapSignal() nonogram.Signal {
 	realXPos, realYPos := p.RealPos()
 	return p.playerMap[realYPos][realXPos]
 }
 
 //This function change state of cell in map
 
-func (p *player) SetMapSignal(signal Signal) {
+func (p *player) SetMapSignal(signal nonogram.Signal) {
 	realXPos, realYPos := p.RealPos()
 	p.playerMap[realYPos][realXPos] = signal
 }
 
 // Toggle is called when state of selected cell changed
 
-func (p *player) Toggle(signal Signal) {
+func (p *player) Toggle(signal nonogram.Signal) {
 	p.SetMapSignal(signal)
 	switch signal {
-	case Fill:
-		p.SetMap(CursorFilled)
-	case Check:
-		p.SetMap(CursorChecked)
-	case Wrong:
-		p.SetMap(CursorWrong)
-	case Empty:
-		p.SetMap(Cursor)
+	case nonogram.Fill:
+		p.SetMap(nonogram.CursorFilled)
+	case nonogram.Check:
+		p.SetMap(nonogram.CursorChecked)
+	case nonogram.Wrong:
+		p.SetMap(nonogram.CursorWrong)
+	case nonogram.Empty:
+		p.SetMap(nonogram.Cursor)
 	}
 }
 
@@ -187,15 +156,15 @@ func (p *player) moveCursor(condition bool, function func()) {
 	This function will be called when cursor moves
 */
 
-func (p *player) Move(direction Direction) {
+func (p *player) Move(direction nonogram.Direction) {
 	switch direction {
-	case Up:
+	case nonogram.Up:
 		p.moveCursor(p.yPos-1 >= p.yProblemPos+1, func() { p.yPos-- })
-	case Down:
+	case nonogram.Down:
 		p.moveCursor(p.yPos+1 < p.yProblemPos+1+len(p.playerMap), func() { p.yPos++ })
-	case Left:
+	case nonogram.Left:
 		p.moveCursor(p.xPos-2 >= p.xProblemPos, func() { p.xPos -= 2 })
-	case Right:
+	case nonogram.Right:
 		p.moveCursor(p.xPos+2 < p.xProblemPos+(2*len(p.playerMap[0])), func() { p.xPos += 2 })
 	}
 }
@@ -219,6 +188,6 @@ func (p *player) FinishCreating() [][]bool {
 
 func (p *player) convertByRow(y int) {
 	for x := range p.bitmap[y] {
-		p.bitmap[y][x] = p.playerMap[y][x] == Fill
+		p.bitmap[y][x] = p.playerMap[y][x] == nonogram.Fill
 	}
 }

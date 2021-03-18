@@ -1,6 +1,7 @@
-package model
+package nonomap
 
 import (
+	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/util"
 	"strconv"
 )
@@ -9,7 +10,7 @@ type NonomapBuilder interface {
 	BuildHeight(int) NonomapBuilder
 	BuildWidth(int) NonomapBuilder
 	BuildMap([]string) NonomapBuilder
-	GetMap() Nonomap
+	GetMap() nonogram.Map
 }
 
 type nonomapBuilder struct {
@@ -73,6 +74,6 @@ func (b *nonomapBuilder) buildBitMapByRow(y, rowValue int) {
 
 }
 
-func (b *nonomapBuilder) GetMap() Nonomap {
+func (b *nonomapBuilder) GetMap() nonogram.Map {
 	return b.data
 }

@@ -1,28 +1,11 @@
-package model
+package nonomap
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/setting"
+	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/util"
 	"math"
 	"strconv"
 )
-
-/*
-	This file deals with algorithms of whole game of nonogram.
-	User's control or display should be separated from this file.
-*/
-
-type Nonomap interface {
-	ShouldFilled(x, y int) bool
-	CreateProblemFormat() (hProblem, vProblem []string, hMax, vMax int)
-	GetHeight() int
-	GetWidth() int
-	BitmapToStrings() []string
-	ShowProblemHorizontal() []string
-	ShowProblemVertical() []string
-	FilledTotal() int
-	checkValidity()
-}
 
 type nonomap struct {
 	Width   int
@@ -54,7 +37,7 @@ type nonomap struct {
 	This function will be called when player paints cell(NOT when checking).
 */
 
-func NewNonomap() Nonomap {
+func New() nonogram.Map {
 	return new(nonomap)
 }
 
@@ -293,32 +276,39 @@ func (nm *nonomap) countRow(y int) int {
 	return result
 }
 
-func (nm *nonomap) checkValidity() {
+func (nm *nonomap) HeightLimit() int {
+	return 30
+}
+
+func (nm *nonomap) WidthLimit() int {
+	return 30
+}
+
+func (nm *nonomap) CheckValidity() {
 	util.CheckErr(nm.checkSize())
 	util.CheckErr(nm.checkWidth())
 	util.CheckErr(nm.checkHeight())
 }
 
-func (nm *nonomap) checkSize() error {
-	setting := setting.Get()
-	if nm.Height > setting.HeightMax || nm.Width > setting.WidthMax || nm.Height <= 0 || nm.Width <= 0 {
-		return util.InvalidMap
+func (nm *nonomap) checkSize() (err error) {
+	if nm.Height > nm.HeightLimit() || nm.Width > nm.WidthLimit() || nm.Height <= 0 || nm.Width <= 0 {
+		err = util.InvalidMap
 	}
-	return nil
+	return
 }
 
-func (nm *nonomap) checkWidth() error {
+func (nm *nonomap) checkWidth() (err error) {
 	for _, v := range nm.MapData {
 		if float64(v) >= math.Pow(2, float64(nm.Width)) {
-			return util.InvalidMap
+			err = util.InvalidMap
 		}
 	}
-	return nil
+	return
 }
 
-func (nm *nonomap) checkHeight() error {
+func (nm *nonomap) checkHeight() (err error) {
 	if len(nm.MapData) != nm.Height {
-		return util.InvalidMap
+		err = util.InvalidMap
 	}
-	return nil
+	return
 }
