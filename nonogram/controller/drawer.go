@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/controller/window/object"
+	"github.com/simp7/nonograminGo/nonogram"
 )
 
 type Drawer interface {
-	Draw(object.Object)
+	Draw(nonogram.Object)
 	Empty()
 }
 
@@ -17,7 +17,7 @@ func NewDrawer() Drawer {
 	return d
 }
 
-func (d *drawer) Draw(target object.Object) {
+func (d *drawer) Draw(target nonogram.Object) {
 
 	go func() {
 		for {

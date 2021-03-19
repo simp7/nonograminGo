@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/model"
+	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
+	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/util"
 	"testing"
 )
@@ -49,12 +51,12 @@ func stringCompare(s1 string, s2 string, idx int, t *testing.T) {
 	}
 }
 
-func getExampleMap() []model.Nonomap {
+func getExampleMap() []nonogram.Map {
 
-	newMap := func(data string) model.Nonomap {
+	newMap := func(data string) nonogram.Map {
 
-		result := model.NewNonomap()
-		f := model.NewMapFormatter()
+		result := nonomap.New()
+		f := fileFormatter.Map()
 
 		f.GetRaw([]byte(data))
 		util.CheckErr(f.Decode(result))
@@ -63,6 +65,6 @@ func getExampleMap() []model.Nonomap {
 
 	}
 
-	return []model.Nonomap{newMap("3/2/5/2"), newMap("3/3/7/5/2"), newMap("4/4/13/7/14/11")}
+	return []nonogram.Map{newMap("3/2/5/2"), newMap("3/3/7/5/2"), newMap("4/4/13/7/14/11")}
 
 }
