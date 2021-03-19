@@ -4,7 +4,6 @@ import (
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/object"
 	"github.com/simp7/nonograminGo/nonogram/object/cell"
-	"github.com/simp7/nonograminGo/nonogram/position"
 )
 
 type board struct {
@@ -17,7 +16,7 @@ func (b board) Copy() nonogram.Object {
 	panic("shouldn't be called.")
 }
 
-func New(p position.Pos, parent nonogram.Object, w, h int) object.Board {
+func New(p nonogram.Pos, parent nonogram.Object, w, h int) object.Board {
 
 	b := new(board)
 	b.w, b.h = w, h

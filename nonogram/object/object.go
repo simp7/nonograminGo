@@ -2,26 +2,25 @@ package object
 
 import (
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/position"
 )
 
 type object struct {
-	pos    position.Pos
+	pos    nonogram.Pos
 	parent nonogram.Object
 }
 
-func New(p position.Pos, parent nonogram.Object) nonogram.Object {
+func New(p nonogram.Pos, parent nonogram.Object) nonogram.Object {
 	obj := new(object)
 	obj.pos = p
 	obj.parent = parent
 	return obj
 }
 
-func (obj *object) GetPos() position.Pos {
+func (obj *object) GetPos() nonogram.Pos {
 	return obj.pos
 }
 
-func (obj *object) Move(p position.Pos) {
+func (obj *object) Move(p nonogram.Pos) {
 	obj.pos = p
 }
 func (obj *object) Add(object nonogram.Object) {

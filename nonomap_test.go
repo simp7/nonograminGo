@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
+	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/util"
 	"testing"
 )
@@ -54,7 +55,7 @@ func getExampleMap() []nonogram.Map {
 
 	newMap := func(data string) nonogram.Map {
 
-		result := nonogram.NewNonomap()
+		result := nonomap.New()
 		f := fileFormatter.Map()
 
 		f.GetRaw([]byte(data))

@@ -4,17 +4,16 @@ import (
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/object"
 	"github.com/simp7/nonograminGo/nonogram/object/char"
-	"github.com/simp7/nonograminGo/nonogram/position"
 )
 
 type text struct {
-	pos     position.Pos
+	pos     nonogram.Pos
 	content string
 	chars   []object.Char
 	parent  nonogram.Object
 }
 
-func New(p position.Pos, parent nonogram.Object, content string) object.Text {
+func New(p nonogram.Pos, parent nonogram.Object, content string) object.Text {
 	t := new(text)
 	t.pos = p
 	t.content = content
@@ -33,11 +32,11 @@ func (t *text) initContent() {
 
 }
 
-func (t *text) GetPos() position.Pos {
+func (t *text) GetPos() nonogram.Pos {
 	return t.pos
 }
 
-func (t *text) Move(pos position.Pos) {
+func (t *text) Move(pos nonogram.Pos) {
 	t.pos = pos
 }
 

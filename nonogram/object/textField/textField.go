@@ -3,7 +3,6 @@ package textField
 import (
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/object"
-	"github.com/simp7/nonograminGo/nonogram/position"
 	"github.com/simp7/nonograminGo/util"
 	"strconv"
 )
@@ -14,7 +13,7 @@ type textField struct {
 	content  chan string
 }
 
-func New(p position.Pos, parent nonogram.Object) object.TextField {
+func New(p nonogram.Pos, parent nonogram.Object) object.TextField {
 	t := new(textField)
 	t.Object = object.New(p, parent)
 	t.isActive = false

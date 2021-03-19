@@ -3,10 +3,12 @@ package controller
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/direction"
 	"github.com/simp7/nonograminGo/nonogram/fileManager"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/player"
 	"github.com/simp7/nonograminGo/nonogram/setting"
+	"github.com/simp7/nonograminGo/nonogram/signal"
 	"github.com/simp7/nonograminGo/util"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
@@ -242,7 +244,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	cc.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
 
 	p := player.New(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
-	p.SetMap(nonogram.Cursor)
+	p.SetMap(signal.Cursor)
 
 	cc.showHeader()
 
@@ -258,39 +260,39 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(nonogram.Up)
+			p.Move(direction.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(nonogram.Down)
+			p.Move(direction.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(nonogram.Left)
+			p.Move(direction.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(nonogram.Right)
+			p.Move(direction.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
-			if p.GetMapSignal() == nonogram.Empty {
+			if p.GetMapSignal() == signal.Empty {
 
 				if correctMap.ShouldFilled(p.RealPos()) {
-					p.Toggle(nonogram.Fill)
+					p.Toggle(signal.Fill)
 					remainedCell--
 
 					if remainedCell == 0 { //Enter when p complete the game
-						p.SetMap(nonogram.Fill)
+						p.SetMap(signal.Fill)
 						cc.showResult(wrongCell)
 						return
 					}
 
 				} else {
-					p.Toggle(nonogram.Wrong)
+					p.Toggle(signal.Wrong)
 					wrongCell++
 				}
 
 			}
 
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == nonogram.Empty {
-				p.Toggle(nonogram.Check)
-			} else if p.GetMapSignal() == nonogram.Check {
-				p.Toggle(nonogram.Empty)
+			if p.GetMapSignal() == signal.Empty {
+				p.Toggle(signal.Check)
+			} else if p.GetMapSignal() == signal.Check {
+				p.Toggle(signal.Empty)
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
@@ -456,7 +458,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 	cc.redraw(func() { cc.println(1, 0, []string{mapName}) })
 
 	p := player.New(cc.DefaultX, cc.DefaultY, width, height)
-	p.SetMap(nonogram.Cursor)
+	p.SetMap(signal.Cursor)
 
 	for {
 		err := termbox.Flush()
@@ -467,24 +469,24 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(nonogram.Up)
+			p.Move(direction.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(nonogram.Down)
+			p.Move(direction.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(nonogram.Left)
+			p.Move(direction.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(nonogram.Right)
+			p.Move(direction.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
-			if p.GetMapSignal() == nonogram.Empty {
-				p.Toggle(nonogram.Fill)
-			} else if p.GetMapSignal() == nonogram.Fill {
-				p.Toggle(nonogram.Empty)
+			if p.GetMapSignal() == signal.Empty {
+				p.Toggle(signal.Fill)
+			} else if p.GetMapSignal() == signal.Fill {
+				p.Toggle(signal.Empty)
 			}
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == nonogram.Empty {
-				p.Toggle(nonogram.Check)
-			} else if p.GetMapSignal() == nonogram.Check {
-				p.Toggle(nonogram.Empty)
+			if p.GetMapSignal() == signal.Empty {
+				p.Toggle(signal.Check)
+			} else if p.GetMapSignal() == signal.Check {
+				p.Toggle(signal.Empty)
 			}
 		case cc.event.Key == termbox.KeyEsc:
 			return

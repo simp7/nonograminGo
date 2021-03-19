@@ -3,7 +3,9 @@ package player
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/direction"
 	"github.com/simp7/nonograminGo/nonogram/setting"
+	"github.com/simp7/nonograminGo/nonogram/signal"
 )
 
 type player struct {
@@ -39,7 +41,7 @@ func (p *player) initMap(width int, height int) {
 	for n := range p.playerMap {
 		p.playerMap[n] = make([]nonogram.Signal, width)
 		for m := range p.playerMap[n] {
-			p.playerMap[n][m] = nonogram.Empty
+			p.playerMap[n][m] = signal.Empty
 		}
 	}
 }
@@ -49,36 +51,36 @@ func (p *player) initMap(width int, height int) {
 	This function will be called when player inputs key in game or in create mode
 */
 
-func (p *player) SetMap(signal nonogram.Signal) {
+func (p *player) SetMap(s nonogram.Signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
 		termbox.SetCell(p.xPos, p.yPos, first, fg, bg)
 		termbox.SetCell(p.xPos+1, p.yPos, second, fg, bg)
 	}
 
-	switch signal {
-	case nonogram.Empty:
+	switch s {
+	case signal.Empty:
 		setCell(' ', ' ', p.Empty, p.Empty)
 
-	case nonogram.Fill:
+	case signal.Fill:
 		setCell(' ', ' ', p.Filled, p.Filled)
 
-	case nonogram.Check:
+	case signal.Check:
 		setCell('>', '<', p.Checked, p.Empty)
 
-	case nonogram.Wrong:
+	case signal.Wrong:
 		setCell('>', '<', p.Wrong, p.Empty)
 
-	case nonogram.Cursor:
+	case signal.Cursor:
 		setCell('(', ')', p.Filled, p.Empty)
 
-	case nonogram.CursorFilled:
+	case signal.CursorFilled:
 		setCell('(', ')', p.Empty, p.Filled)
 
-	case nonogram.CursorChecked:
+	case signal.CursorChecked:
 		setCell('(', ')', p.Checked, p.Empty)
 
-	case nonogram.CursorWrong:
+	case signal.CursorWrong:
 		setCell('(', ')', p.Wrong, p.Empty)
 	}
 }
@@ -90,14 +92,14 @@ func (p *player) SetMap(signal nonogram.Signal) {
 
 func (p *player) SetCursor(cellState nonogram.Signal) {
 	switch cellState {
-	case nonogram.Fill:
-		p.SetMap(nonogram.CursorFilled)
-	case nonogram.Check:
-		p.SetMap(nonogram.CursorChecked)
-	case nonogram.Wrong:
-		p.SetMap(nonogram.CursorWrong)
+	case signal.Fill:
+		p.SetMap(signal.CursorFilled)
+	case signal.Check:
+		p.SetMap(signal.CursorChecked)
+	case signal.Wrong:
+		p.SetMap(signal.CursorWrong)
 	default:
-		p.SetMap(nonogram.Cursor)
+		p.SetMap(signal.Cursor)
 	}
 }
 
@@ -124,17 +126,17 @@ func (p *player) SetMapSignal(signal nonogram.Signal) {
 
 // Toggle is called when state of selected cell changed
 
-func (p *player) Toggle(signal nonogram.Signal) {
-	p.SetMapSignal(signal)
-	switch signal {
-	case nonogram.Fill:
-		p.SetMap(nonogram.CursorFilled)
-	case nonogram.Check:
-		p.SetMap(nonogram.CursorChecked)
-	case nonogram.Wrong:
-		p.SetMap(nonogram.CursorWrong)
-	case nonogram.Empty:
-		p.SetMap(nonogram.Cursor)
+func (p *player) Toggle(s nonogram.Signal) {
+	p.SetMapSignal(s)
+	switch s {
+	case signal.Fill:
+		p.SetMap(signal.CursorFilled)
+	case signal.Check:
+		p.SetMap(signal.CursorChecked)
+	case signal.Wrong:
+		p.SetMap(signal.CursorWrong)
+	case signal.Empty:
+		p.SetMap(signal.Cursor)
 	}
 }
 
@@ -156,15 +158,15 @@ func (p *player) moveCursor(condition bool, function func()) {
 	This function will be called when cursor moves
 */
 
-func (p *player) Move(direction nonogram.Direction) {
-	switch direction {
-	case nonogram.Up:
+func (p *player) Move(d nonogram.Direction) {
+	switch d {
+	case direction.Up:
 		p.moveCursor(p.yPos-1 >= p.yProblemPos+1, func() { p.yPos-- })
-	case nonogram.Down:
+	case direction.Down:
 		p.moveCursor(p.yPos+1 < p.yProblemPos+1+len(p.playerMap), func() { p.yPos++ })
-	case nonogram.Left:
+	case direction.Left:
 		p.moveCursor(p.xPos-2 >= p.xProblemPos, func() { p.xPos -= 2 })
-	case nonogram.Right:
+	case direction.Right:
 		p.moveCursor(p.xPos+2 < p.xProblemPos+(2*len(p.playerMap[0])), func() { p.xPos += 2 })
 	}
 }
@@ -188,6 +190,6 @@ func (p *player) FinishCreating() [][]bool {
 
 func (p *player) convertByRow(y int) {
 	for x := range p.bitmap[y] {
-		p.bitmap[y][x] = p.playerMap[y][x] == nonogram.Fill
+		p.bitmap[y][x] = p.playerMap[y][x] == signal.Fill
 	}
 }

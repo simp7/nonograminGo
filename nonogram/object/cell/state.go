@@ -3,7 +3,6 @@ package cell
 import (
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/object"
-	"github.com/simp7/nonograminGo/nonogram/position"
 )
 
 type State interface {
@@ -15,7 +14,7 @@ type state struct {
 	isCursored bool
 }
 
-func newState(pos position.Pos, parent nonogram.Object) State {
+func newState(pos nonogram.Pos, parent nonogram.Object) State {
 	s := new(state)
 	s.Object = object.New(pos, parent)
 	s.isCursored = false

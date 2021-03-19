@@ -1,4 +1,4 @@
-package position
+package nonogram
 
 type Pos struct {
 	X, Y int
