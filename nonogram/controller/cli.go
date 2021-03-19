@@ -365,7 +365,7 @@ func (cc *cli) createNonomapInfo() {
 		} else {
 			width, err = strconv.Atoi(mapWidth)
 			util.CheckErr(err)
-			if width <= criteria.WidthLimit() {
+			if width <= criteria.WidthLimit() && width > 0 {
 				break
 			}
 			mapWidth = cc.stringReader(cc.SizeError() + strconv.Itoa(criteria.WidthLimit()))
@@ -379,7 +379,7 @@ func (cc *cli) createNonomapInfo() {
 		} else {
 			height, err = strconv.Atoi(mapHeight)
 			util.CheckErr(err)
-			if height <= criteria.HeightLimit() {
+			if height <= criteria.HeightLimit() && height > 0 {
 				break
 			}
 			mapHeight = cc.stringReader(cc.SizeError() + strconv.Itoa(criteria.HeightLimit()))
