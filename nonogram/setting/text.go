@@ -3,9 +3,12 @@ package setting
 import (
 	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
 	"github.com/simp7/nonograminGo/util"
+	"strconv"
+	"strings"
 )
 
 type Text interface {
+	IsLatest(string) bool
 	MainMenu() []string
 	GetSelectHeader() []string
 	GetResult() []string
@@ -21,6 +24,7 @@ type Text interface {
 }
 
 type textData struct {
+	FileVersion             string
 	Title                   string
 	TitleDelimiter          string
 	SelectRequest           string
@@ -57,6 +61,7 @@ type textData struct {
 	MapSizeError            string
 	MapFileNotExist         string
 	BlankBetweenMapAndTimer string
+	ArrowKey                string
 }
 
 func NewText(data []byte) Text {
@@ -68,15 +73,17 @@ func NewText(data []byte) Text {
 }
 
 func (t *textData) MainMenu() []string {
-	return []string{t.TitleDelimiter, " " + t.Title, t.TitleDelimiter, "", t.SelectRequest, "", "1. " + t.Start, "2. " + t.Create, "3. " + t.Help, "4. " + t.Credit, "5. " + t.Exit}
+	list := listByNumber(t.Start, t.Create, t.Help, t.Credit, t.Exit)
+	return append([]string{t.TitleDelimiter, " " + t.Title, t.TitleDelimiter, "", t.SelectRequest, ""}, list...)
 }
 
 func (t *textData) GetSelectHeader() []string {
-	return []string{"[" + t.MapList + "]", "[<-" + t.Prev + " | " + t.Next + "->]    ", t.MapListDelimiter, ""}
+	return []string{"[ " + t.MapList + " ]", "[ <-" + t.Prev + " | " + t.Next + "-> ]    ", t.MapListDelimiter, ""}
 }
 
 func (t *textData) GetResult() []string {
-	return []string{t.ResultDelimiter, "       " + t.Clear, t.ResultDelimiter, t.MapName + "    : ", t.ClearTime + "  : ", t.WrongCells + " : "}
+	results := colonFormat(t.MapName, t.ClearTime, t.WrongCells)
+	return append([]string{t.ResultDelimiter, "       " + t.Clear, t.ResultDelimiter}, results...)
 }
 
 func (t *textData) Complete() string {
@@ -84,7 +91,7 @@ func (t *textData) Complete() string {
 }
 
 func (t *textData) GetHelp() []string {
-	return []string{"    " + t.Manual, t.ManualDelimiter, t.ExplArrowKey, t.ExplSpace, t.ExplX, t.ExplEnter, t.ExplEsc}
+	return append([]string{"    " + t.Manual, t.ManualDelimiter}, t.keyInstruction()...)
 }
 
 func (t *textData) GetCredit() []string {
@@ -113,4 +120,57 @@ func (t *textData) FileNotExist() string {
 
 func (t *textData) BlankBetweenMapNameAndTimer() string {
 	return t.BlankBetweenMapAndTimer
+}
+
+func (t *textData) keyInstruction() []string {
+	key := []string{t.ArrowKey, "Space/Z", "X", "Enter", "Esc"}
+	instruction := []string{t.ExplArrowKey, t.ExplSpace, t.ExplX, t.ExplEnter, t.ExplEsc}
+	return completeColonFormat(key, instruction)
+}
+
+func (t *textData) IsLatest(s string) bool {
+	return s == t.FileVersion
+}
+
+func maxLength(texts []string) int {
+	max := 0
+	for _, v := range texts {
+		if max < len(v) {
+			max = len(v)
+		}
+	}
+	return max
+}
+
+func unifyLength(text string, to int) string {
+	text += strings.Repeat(" ", to-len(text))
+	return text
+}
+
+func addColon(text string) string {
+	return text + " : "
+}
+
+func colonFormat(texts ...string) []string {
+	max := maxLength(texts)
+	for i := range texts {
+		texts[i] = unifyLength(texts[i], max)
+		texts[i] = addColon(texts[i])
+	}
+	return texts
+}
+
+func completeColonFormat(left []string, right []string) []string {
+	result := colonFormat(left...)
+	for i := range result {
+		result[i] += right[i]
+	}
+	return result
+}
+
+func listByNumber(texts ...string) []string {
+	for i, v := range texts {
+		texts[i] = strconv.Itoa(i+1) + ". " + v
+	}
+	return texts
 }

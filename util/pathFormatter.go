@@ -3,7 +3,6 @@ package util
 import (
 	"embed"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
 	"sync"
@@ -16,6 +15,7 @@ var f embed.FS
 
 type PathFormatter interface {
 	GetPath(of ...string) string
+	UpdateLanguageFiles()
 }
 
 type pathFormatter struct {
@@ -59,14 +59,23 @@ func newPathFormatter(root string) PathFormatter {
 }
 
 func initialize() {
+	initDefaultMap()
+	initDefaultSetting()
+	initLanguage()
+}
 
-	os.Mkdir(instance.GetPath("maps"), 0755)
-	os.Mkdir(instance.GetPath("language"), 0755)
-
+func initDefaultSetting() {
 	copyFile("default_setting.json", instance.GetPath("setting.json"))
-	copyDir("language", "language")
-	copyDir("default_maps", "maps")
+}
 
+func initDefaultMap() {
+	os.Mkdir(instance.GetPath("maps"), 0755)
+	copyDir("default_maps", "maps")
+}
+
+func initLanguage() {
+	os.Mkdir(instance.GetPath("language"), 0755)
+	copyDir("language", "language")
 }
 
 func copyDir(from string, to string) {
@@ -78,7 +87,12 @@ func copyDir(from string, to string) {
 
 func copyFile(from string, to string) {
 	data, _ := f.ReadFile(from)
-	CheckErr(ioutil.WriteFile(to, data, 0644))
+	_ = os.Remove(to)
+	CheckErr(os.WriteFile(to, data, 0644))
+}
+
+func (p *pathFormatter) UpdateLanguageFiles() {
+	initLanguage()
 }
 
 func (p *pathFormatter) GetPath(target ...string) string {
