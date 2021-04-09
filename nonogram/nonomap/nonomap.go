@@ -1,8 +1,8 @@
 package nonomap
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/util"
 	"math"
 	"strconv"
 )
@@ -285,14 +285,14 @@ func (nm *nonomap) WidthLimit() int {
 }
 
 func (nm *nonomap) CheckValidity() {
-	util.CheckErr(nm.checkSize())
-	util.CheckErr(nm.checkWidth())
-	util.CheckErr(nm.checkHeight())
+	errs.Check(nm.checkSize())
+	errs.Check(nm.checkWidth())
+	errs.Check(nm.checkHeight())
 }
 
 func (nm *nonomap) checkSize() (err error) {
 	if nm.Height > nm.HeightLimit() || nm.Width > nm.WidthLimit() || nm.Height <= 0 || nm.Width <= 0 {
-		err = util.InvalidMap
+		err = errs.InvalidMap
 	}
 	return
 }
@@ -300,7 +300,7 @@ func (nm *nonomap) checkSize() (err error) {
 func (nm *nonomap) checkWidth() (err error) {
 	for _, v := range nm.MapData {
 		if float64(v) >= math.Pow(2, float64(nm.Width)) {
-			err = util.InvalidMap
+			err = errs.InvalidMap
 		}
 	}
 	return
@@ -308,7 +308,7 @@ func (nm *nonomap) checkWidth() (err error) {
 
 func (nm *nonomap) checkHeight() (err error) {
 	if len(nm.MapData) != nm.Height {
-		err = util.InvalidMap
+		err = errs.InvalidMap
 	}
 	return
 }

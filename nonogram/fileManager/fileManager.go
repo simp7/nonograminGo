@@ -2,12 +2,11 @@ package fileManager
 
 import (
 	"fmt"
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/setting"
-	"github.com/simp7/nonograminGo/util"
-	"io/ioutil"
 	"math"
 	"os"
 	"strings"
@@ -15,25 +14,25 @@ import (
 
 type fileManager struct {
 	dirPath     []byte
-	files       []os.FileInfo
+	files       []os.DirEntry
 	currentFile string
 	order       int
-	util.PathFormatter
+	nonogram.PathFormatter
 	nonogram.FileFormatter
-	*setting.Setting
+	*nonogram.Setting
 }
 
 func New() nonogram.FileManager {
 
 	fm := new(fileManager)
 	fm.order = 0
-	fm.PathFormatter = util.GetPathFormatter()
+	fm.PathFormatter = nonogram.GetPathFormatter()
 	fm.FileFormatter = fileFormatter.Map()
 
 	var err error
 
-	fm.files, err = ioutil.ReadDir(fm.GetPath("maps"))
-	util.CheckErr(err)
+	fm.files, err = os.ReadDir(fm.GetPath("maps"))
+	errs.Check(err)
 	fm.Setting = setting.Get()
 
 	return fm
@@ -117,13 +116,13 @@ func (fm *fileManager) GetMapDataByNumber(target int) (nonogram.Map, bool) {
 
 func (fm *fileManager) GetMapDataByName(target string) (nonogram.Map, bool) {
 
-	file, err := ioutil.ReadFile(target)
-	util.CheckErr(err)
+	file, err := os.ReadFile(target)
+	errs.Check(err)
 
 	fm.GetRaw(file)
 	result := nonomap.New()
 	err = fm.Decode(result)
-	util.CheckErr(err)
+	errs.Check(err)
 
 	return result, true
 
@@ -162,8 +161,8 @@ func (fm *fileManager) CreateMap(name string, width int, height int, bitmap [][]
 		nonoMapData += fmt.Sprintf("/%d", v)
 	}
 
-	err := ioutil.WriteFile(fm.GetPath("maps", name+".nm"), []byte(nonoMapData), 0644)
-	util.CheckErr(err)
+	err := os.WriteFile(fm.GetPath("maps", name+".nm"), []byte(nonoMapData), 0644)
+	errs.Check(err)
 
 }
 
@@ -174,6 +173,6 @@ func (fm *fileManager) CreateMap(name string, width int, height int, bitmap [][]
 
 func (fm *fileManager) RefreshMapList() {
 	var err error
-	fm.files, err = ioutil.ReadDir(fm.GetPath("maps"))
-	util.CheckErr(err)
+	fm.files, err = os.ReadDir(fm.GetPath("maps"))
+	errs.Check(err)
 }

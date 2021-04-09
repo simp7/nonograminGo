@@ -1,8 +1,8 @@
 package nonomap
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/util"
 	"strconv"
 )
 
@@ -38,7 +38,7 @@ func (b *nonomapBuilder) BuildMap(content []string) NonomapBuilder {
 	for _, v := range content {
 		tmp, err := strconv.Atoi(v)
 		b.data.MapData = append(b.data.MapData, tmp)
-		util.CheckErr(err)
+		errs.Check(err)
 	}
 
 	b.buildBitMap()

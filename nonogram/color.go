@@ -1,4 +1,4 @@
-package setting
+package nonogram
 
 import (
 	"github.com/nsf/termbox-go"

@@ -1,27 +1,11 @@
-package setting
+package text
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
-	"github.com/simp7/nonograminGo/util"
 	"strconv"
 	"strings"
 )
-
-type Text interface {
-	IsLatest(string) bool
-	MainMenu() []string
-	GetSelectHeader() []string
-	GetResult() []string
-	Complete() string
-	GetHelp() []string
-	GetCredit() []string
-	RequestMapName() string
-	RequestWidth() string
-	RequestHeight() string
-	SizeError() string
-	FileNotExist() string
-	BlankBetweenMapNameAndTimer() string
-}
 
 type textData struct {
 	FileVersion             string
@@ -64,11 +48,11 @@ type textData struct {
 	ArrowKey                string
 }
 
-func NewText(data []byte) Text {
+func New(data []byte) *textData {
 	t := new(textData)
 	f := fileFormatter.New()
 	f.GetRaw(data)
-	util.CheckErr(f.Decode(&t))
+	errs.Check(f.Decode(&t))
 	return t
 }
 

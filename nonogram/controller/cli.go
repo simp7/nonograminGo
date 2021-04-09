@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/nsf/termbox-go"
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/direction"
 	"github.com/simp7/nonograminGo/nonogram/fileManager"
@@ -9,7 +10,6 @@ import (
 	"github.com/simp7/nonograminGo/nonogram/player"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/nonogram/signal"
-	"github.com/simp7/nonograminGo/util"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
 	"strconv"
@@ -34,7 +34,7 @@ type cli struct {
 	fm          nonogram.FileManager
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
-	*setting.Setting
+	*nonogram.Setting
 }
 
 func CLI() nonogram.Controller {
@@ -59,7 +59,7 @@ This function will be called when program starts.
 func (cc *cli) Start() {
 
 	err := termbox.Init()
-	util.CheckErr(err)
+	errs.Check(err)
 	defer termbox.Close()
 
 	go func() {
@@ -235,7 +235,7 @@ This function will be called when player select map.
 
 func (cc *cli) inGame(correctMap nonogram.Map) {
 
-	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
+	errs.Check(termbox.Clear(cc.Empty, cc.Empty))
 
 	remainedCell := correctMap.FilledTotal()
 	wrongCell := 0
@@ -253,7 +253,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	for {
 
 		err := termbox.Flush()
-		util.CheckErr(err)
+		errs.Check(err)
 
 		cc.pressKeyToContinue()
 
@@ -331,7 +331,7 @@ func (cc *cli) showResult(wrong int) {
 	cc.locker.Lock()
 
 	cc.println(0, 0, []string{cc.Complete()})
-	util.CheckErr(termbox.Flush())
+	errs.Check(termbox.Flush())
 
 	cc.pressKeyToContinue()
 	cc.locker.Unlock()
@@ -364,7 +364,7 @@ func (cc *cli) createNonomapInfo() {
 			return
 		} else {
 			width, err = strconv.Atoi(mapWidth)
-			util.CheckErr(err)
+			errs.Check(err)
 			if width <= criteria.WidthLimit() && width > 0 {
 				break
 			}
@@ -378,7 +378,7 @@ func (cc *cli) createNonomapInfo() {
 			return
 		} else {
 			height, err = strconv.Atoi(mapHeight)
-			util.CheckErr(err)
+			errs.Check(err)
 			if height <= criteria.HeightLimit() && height > 0 {
 				break
 			}
@@ -462,7 +462,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	for {
 		err := termbox.Flush()
-		util.CheckErr(err)
+		errs.Check(err)
 
 		cc.pressKeyToContinue()
 
@@ -511,7 +511,7 @@ func (cc *cli) showHeader() {
 
 	cc.timer.Add(func(current string) {
 		cc.println(cc.DefaultX, 0, []string{mapName + cc.BlankBetweenMapNameAndTimer() + current})
-		util.CheckErr(termbox.Flush())
+		errs.Check(termbox.Flush())
 	})
 
 }
@@ -523,8 +523,8 @@ func (cc *cli) showHeader() {
 
 func (cc *cli) redraw(function func()) {
 
-	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
+	errs.Check(termbox.Clear(cc.Empty, cc.Empty))
 	function()
-	util.CheckErr(termbox.Flush())
+	errs.Check(termbox.Flush())
 
 }

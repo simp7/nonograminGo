@@ -1,4 +1,4 @@
-package util
+package errs
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ var (
 	TooManyArgs = errors.New("argument should be less than 2")
 )
 
-func CheckErr(e error) {
+func Check(e error) {
 
 	if e == nil || e == io.EOF {
 		return

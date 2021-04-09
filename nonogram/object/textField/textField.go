@@ -1,9 +1,9 @@
 package textField
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/object"
-	"github.com/simp7/nonograminGo/util"
 	"strconv"
 )
 
@@ -38,6 +38,6 @@ func (t *textField) GetString() string {
 
 func (t *textField) GetInt() int {
 	result, err := strconv.Atoi(<-t.content)
-	util.CheckErr(err)
+	errs.Check(err)
 	return result
 }

@@ -2,14 +2,14 @@ package controller
 
 import (
 	"github.com/nsf/termbox-go"
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/nonogram/window"
-	"github.com/simp7/nonograminGo/util"
 )
 
 type improved struct {
-	*setting.Setting
+	*nonogram.Setting
 	windows     window.Stack
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
@@ -28,7 +28,7 @@ func Improved() nonogram.Controller {
 }
 
 func (c *improved) Start() {
-	util.CheckErr(termbox.Init())
+	errs.Check(termbox.Init())
 	go func() {
 		select {
 		case c.eventChan <- termbox.PollEvent():

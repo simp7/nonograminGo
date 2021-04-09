@@ -15,7 +15,7 @@ type player struct {
 	yPos        int
 	playerMap   [][]nonogram.Signal
 	bitmap      [][]bool
-	*setting.Setting
+	*nonogram.Setting
 }
 
 /*

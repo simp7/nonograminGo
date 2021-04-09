@@ -1,16 +1,15 @@
-package util
+package nonogram
 
 import (
 	"embed"
 	"errors"
+	"github.com/simp7/nonograminGo/errs"
 	"os"
 	"path"
 	"sync"
 )
 
-//go:embed default_setting.json
-//go:embed language
-//go:embed default_maps
+//go:embed files
 var f embed.FS
 
 type PathFormatter interface {
@@ -31,7 +30,7 @@ func GetPathFormatter() PathFormatter {
 
 		workingDir, ok := os.LookupEnv("HOME")
 		if !ok {
-			CheckErr(errors.New("HOME not exist"))
+			errs.Check(errors.New("HOME does not exist"))
 		}
 
 		workingDir = path.Join(workingDir, "nonogram")
@@ -65,17 +64,17 @@ func initialize() {
 }
 
 func initDefaultSetting() {
-	copyFile("default_setting.json", instance.GetPath("setting.json"))
+	copyFile("files"+string(os.PathSeparator)+"default_setting.json", instance.GetPath("setting.json"))
 }
 
 func initDefaultMap() {
 	os.Mkdir(instance.GetPath("maps"), 0755)
-	copyDir("default_maps", "maps")
+	copyDir("files"+string(os.PathSeparator)+"default_maps", "maps")
 }
 
 func initLanguage() {
 	os.Mkdir(instance.GetPath("language"), 0755)
-	copyDir("language", "language")
+	copyDir("files"+string(os.PathSeparator)+"language", "language")
 }
 
 func copyDir(from string, to string) {
@@ -88,7 +87,7 @@ func copyDir(from string, to string) {
 func copyFile(from string, to string) {
 	data, _ := f.ReadFile(from)
 	_ = os.Remove(to)
-	CheckErr(os.WriteFile(to, data, 0644))
+	errs.Check(os.WriteFile(to, data, 0644))
 }
 
 func (p *pathFormatter) UpdateLanguageFiles() {
@@ -112,7 +111,7 @@ func (p *pathFormatter) moveFile(fileName, from, to string) {
 	f := path.Join(from, fileName)
 	t := path.Join(to, fileName)
 
-	CheckErr(os.Rename(f, t))
+	errs.Check(os.Rename(f, t))
 
 }
 

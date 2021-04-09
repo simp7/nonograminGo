@@ -24,7 +24,7 @@ type Builder interface {
 type builder struct {
 	window  *window
 	actions []buildAction
-	*setting.Setting
+	*nonogram.Setting
 }
 
 func NewBuilder() Builder {
