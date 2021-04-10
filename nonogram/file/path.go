@@ -1,4 +1,4 @@
-package nonogram
+package file
 
 type Path interface {
 	String() string

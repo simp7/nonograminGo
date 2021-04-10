@@ -1,8 +1,7 @@
 package text
 
 import (
-	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
+	"github.com/simp7/nonograminGo/nonogram/file/loader"
 	"strconv"
 	"strings"
 )
@@ -48,11 +47,9 @@ type textData struct {
 	ArrowKey                string
 }
 
-func New(data []byte) *textData {
+func New(language string) *textData {
 	t := new(textData)
-	f := fileFormatter.New()
-	f.GetRaw(data)
-	errs.Check(f.Decode(&t))
+	loader.Language(language).Load(t)
 	return t
 }
 

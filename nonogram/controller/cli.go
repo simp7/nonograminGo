@@ -5,7 +5,8 @@ import (
 	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/direction"
-	"github.com/simp7/nonograminGo/nonogram/fileManager"
+	"github.com/simp7/nonograminGo/nonogram/file"
+	"github.com/simp7/nonograminGo/nonogram/file/loader"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/player"
 	"github.com/simp7/nonograminGo/nonogram/setting"
@@ -31,7 +32,7 @@ type cli struct {
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
-	fm          nonogram.FileManager
+	fm          file.MapsLoader
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
 	*nonogram.Setting
@@ -43,7 +44,7 @@ func CLI() nonogram.Controller {
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
-	cc.fm = fileManager.New()
+	cc.fm = loader.New()
 	cc.Setting = setting.Get()
 	cc.timer = stopwatch.Standard
 

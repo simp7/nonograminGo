@@ -1,8 +1,9 @@
-package fileFormatter
+package formatter
 
 import (
 	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"reflect"
 	"strconv"
@@ -14,7 +15,7 @@ type mapFormatter struct {
 	raw  []byte
 }
 
-func Map() nonogram.FileFormatter {
+func Map() file.Formatter {
 	formatter := new(mapFormatter)
 	formatter.raw = make([]byte, 0)
 	return formatter
