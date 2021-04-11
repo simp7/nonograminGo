@@ -48,9 +48,9 @@ type textData struct {
 }
 
 func New(language string) *textData {
-	t := new(textData)
-	loader.Language(language).Load(t)
-	return t
+	loaded := new(textData)
+	loader.Language(language).Load(loaded)
+	return loaded
 }
 
 func (t *textData) MainMenu() []string {

@@ -6,34 +6,27 @@ import (
 	"strconv"
 )
 
-type NonomapBuilder interface {
-	BuildHeight(int) NonomapBuilder
-	BuildWidth(int) NonomapBuilder
-	BuildMap([]string) NonomapBuilder
-	GetMap() nonogram.Map
-}
-
 type nonomapBuilder struct {
 	data *nonomap
 }
 
-func NewNonomapBuilder() NonomapBuilder {
+func NewNonomapBuilder() nonogram.MapBuilder {
 	b := new(nonomapBuilder)
 	b.data = new(nonomap)
 	return b
 }
 
-func (b *nonomapBuilder) BuildHeight(h int) NonomapBuilder {
+func (b *nonomapBuilder) BuildHeight(h int) nonogram.MapBuilder {
 	b.data.Height = h
 	return b
 }
 
-func (b *nonomapBuilder) BuildWidth(w int) NonomapBuilder {
+func (b *nonomapBuilder) BuildWidth(w int) nonogram.MapBuilder {
 	b.data.Width = w
 	return b
 }
 
-func (b *nonomapBuilder) BuildMap(content []string) NonomapBuilder {
+func (b *nonomapBuilder) BuildMap(content []string) nonogram.MapBuilder {
 
 	for _, v := range content {
 		tmp, err := strconv.Atoi(v)

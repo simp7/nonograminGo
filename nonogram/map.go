@@ -17,4 +17,5 @@ type Map interface {
 	CheckValidity()
 	HeightLimit() int
 	WidthLimit() int
+	Builder() MapBuilder
 }

@@ -17,24 +17,25 @@ type customPath struct {
 }
 
 var (
-	DefaultSettingFile = Source("default_setting.json")
-	SettingFile        = Real("setting.json")
-	DefaultMapsDir     = Source("default_maps")
-	MapsDir            = Real("maps")
-	DefaultLanguageDir = Source("language")
-	LanguageDir        = Real("language")
+	DefaultSettingFile = source("default_setting.json")
+	SettingFile        = real("setting.json")
+	DefaultMapsDir     = source("default_maps")
+	MapsDir            = real("maps")
+	DefaultLanguageDir = source("language")
+	LanguageDir        = real("language")
 	LanguageFile       = func(of string) file.Path { return LanguageDir.Append(of + ".json") }
+	MapFile            = func(of string) file.Path { return MapsDir.Append(of) }
 )
 
 func newPath(root string, leaf ...string) file.Path {
 	return customPath{root, leaf}
 }
 
-func Real(leaf ...string) file.Path {
+func real(leaf ...string) file.Path {
 	return newPath(rootDir(), leaf...)
 }
 
-func Source(leaf ...string) file.Path {
+func source(leaf ...string) file.Path {
 	return newPath("skel", leaf...)
 }
 

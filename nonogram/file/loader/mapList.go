@@ -7,8 +7,6 @@ import (
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
-	"github.com/simp7/nonograminGo/nonogram/file/formatter"
-	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"math"
 	"os"
 	"strings"
@@ -17,23 +15,23 @@ import (
 //go embed:skel
 var f embed.FS
 
-type mapsLoader struct {
-	dirPath     []byte
-	files       []os.DirEntry
-	currentFile string
-	order       int
-	file.Formatter
+type mapList struct {
+	dirPath      []byte
+	files        []os.DirEntry
+	currentFile  string
+	order        int
+	mapPrototype nonogram.Map
 }
 
-func New() file.MapsLoader {
+func New(mapPrototype nonogram.Map) file.MapList {
 
-	fm := new(mapsLoader)
+	fm := new(mapList)
 	fm.order = 0
-	fm.Formatter = formatter.Map()
 
 	var err error
 
 	fm.files, err = file.ReadDir(customPath.MapsDir)
+	fm.mapPrototype = mapPrototype
 	errs.Check(err)
 
 	return fm
@@ -45,17 +43,17 @@ func New() file.MapsLoader {
 	This function will be called when player enter the select page.
 */
 
-func (fm *mapsLoader) GetMapList() []string {
+func (fm *mapList) GetAll() []string {
 
-	mapList := make([]string, 10)
+	list := make([]string, 10)
 
 	for n := 0; n < 10; n++ {
 		if n+10*fm.order < len(fm.files) {
-			mapList[n] = fmt.Sprintf("%d. %s", n, strings.TrimSuffix(fm.files[n+10*fm.order].Name(), ".nm"))
+			list[n] = fmt.Sprintf("%d. %s", n, strings.TrimSuffix(fm.files[n+10*fm.order].Name(), ".nm"))
 		}
 	}
 
-	return mapList
+	return list
 
 } //TODO: Separate suffix formatting function.
 
@@ -64,7 +62,7 @@ func (fm *mapsLoader) GetMapList() []string {
 	This function will be called when player inputs left-arrow key.
 */
 
-func (fm *mapsLoader) NextList() {
+func (fm *mapList) Next() {
 	if 10*(fm.order+1) >= len(fm.files) {
 		fm.order = 0
 	} else {
@@ -77,7 +75,7 @@ func (fm *mapsLoader) NextList() {
 	This function will be called when player inputs right-arrow key.
 */
 
-func (fm *mapsLoader) PrevList() {
+func (fm *mapList) Prev() {
 	if fm.order == 0 {
 		fm.order = (len(fm.files) - 1) / 10
 	} else {
@@ -90,7 +88,7 @@ func (fm *mapsLoader) PrevList() {
 	This function will be called with list of map, attached with list header.
 */
 
-func (fm *mapsLoader) GetOrder() string {
+func (fm *mapList) GetOrder() string {
 	return fmt.Sprintf("(%d/%d)", fm.order+1, len(fm.files)/10+1)
 }
 
@@ -99,43 +97,19 @@ func (fm *mapsLoader) GetOrder() string {
 	This function will be called when user inputs number in select.
 */
 
-func (fm *mapsLoader) GetMapDataByNumber(target int) (nonogram.Map, bool) {
+func (fm *mapList) GetMapName(target int) (string, bool) {
 
 	if target >= len(fm.files) {
-		return nil, false
+		return "", false
 	}
+
 	fm.currentFile = fm.files[target+10*fm.order].Name()
-
-	return fm.GetMapDataByName(fm.currentFile)
-
-}
-
-/*
-	This function gets nonomap data by name.
-	This function will be called in GetMapDataByNumber.
-*/
-
-func (fm *mapsLoader) GetMapDataByName(target string) (nonogram.Map, bool) {
-
-	file, err := file.ReadFile(customPath.MapsDir.Append(target))
-	errs.Check(err)
-
-	fm.GetRaw(file)
-	result := nonomap.New()
-	err = fm.Decode(result)
-	errs.Check(err)
-
-	return result, true
+	return fm.currentFile, true
 
 }
 
-/*
-	This function returns file name without '.nm'.
-	This function will be called with map list.
-*/
-
-func (fm *mapsLoader) GetCurrentMapName() string {
-	return strings.TrimSuffix(fm.currentFile, ".nm")
+func (fm *mapList) GetCachedMapName() string {
+	return fm.currentFile
 }
 
 /*
@@ -143,7 +117,7 @@ func (fm *mapsLoader) GetCurrentMapName() string {
 	This function will be called when player finish create mode by pressing enter key.
 */
 
-func (fm *mapsLoader) CreateMap(name string, width int, height int, bitmap [][]bool) {
+func (fm *mapList) CreateMap(name string, width int, height int, bitmap [][]bool) {
 
 	mapData := make([]int, height)
 	nonomapData := fmt.Sprintf("%d/%d", width, height)
@@ -162,7 +136,7 @@ func (fm *mapsLoader) CreateMap(name string, width int, height int, bitmap [][]b
 		nonomapData += fmt.Sprintf("/%d", v)
 	}
 
-	err := file.WriteFile(customPath.Real("maps", name+".nm"), []byte(nonomapData))
+	err := file.WriteFile(customPath.MapFile(name), []byte(nonomapData))
 	errs.Check(err)
 
 }
@@ -172,9 +146,9 @@ func (fm *mapsLoader) CreateMap(name string, width int, height int, bitmap [][]b
 	This function will be called after user create map so it contains added map.
 */
 
-func (fm *mapsLoader) RefreshMapList() {
+func (fm *mapList) Refresh() {
 	var err error
-	fm.files, err = file.ReadDir(customPath.Source("maps"))
+	fm.files, err = file.ReadDir(customPath.MapsDir)
 	errs.Check(err)
 }
 

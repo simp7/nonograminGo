@@ -4,7 +4,6 @@ import (
 	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
-	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"reflect"
 	"strconv"
 	"strings"
@@ -15,8 +14,9 @@ type mapFormatter struct {
 	raw  []byte
 }
 
-func Map() file.Formatter {
+func Map(prototype nonogram.Map) file.Formatter {
 	formatter := new(mapFormatter)
+	formatter.data = prototype
 	formatter.raw = make([]byte, 0)
 	return formatter
 }
@@ -34,13 +34,20 @@ func (m *mapFormatter) Encode(i interface{}) error {
 func (m *mapFormatter) Decode(i interface{}) error {
 
 	rv := reflect.ValueOf(i)
-	switch rv.Type() {
-	default:
-		return errs.InvalidType
-	case reflect.TypeOf(m.data):
+
+	if rv.Elem().CanSet() {
 		rv.Elem().Set(reflect.ValueOf(m.data).Elem())
+		return nil
 	}
-	return nil
+	return errs.InvalidType
+
+	//switch rv.Type() {
+	//case reflect.TypeOf(m.data):
+	//	rv.Elem().Set(reflect.ValueOf(m.data).Elem())
+	//default:
+	//	return errs.InvalidType
+	//}
+	//return nil
 
 }
 
@@ -49,7 +56,7 @@ func (m *mapFormatter) GetRaw(content []byte) {
 	m.raw = content
 
 	data := string(content)
-	builder := nonomap.NewNonomapBuilder()
+	builder := m.data.Builder()
 
 	data = strings.TrimSpace(data)
 	elements := strings.Split(data, "/")

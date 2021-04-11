@@ -32,7 +32,7 @@ type cli struct {
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
-	fm          file.MapsLoader
+	fm          file.MapList
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
 	*nonogram.Setting
@@ -44,7 +44,7 @@ func CLI() nonogram.Controller {
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
-	cc.fm = loader.New()
+	cc.fm = loader.New(nonomap.New())
 	cc.Setting = setting.Get()
 	cc.timer = stopwatch.Standard
 
@@ -196,15 +196,16 @@ func (cc *cli) selectMap() {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyArrowRight:
-			cc.fm.NextList()
+			cc.fm.Next()
 		case cc.event.Key == termbox.KeyArrowLeft:
-			cc.fm.PrevList()
+			cc.fm.Prev()
 		case cc.event.Ch >= '0' && cc.event.Ch <= '9':
-			nonomapData, ok := cc.fm.GetMapDataByNumber(int(cc.event.Ch - '0'))
+			name, ok := cc.fm.GetMapName(int(cc.event.Ch - '0'))
 			if !ok {
 				continue
 			} else {
-				cc.inGame(nonomapData)
+				loaded := nonomap.Load(name)
+				cc.inGame(loaded)
 			}
 		}
 
@@ -223,7 +224,7 @@ func (cc *cli) showMapList() {
 	copy(mapList, cc.GetSelectHeader())
 	mapList[0] += cc.fm.GetOrder()
 
-	mapList = append(mapList, cc.fm.GetMapList()...)
+	mapList = append(mapList, cc.fm.GetAll()...)
 
 	cc.printStandard(mapList)
 
@@ -325,7 +326,7 @@ func (cc *cli) showResult(wrong int) {
 	result := make([]string, len(resultFormat))
 	copy(result, resultFormat)
 
-	result[3] += cc.fm.GetCurrentMapName()
+	result[3] += cc.fm.GetCachedMapName()
 	result[4] += cc.timer.Stop()
 	result[5] += strconv.Itoa(wrong)
 
@@ -493,7 +494,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 			return
 		case cc.event.Key == termbox.KeyEnter:
 			cc.fm.CreateMap(mapName, width, height, p.FinishCreating())
-			cc.fm.RefreshMapList()
+			cc.fm.Refresh()
 			return
 		}
 
@@ -508,7 +509,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 func (cc *cli) showHeader() {
 
-	mapName := cc.fm.GetCurrentMapName()
+	mapName := cc.fm.GetCachedMapName()
 
 	cc.timer.Add(func(current string) {
 		cc.println(cc.DefaultX, 0, []string{mapName + cc.BlankBetweenMapNameAndTimer() + current})
