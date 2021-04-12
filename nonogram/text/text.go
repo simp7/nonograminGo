@@ -49,7 +49,7 @@ type textData struct {
 
 func New(language string) *textData {
 	loaded := new(textData)
-	loader.Language(language).Load(loaded)
+	loader.Language(language).Load(&loaded)
 	return loaded
 }
 

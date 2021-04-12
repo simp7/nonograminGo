@@ -33,10 +33,11 @@ func (m *mapFormatter) Encode(i interface{}) error {
 
 func (m *mapFormatter) Decode(i interface{}) error {
 
-	rv := reflect.ValueOf(i)
+	rv := reflect.ValueOf(&i)
+	panic(reflect.ValueOf(m.data))
 
 	if rv.Elem().CanSet() {
-		rv.Elem().Set(reflect.ValueOf(m.data).Elem())
+		rv.Elem().Set(reflect.ValueOf(m.data))
 		return nil
 	}
 	return errs.InvalidType

@@ -56,7 +56,7 @@ func getExampleMap() []nonogram.Map {
 	newMap := func(data string) nonogram.Map {
 
 		result := nonomap.New()
-		f := formatter.Map()
+		f := formatter.Map(result)
 
 		f.GetRaw([]byte(data))
 		errs.Check(f.Decode(result))
