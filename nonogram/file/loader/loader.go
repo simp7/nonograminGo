@@ -39,7 +39,7 @@ func (m *loader) Load(target interface{}) error {
 	data, err := file.ReadFile(m.path)
 
 	m.formatter.GetRaw(data)
-	m.formatter.Decode(&target)
+	m.formatter.Decode(target)
 
 	return err
 

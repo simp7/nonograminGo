@@ -17,6 +17,7 @@ type customPath struct {
 }
 
 var (
+	Root               = source("")
 	DefaultSettingFile = source("default_setting.json")
 	SettingFile        = real("setting.json")
 	DefaultMapsDir     = source("default_maps")

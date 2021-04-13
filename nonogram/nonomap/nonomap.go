@@ -38,13 +38,13 @@ type nonomap struct {
 	This function will be called when player paints cell(NOT when checking).
 */
 
-func New() *nonomap {
+func New() nonogram.Map {
 	return new(nonomap)
 }
 
-func Load(fileName string) *nonomap {
-	loaded := new(nonomap)
-	loader.Nonomap(fileName, New()).Load(loaded)
+func Load(fileName string) nonogram.Map {
+	loaded := New()
+	loader.Nonomap(fileName, New()).Load(&loaded)
 	return loaded
 }
 
