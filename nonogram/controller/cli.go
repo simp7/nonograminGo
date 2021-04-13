@@ -32,7 +32,7 @@ type cli struct {
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
-	fm          file.MapList
+	mapList     file.MapList
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
 	*nonogram.Setting
@@ -44,8 +44,8 @@ func CLI() nonogram.Controller {
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
-	cc.fm = loader.New(nonomap.New())
 	cc.Setting = setting.Get()
+	cc.mapList = loader.New(nonomap.New())
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -196,11 +196,11 @@ func (cc *cli) selectMap() {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyArrowRight:
-			cc.fm.Next()
+			cc.mapList.Next()
 		case cc.event.Key == termbox.KeyArrowLeft:
-			cc.fm.Prev()
+			cc.mapList.Prev()
 		case cc.event.Ch >= '0' && cc.event.Ch <= '9':
-			name, ok := cc.fm.GetMapName(int(cc.event.Ch - '0'))
+			name, ok := cc.mapList.GetMapName(int(cc.event.Ch - '0'))
 			if !ok {
 				continue
 			} else {
@@ -222,9 +222,9 @@ func (cc *cli) showMapList() {
 
 	mapList := make([]string, len(cc.GetSelectHeader()))
 	copy(mapList, cc.GetSelectHeader())
-	mapList[0] += cc.fm.GetOrder()
+	mapList[0] += cc.mapList.GetOrder()
 
-	mapList = append(mapList, cc.fm.GetAll()...)
+	mapList = append(mapList, cc.mapList.GetAll()...)
 
 	cc.printStandard(mapList)
 
@@ -326,7 +326,7 @@ func (cc *cli) showResult(wrong int) {
 	result := make([]string, len(resultFormat))
 	copy(result, resultFormat)
 
-	result[3] += cc.fm.GetCachedMapName()
+	result[3] += cc.mapList.GetCachedMapName()
 	result[4] += cc.timer.Stop()
 	result[5] += strconv.Itoa(wrong)
 
@@ -493,8 +493,8 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.fm.CreateMap(mapName, width, height, p.FinishCreating())
-			cc.fm.Refresh()
+			cc.mapList.CreateMap(mapName, width, height, p.FinishCreating())
+			cc.mapList.Refresh()
 			return
 		}
 
@@ -509,7 +509,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 func (cc *cli) showHeader() {
 
-	mapName := cc.fm.GetCachedMapName()
+	mapName := cc.mapList.GetCachedMapName()
 
 	cc.timer.Add(func(current string) {
 		cc.println(cc.DefaultX, 0, []string{mapName + cc.BlankBetweenMapNameAndTimer() + current})

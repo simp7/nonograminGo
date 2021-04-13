@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
@@ -9,7 +10,6 @@ import (
 
 type loader struct {
 	path      file.Path
-	source    file.Path
 	formatter file.Formatter
 }
 
@@ -39,7 +39,7 @@ func (m *loader) Load(target interface{}) error {
 	data, err := file.ReadFile(m.path)
 
 	m.formatter.GetRaw(data)
-	m.formatter.Decode(target)
+	errs.Check(m.formatter.Decode(target))
 
 	return err
 

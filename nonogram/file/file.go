@@ -19,3 +19,14 @@ func ReadDir(path Path) ([]os.DirEntry, error) {
 func WriteFile(path Path, data []byte) error {
 	return os.WriteFile(path.String(), data, 0644)
 }
+
+func IsThere(path Path) bool {
+
+	_, err := ReadDir(path)
+	if err == nil {
+		return true
+	}
+	_, err = ReadFile(path)
+	return err == nil
+
+}

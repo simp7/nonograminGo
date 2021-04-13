@@ -9,23 +9,20 @@ import (
 	"path"
 )
 
-//go embed:skel
-
 type customPath struct {
 	root string
 	leaf []string
 }
 
 var (
-	Root               = source("")
-	DefaultSettingFile = source("default_setting.json")
-	SettingFile        = real("setting.json")
-	DefaultMapsDir     = source("default_maps")
-	MapsDir            = real("maps")
-	DefaultLanguageDir = source("language")
-	LanguageDir        = real("language")
-	LanguageFile       = func(of string) file.Path { return LanguageDir.Append(of + ".json") }
-	MapFile            = func(of string) file.Path { return MapsDir.Append(of) }
+	Root            = real("")
+	Default         = source("")
+	SettingFile     = real("setting.json")
+	MapsDir         = real("maps")
+	LanguageDir     = real("language")
+	DefaultLanguage = source("language")
+	LanguageFile    = func(of string) file.Path { return LanguageDir.Append(of + ".json") }
+	MapFile         = func(of string) file.Path { return MapsDir.Append(of) }
 )
 
 func newPath(root string, leaf ...string) file.Path {

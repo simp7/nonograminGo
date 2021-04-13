@@ -49,9 +49,7 @@ func Load(fileName string) nonogram.Map {
 }
 
 func (nm *nonomap) ShouldFilled(x int, y int) bool {
-
 	return nm.Bitmap[y][x]
-
 }
 
 func getMaxLength(data [][]int) int {

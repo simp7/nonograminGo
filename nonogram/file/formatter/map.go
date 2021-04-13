@@ -3,7 +3,6 @@ package formatter
 import (
 	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/file"
 	"strconv"
 	"strings"
 )
@@ -13,7 +12,9 @@ type mapFormatter struct {
 	raw  []byte
 }
 
-func Map(prototype nonogram.Map) file.Formatter {
+//TODO: Separate prototype from initializer(Maybe by using DI)
+
+func Map(prototype nonogram.Map) *mapFormatter {
 	formatter := new(mapFormatter)
 	formatter.data = prototype
 	formatter.raw = make([]byte, 0)
@@ -21,28 +22,27 @@ func Map(prototype nonogram.Map) file.Formatter {
 }
 
 func (m *mapFormatter) Encode(i interface{}) error {
+
 	switch i.(type) {
 	case nonogram.Map:
 		m.data = i.(nonogram.Map)
+		return nil
 	default:
 		return errs.InvalidType
 	}
-	return nil
+
 }
 
 func (m *mapFormatter) Decode(i interface{}) error {
 
-	origin := i.(*nonogram.Map)
-	*origin = m.data
-	return nil
-
-	//switch rv.Type() {
-	//case reflect.TypeOf(m.data):
-	//	rv.Elem().Set(reflect.ValueOf(m.data).Elem())
-	//default:
-	//	return errs.InvalidType
-	//}
-	//return nil
+	switch i.(type) {
+	case *nonogram.Map:
+		origin := i.(*nonogram.Map)
+		*origin = m.data
+		return nil
+	default:
+		return errs.InvalidType
+	}
 
 }
 
