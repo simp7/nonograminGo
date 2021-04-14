@@ -43,9 +43,9 @@ func (m *constant) initialize() {
 	st := setting.Get()
 
 	m.windows = make(map[View]Window)
-	m.windows[MainMenu] = NewBuilder().AddTexts(st.DefaultPos, st.MainMenu()).GetWindow()
-	m.windows[Select] = NewBuilder().AddTexts(st.DefaultPos, st.GetSelectHeader()).GetWindow()
-	m.windows[Help] = NewBuilder().AddTexts(st.DefaultPos, st.GetHelp()).GetWindow()
-	m.windows[Credit] = NewBuilder().AddTexts(st.DefaultPos, st.GetCredit()).GetWindow()
+	m.windows[MainMenu] = NewBuilder().AddTexts(st.DefaultPos, st.MainMenu()...).GetWindow()
+	m.windows[Select] = NewBuilder().AddTexts(st.DefaultPos, st.GetSelectHeader()...).GetWindow()
+	m.windows[Help] = NewBuilder().AddTexts(st.DefaultPos, st.GetHelp()...).GetWindow()
+	m.windows[Credit] = NewBuilder().AddTexts(st.DefaultPos, st.GetCredit()...).GetWindow()
 
 }

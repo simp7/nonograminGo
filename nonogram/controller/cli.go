@@ -2,14 +2,15 @@ package controller
 
 import (
 	"github.com/nsf/termbox-go"
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/direction"
-	"github.com/simp7/nonograminGo/nonogram/fileManager"
+	"github.com/simp7/nonograminGo/nonogram/file"
+	"github.com/simp7/nonograminGo/nonogram/file/loader"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/player"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/nonogram/signal"
-	"github.com/simp7/nonograminGo/util"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
 	"strconv"
@@ -31,10 +32,10 @@ type cli struct {
 	endChan     chan struct{}
 	currentView View
 	event       termbox.Event
-	fm          nonogram.FileManager
+	mapList     file.MapList
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
-	*setting.Setting
+	*nonogram.Setting
 }
 
 func CLI() nonogram.Controller {
@@ -43,8 +44,8 @@ func CLI() nonogram.Controller {
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
-	cc.fm = fileManager.New()
 	cc.Setting = setting.Get()
+	cc.mapList = loader.New()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -59,7 +60,7 @@ This function will be called when program starts.
 func (cc *cli) Start() {
 
 	err := termbox.Init()
-	util.CheckErr(err)
+	errs.Check(err)
 	defer termbox.Close()
 
 	go func() {
@@ -195,15 +196,16 @@ func (cc *cli) selectMap() {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyArrowRight:
-			cc.fm.NextList()
+			cc.mapList.Next()
 		case cc.event.Key == termbox.KeyArrowLeft:
-			cc.fm.PrevList()
+			cc.mapList.Prev()
 		case cc.event.Ch >= '0' && cc.event.Ch <= '9':
-			nonomapData, ok := cc.fm.GetMapDataByNumber(int(cc.event.Ch - '0'))
+			name, ok := cc.mapList.GetMapName(int(cc.event.Ch - '0'))
 			if !ok {
 				continue
 			} else {
-				cc.inGame(nonomapData)
+				loaded := nonomap.Load(name)
+				cc.inGame(loaded)
 			}
 		}
 
@@ -220,9 +222,9 @@ func (cc *cli) showMapList() {
 
 	mapList := make([]string, len(cc.GetSelectHeader()))
 	copy(mapList, cc.GetSelectHeader())
-	mapList[0] += cc.fm.GetOrder()
+	mapList[0] += cc.mapList.GetOrder()
 
-	mapList = append(mapList, cc.fm.GetMapList()...)
+	mapList = append(mapList, cc.mapList.Current()...)
 
 	cc.printStandard(mapList)
 
@@ -235,7 +237,7 @@ This function will be called when player select map.
 
 func (cc *cli) inGame(correctMap nonogram.Map) {
 
-	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
+	errs.Check(termbox.Clear(cc.Empty, cc.Empty))
 
 	remainedCell := correctMap.FilledTotal()
 	wrongCell := 0
@@ -253,7 +255,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	for {
 
 		err := termbox.Flush()
-		util.CheckErr(err)
+		errs.Check(err)
 
 		cc.pressKeyToContinue()
 
@@ -324,14 +326,14 @@ func (cc *cli) showResult(wrong int) {
 	result := make([]string, len(resultFormat))
 	copy(result, resultFormat)
 
-	result[3] += cc.fm.GetCurrentMapName()
+	result[3] += cc.mapList.GetCachedMapName()
 	result[4] += cc.timer.Stop()
 	result[5] += strconv.Itoa(wrong)
 
 	cc.locker.Lock()
 
 	cc.println(0, 0, []string{cc.Complete()})
-	util.CheckErr(termbox.Flush())
+	errs.Check(termbox.Flush())
 
 	cc.pressKeyToContinue()
 	cc.locker.Unlock()
@@ -364,7 +366,7 @@ func (cc *cli) createNonomapInfo() {
 			return
 		} else {
 			width, err = strconv.Atoi(mapWidth)
-			util.CheckErr(err)
+			errs.Check(err)
 			if width <= criteria.WidthLimit() && width > 0 {
 				break
 			}
@@ -378,7 +380,7 @@ func (cc *cli) createNonomapInfo() {
 			return
 		} else {
 			height, err = strconv.Atoi(mapHeight)
-			util.CheckErr(err)
+			errs.Check(err)
 			if height <= criteria.HeightLimit() && height > 0 {
 				break
 			}
@@ -462,7 +464,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	for {
 		err := termbox.Flush()
-		util.CheckErr(err)
+		errs.Check(err)
 
 		cc.pressKeyToContinue()
 
@@ -491,8 +493,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.fm.CreateMap(mapName, width, height, p.FinishCreating())
-			cc.fm.RefreshMapList()
+			cc.mapList.CreateMap(mapName, width, height, p.FinishCreating())
 			return
 		}
 
@@ -507,11 +508,11 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 func (cc *cli) showHeader() {
 
-	mapName := cc.fm.GetCurrentMapName()
+	mapName := cc.mapList.GetCachedMapName()
 
 	cc.timer.Add(func(current string) {
 		cc.println(cc.DefaultX, 0, []string{mapName + cc.BlankBetweenMapNameAndTimer() + current})
-		util.CheckErr(termbox.Flush())
+		errs.Check(termbox.Flush())
 	})
 
 }
@@ -523,8 +524,8 @@ func (cc *cli) showHeader() {
 
 func (cc *cli) redraw(function func()) {
 
-	util.CheckErr(termbox.Clear(cc.Empty, cc.Empty))
+	errs.Check(termbox.Clear(cc.Empty, cc.Empty))
 	function()
-	util.CheckErr(termbox.Flush())
+	errs.Check(termbox.Flush())
 
 }

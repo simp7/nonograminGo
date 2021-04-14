@@ -1,4 +1,4 @@
-package util
+package errs
 
 import (
 	"errors"
@@ -8,12 +8,11 @@ import (
 )
 
 var (
-	InvalidMap  = errors.New("map file has been broken")
 	InvalidType = errors.New("type of two didn't match")
 	TooManyArgs = errors.New("argument should be less than 2")
 )
 
-func CheckErr(e error) {
+func Check(e error) {
 
 	if e == nil || e == io.EOF {
 		return

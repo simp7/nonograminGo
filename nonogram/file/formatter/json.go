@@ -1,9 +1,8 @@
-package fileFormatter
+package formatter
 
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/simp7/nonograminGo/nonogram"
 )
 
 type fileFormatter struct {
@@ -12,7 +11,7 @@ type fileFormatter struct {
 	*json.Decoder
 }
 
-func New() nonogram.FileFormatter {
+func Json() *fileFormatter {
 	f := new(fileFormatter)
 	f.Encoder = json.NewEncoder(&f.buffer)
 	f.Decoder = json.NewDecoder(&f.buffer)

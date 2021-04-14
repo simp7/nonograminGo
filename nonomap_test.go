@@ -1,10 +1,9 @@
 package main
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/fileFormatter"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
-	"github.com/simp7/nonograminGo/util"
 	"testing"
 )
 
@@ -17,24 +16,6 @@ func TestNonomap_ShowBitMap(t *testing.T) {
 		strArrayCompare(s, ans[i], i, t)
 	}
 
-}
-
-func TestNonomap_ShowProblemHorizontal(t *testing.T) {
-	ans := [][]string{{"11", "1"}, {"3", "11", "1"}, {"21", "3", "3", "12"}}
-
-	for i, m := range getExampleMap() {
-		s := m.ShowProblemHorizontal()
-		strArrayCompare(s, ans[i], i, t)
-	}
-}
-
-func TestNonomap_ShowProblemVertical(t *testing.T) {
-	ans := [][]string{{"1", "1", "1"}, {"2", "11", "2"}, {"12", "3", "3", "21"}}
-
-	for i, m := range getExampleMap() {
-		s := m.ShowProblemVertical()
-		strArrayCompare(s, ans[i], i, t)
-	}
 }
 
 func strArrayCompare(s1 []string, s2 []string, idx int, t *testing.T) {
@@ -56,10 +37,10 @@ func getExampleMap() []nonogram.Map {
 	newMap := func(data string) nonogram.Map {
 
 		result := nonomap.New()
-		f := fileFormatter.Map()
+		f := nonomap.Formatter()
 
 		f.GetRaw([]byte(data))
-		util.CheckErr(f.Decode(result))
+		errs.Check(f.Decode(result))
 
 		return result
 

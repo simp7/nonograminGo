@@ -1,10 +1,8 @@
-package fileFormatter
+package nonomap
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/nonomap"
-	"github.com/simp7/nonograminGo/util"
-	"reflect"
 	"strconv"
 	"strings"
 )
@@ -14,32 +12,35 @@ type mapFormatter struct {
 	raw  []byte
 }
 
-func Map() nonogram.FileFormatter {
+func Formatter() *mapFormatter {
 	formatter := new(mapFormatter)
+	formatter.data = New()
 	formatter.raw = make([]byte, 0)
 	return formatter
 }
 
 func (m *mapFormatter) Encode(i interface{}) error {
+
 	switch i.(type) {
 	case nonogram.Map:
 		m.data = i.(nonogram.Map)
+		return nil
 	default:
-		return util.InvalidType
+		return errs.InvalidType
 	}
-	return nil
+
 }
 
 func (m *mapFormatter) Decode(i interface{}) error {
 
-	rv := reflect.ValueOf(i)
-	switch rv.Type() {
+	switch i.(type) {
+	case *nonogram.Map:
+		origin := i.(*nonogram.Map)
+		*origin = m.data
+		return nil
 	default:
-		return util.InvalidType
-	case reflect.TypeOf(m.data):
-		rv.Elem().Set(reflect.ValueOf(m.data).Elem())
+		return errs.InvalidType
 	}
-	return nil
 
 }
 
@@ -48,18 +49,18 @@ func (m *mapFormatter) GetRaw(content []byte) {
 	m.raw = content
 
 	data := string(content)
-	builder := nonomap.NewNonomapBuilder()
+	mapBuilder := m.data.Builder()
 
 	data = strings.TrimSpace(data)
 	elements := strings.Split(data, "/")
 
 	width, err := strconv.Atoi(elements[0])
-	util.CheckErr(err)
+	errs.Check(err)
 	height, err := strconv.Atoi(elements[1])
-	util.CheckErr(err)
+	errs.Check(err)
 
-	m.data = builder.BuildWidth(width).BuildHeight(height).BuildMap(elements[2:]).GetMap()
-	m.data.CheckValidity()
+	m.data = mapBuilder.Width(width).Height(height).Map(elements[2:]).Build()
+	errs.Check(m.data.CheckValidity())
 
 }
 

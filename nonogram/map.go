@@ -11,10 +11,9 @@ type Map interface {
 	GetHeight() int
 	GetWidth() int
 	BitmapToStrings() []string
-	ShowProblemHorizontal() []string
-	ShowProblemVertical() []string
 	FilledTotal() int
-	CheckValidity()
+	CheckValidity() error
 	HeightLimit() int
 	WidthLimit() int
+	Builder() MapBuilder
 }

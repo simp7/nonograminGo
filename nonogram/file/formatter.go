@@ -1,6 +1,6 @@
-package nonogram
+package file
 
-type FileFormatter interface {
+type Formatter interface {
 	Encode(interface{}) error
 	Decode(interface{}) error
 	GetRaw(from []byte)

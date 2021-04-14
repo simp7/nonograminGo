@@ -14,7 +14,7 @@ type buildAction func()
 type Builder interface {
 	initWindow() Builder
 	AddText(nonogram.Pos, string) Builder
-	AddTexts(nonogram.Pos, []string) Builder
+	AddTexts(nonogram.Pos, ...string) Builder
 	AddTextField(nonogram.Pos) Builder
 	AddTimer(nonogram.Pos) Builder
 	AddBoard(pos nonogram.Pos, width, height int) Builder
@@ -24,7 +24,7 @@ type Builder interface {
 type builder struct {
 	window  *window
 	actions []buildAction
-	*setting.Setting
+	*nonogram.Setting
 }
 
 func NewBuilder() Builder {
@@ -50,7 +50,7 @@ func (b *builder) AddText(pos nonogram.Pos, content string) Builder {
 	return b
 }
 
-func (b *builder) AddTexts(pos nonogram.Pos, contents []string) Builder {
+func (b *builder) AddTexts(pos nonogram.Pos, contents ...string) Builder {
 	b.appendAction(func() {
 		for i, content := range contents {
 			b.AddText(nonogram.New(pos.X, pos.Y+i), content)
