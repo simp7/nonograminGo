@@ -1,11 +1,15 @@
 package nonomap
 
 import (
-	"github.com/simp7/nonograminGo/errs"
+	"errors"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file/loader"
 	"math"
 	"strconv"
+)
+
+var (
+	invalidMap = errors.New("map file has been broken")
 )
 
 type nonomap struct {
@@ -44,7 +48,7 @@ func New() nonogram.Map {
 
 func Load(fileName string) nonogram.Map {
 	loaded := New()
-	loader.Nonomap(fileName, New()).Load(&loaded)
+	loader.Nonomap(fileName, Formatter()).Load(&loaded)
 	return loaded
 }
 
@@ -223,36 +227,6 @@ func (nm *nonomap) cellToString(x, y int) string {
 	return "0"
 }
 
-func (nm *nonomap) ShowProblemHorizontal() (result []string) {
-
-	d := nm.createHorizontalProblemData()
-
-	result = make([]string, nm.Height)
-	for n := range d {
-		for _, v := range d[n] {
-			result[n] += strconv.Itoa(v)
-		}
-	}
-
-	return
-
-}
-
-func (nm *nonomap) ShowProblemVertical() (result []string) {
-
-	d := nm.createVerticalProblemData()
-
-	result = make([]string, nm.Width)
-	for n := range d {
-		for _, v := range d[n] {
-			result[n] += strconv.Itoa(v)
-		}
-	}
-
-	return
-
-}
-
 /*
 	This function count total cells that should be filled.
 	The result will be used when judging whether player complete the map.
@@ -289,15 +263,26 @@ func (nm *nonomap) WidthLimit() int {
 	return 30
 }
 
-func (nm *nonomap) CheckValidity() {
-	errs.Check(nm.checkSize())
-	errs.Check(nm.checkWidth())
-	errs.Check(nm.checkHeight())
+func (nm *nonomap) CheckValidity() (err error) {
+
+	err = nm.checkSize()
+	if err != nil {
+		return
+	}
+
+	err = nm.checkWidth()
+	if err != nil {
+		return
+	}
+
+	err = nm.checkHeight()
+	return
+
 }
 
 func (nm *nonomap) checkSize() (err error) {
 	if nm.Height > nm.HeightLimit() || nm.Width > nm.WidthLimit() || nm.Height <= 0 || nm.Width <= 0 {
-		err = errs.InvalidMap
+		err = invalidMap
 	}
 	return
 }
@@ -305,7 +290,7 @@ func (nm *nonomap) checkSize() (err error) {
 func (nm *nonomap) checkWidth() (err error) {
 	for _, v := range nm.MapData {
 		if float64(v) >= math.Pow(2, float64(nm.Width)) {
-			err = errs.InvalidMap
+			err = invalidMap
 		}
 	}
 	return
@@ -313,11 +298,11 @@ func (nm *nonomap) checkWidth() (err error) {
 
 func (nm *nonomap) checkHeight() (err error) {
 	if len(nm.MapData) != nm.Height {
-		err = errs.InvalidMap
+		err = invalidMap
 	}
 	return
 }
 
 func (nm *nonomap) Builder() nonogram.MapBuilder {
-	return NewNonomapBuilder()
+	return NewBuilder()
 }

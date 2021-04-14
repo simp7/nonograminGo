@@ -1,7 +1,6 @@
 package customPath
 
 import (
-	_ "embed"
 	"errors"
 	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram/file"
@@ -15,26 +14,16 @@ type customPath struct {
 }
 
 var (
-	Root            = real("")
-	Default         = source("")
-	SettingFile     = real("setting.json")
-	MapsDir         = real("maps")
-	LanguageDir     = real("language")
-	DefaultLanguage = source("language")
-	LanguageFile    = func(of string) file.Path { return LanguageDir.Append(of + ".json") }
-	MapFile         = func(of string) file.Path { return MapsDir.Append(of) }
+	Root         = new("")
+	SettingFile  = new("setting.json")
+	MapsDir      = new("maps")
+	LanguageDir  = new("language")
+	LanguageFile = func(of string) file.Path { return LanguageDir.Append(of + ".json") }
+	MapFile      = func(of string) file.Path { return MapsDir.Append(of) }
 )
 
-func newPath(root string, leaf ...string) file.Path {
-	return customPath{root, leaf}
-}
-
-func real(leaf ...string) file.Path {
-	return newPath(rootDir(), leaf...)
-}
-
-func source(leaf ...string) file.Path {
-	return newPath("skel", leaf...)
+func new(leaf ...string) customPath {
+	return customPath{rootDir(), leaf}
 }
 
 func (p customPath) String() string {

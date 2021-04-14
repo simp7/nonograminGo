@@ -1,10 +1,8 @@
 package loader
 
 import (
-	"embed"
 	"fmt"
 	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
 	"math"
@@ -12,29 +10,21 @@ import (
 	"strings"
 )
 
-//go embed:skel
-var f embed.FS
-
 type mapList struct {
-	dirPath      []byte
-	files        []os.DirEntry
-	currentFile  string
-	order        int
-	mapPrototype nonogram.Map
+	dirPath     []byte
+	files       []os.DirEntry
+	currentFile string
+	order       int
 }
 
-func New(mapPrototype nonogram.Map) file.MapList {
+func New() file.MapList {
 
-	fm := new(mapList)
-	fm.order = 0
+	list := new(mapList)
 
-	var err error
+	list.refresh()
+	list.order = 0
 
-	fm.files, err = file.ReadDir(customPath.MapsDir)
-	fm.mapPrototype = mapPrototype
-	errs.Check(err)
-
-	return fm
+	return list
 
 }
 
@@ -43,13 +33,13 @@ func New(mapPrototype nonogram.Map) file.MapList {
 	This function will be called when player enter the select page.
 */
 
-func (fm *mapList) GetAll() []string {
+func (l *mapList) Current() []string {
 
 	list := make([]string, 10)
 
 	for n := 0; n < 10; n++ {
-		if n+10*fm.order < len(fm.files) {
-			list[n] = fmt.Sprintf("%d. %s", n, strings.TrimSuffix(fm.files[n+10*fm.order].Name(), ".nm"))
+		if n+10*l.order < len(l.files) {
+			list[n] = fmt.Sprintf("%d. %s", n, strings.TrimSuffix(l.files[n+10*l.order].Name(), ".nm"))
 		}
 	}
 
@@ -62,11 +52,11 @@ func (fm *mapList) GetAll() []string {
 	This function will be called when player inputs left-arrow key.
 */
 
-func (fm *mapList) Next() {
-	if 10*(fm.order+1) >= len(fm.files) {
-		fm.order = 0
+func (l *mapList) Next() {
+	if 10*(l.order+1) >= len(l.files) {
+		l.order = 0
 	} else {
-		fm.order++
+		l.order++
 	}
 }
 
@@ -75,11 +65,11 @@ func (fm *mapList) Next() {
 	This function will be called when player inputs right-arrow key.
 */
 
-func (fm *mapList) Prev() {
-	if fm.order == 0 {
-		fm.order = (len(fm.files) - 1) / 10
+func (l *mapList) Prev() {
+	if l.order == 0 {
+		l.order = (len(l.files) - 1) / 10
 	} else {
-		fm.order--
+		l.order--
 	}
 }
 
@@ -88,8 +78,8 @@ func (fm *mapList) Prev() {
 	This function will be called with list of map, attached with list header.
 */
 
-func (fm *mapList) GetOrder() string {
-	return fmt.Sprintf("(%d/%d)", fm.order+1, len(fm.files)/10+1)
+func (l *mapList) GetOrder() string {
+	return fmt.Sprintf("(%d/%d)", l.order+1, len(l.files)/10+1)
 }
 
 /*
@@ -97,19 +87,19 @@ func (fm *mapList) GetOrder() string {
 	This function will be called when user inputs number in select.
 */
 
-func (fm *mapList) GetMapName(target int) (string, bool) {
+func (l *mapList) GetMapName(target int) (string, bool) {
 
-	if target >= len(fm.files) {
+	if target >= len(l.files) {
 		return "", false
 	}
 
-	fm.currentFile = fm.files[target+10*fm.order].Name()
-	return fm.currentFile, true
+	l.currentFile = l.files[target+10*l.order].Name()
+	return l.currentFile, true
 
 }
 
-func (fm *mapList) GetCachedMapName() string {
-	return fm.currentFile
+func (l *mapList) GetCachedMapName() string {
+	return l.currentFile
 }
 
 /*
@@ -117,7 +107,7 @@ func (fm *mapList) GetCachedMapName() string {
 	This function will be called when player finish create mode by pressing enter key.
 */
 
-func (fm *mapList) CreateMap(name string, width int, height int, bitmap [][]bool) {
+func (l *mapList) CreateMap(name string, width int, height int, bitmap [][]bool) {
 
 	mapData := make([]int, height)
 	nonomapData := fmt.Sprintf("%d/%d", width, height)
@@ -139,6 +129,8 @@ func (fm *mapList) CreateMap(name string, width int, height int, bitmap [][]bool
 	err := file.WriteFile(customPath.MapFile(name), []byte(nonomapData))
 	errs.Check(err)
 
+	l.refresh()
+
 }
 
 /*
@@ -146,58 +138,8 @@ func (fm *mapList) CreateMap(name string, width int, height int, bitmap [][]bool
 	This function will be called after user create map so it contains added map.
 */
 
-func (fm *mapList) Refresh() {
+func (l *mapList) refresh() {
 	var err error
-	fm.files, err = file.ReadDir(customPath.MapsDir)
+	l.files, err = file.ReadDir(customPath.MapsDir)
 	errs.Check(err)
 }
-
-//func initialize() {
-//	initDefaultMap()
-//	initDefaultSetting()
-//	initLanguage()
-//}
-//
-//func initDefaultSetting() {
-//	install(customPath.DefaultSettingFile, customPath.SettingFile)
-//}
-//
-//func initDefaultMap() {
-//	install(customPath.DefaultMapsDir, customPath.MapsDir)
-//}
-//
-//func initLanguage() {
-//	install(customPath.DefaultLanguageDir, customPath.LanguageDir)
-//}
-//
-//func statOf(target file.Path) fs.FileInfo {
-//
-//	opened, err := f.Open(target.String())
-//	errs.Check(err)
-//
-//	stat, err := opened.Stat()
-//	errs.Check(err)
-//
-//	return stat
-//
-//}
-//
-//func install(from file.Path, to file.Path) {
-//
-//	source := from.String()
-//	target := to.String()
-//	stat := statOf(from)
-//
-//	if stat.IsDir() {
-//		files, _ := f.ReadDir(source)
-//		for _, v := range files {
-//			install(from.Append(v.Name()), to.Append(v.Name()))
-//		}
-//		file.MkDir(to)
-//	} else {
-//		_ = os.Remove(target)
-//		data, _ := f.ReadFile(source)
-//		errs.Check(file.WriteFile(to, data))
-//	}
-//
-//}

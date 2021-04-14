@@ -6,27 +6,27 @@ import (
 	"strconv"
 )
 
-type nonomapBuilder struct {
+type builder struct {
 	data *nonomap
 }
 
-func NewNonomapBuilder() nonogram.MapBuilder {
-	b := new(nonomapBuilder)
+func NewBuilder() nonogram.MapBuilder {
+	b := new(builder)
 	b.data = new(nonomap)
 	return b
 }
 
-func (b *nonomapBuilder) BuildHeight(h int) nonogram.MapBuilder {
+func (b *builder) Height(h int) nonogram.MapBuilder {
 	b.data.Height = h
 	return b
 }
 
-func (b *nonomapBuilder) BuildWidth(w int) nonogram.MapBuilder {
+func (b *builder) Width(w int) nonogram.MapBuilder {
 	b.data.Width = w
 	return b
 }
 
-func (b *nonomapBuilder) BuildMap(content []string) nonogram.MapBuilder {
+func (b *builder) Map(content []string) nonogram.MapBuilder {
 
 	for _, v := range content {
 		tmp, err := strconv.Atoi(v)
@@ -34,13 +34,13 @@ func (b *nonomapBuilder) BuildMap(content []string) nonogram.MapBuilder {
 		errs.Check(err)
 	}
 
-	b.buildBitMap()
+	b.bitMap()
 
 	return b
 
 }
 
-func (b *nonomapBuilder) buildBitMap() {
+func (b *builder) bitMap() {
 
 	nmap := b.data
 
@@ -50,12 +50,12 @@ func (b *nonomapBuilder) buildBitMap() {
 	}
 
 	for i, v := range nmap.MapData {
-		b.buildBitMapByRow(i, v)
+		b.bitMapByRow(i, v)
 	}
 
 }
 
-func (b *nonomapBuilder) buildBitMapByRow(y, rowValue int) {
+func (b *builder) bitMapByRow(y, rowValue int) {
 
 	width := b.data.Width
 	v := rowValue
@@ -67,6 +67,6 @@ func (b *nonomapBuilder) buildBitMapByRow(y, rowValue int) {
 
 }
 
-func (b *nonomapBuilder) GetMap() nonogram.Map {
+func (b *builder) Build() nonogram.Map {
 	return b.data
 }

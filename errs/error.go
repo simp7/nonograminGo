@@ -8,7 +8,6 @@ import (
 )
 
 var (
-	InvalidMap  = errors.New("map file has been broken")
 	InvalidType = errors.New("type of two didn't match")
 	TooManyArgs = errors.New("argument should be less than 2")
 )

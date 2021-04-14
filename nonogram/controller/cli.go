@@ -45,7 +45,7 @@ func CLI() nonogram.Controller {
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
 	cc.Setting = setting.Get()
-	cc.mapList = loader.New(nonomap.New())
+	cc.mapList = loader.New()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -224,7 +224,7 @@ func (cc *cli) showMapList() {
 	copy(mapList, cc.GetSelectHeader())
 	mapList[0] += cc.mapList.GetOrder()
 
-	mapList = append(mapList, cc.mapList.GetAll()...)
+	mapList = append(mapList, cc.mapList.Current()...)
 
 	cc.printStandard(mapList)
 
@@ -494,7 +494,6 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 			return
 		case cc.event.Key == termbox.KeyEnter:
 			cc.mapList.CreateMap(mapName, width, height, p.FinishCreating())
-			cc.mapList.Refresh()
 			return
 		}
 

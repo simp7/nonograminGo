@@ -1,10 +1,8 @@
 package saver
 
 import (
-	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
-	"github.com/simp7/nonograminGo/nonogram/file/formatter"
 )
 
 type saver struct {
@@ -12,10 +10,10 @@ type saver struct {
 	formatter file.Formatter
 }
 
-func Nonomap(fileName string, prototype nonogram.Map) *saver {
+func Nonomap(fileName string, formatter file.Formatter) *saver {
 	s := new(saver)
-	s.formatter = formatter.Map(prototype)
 	s.path = customPath.MapFile(fileName)
+	s.formatter = formatter
 	return s
 }
 

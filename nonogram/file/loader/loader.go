@@ -2,7 +2,6 @@ package loader
 
 import (
 	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
 	"github.com/simp7/nonograminGo/nonogram/file/formatter"
@@ -27,9 +26,9 @@ func Language(language string) *loader {
 	return m
 }
 
-func Nonomap(fileName string, prototype nonogram.Map) *loader {
+func Nonomap(fileName string, formatter file.Formatter) *loader {
 	m := new(loader)
-	m.formatter = formatter.Map(prototype)
+	m.formatter = formatter
 	m.path = customPath.MapFile(fileName)
 	return m
 }

@@ -1,4 +1,4 @@
-package formatter
+package nonomap
 
 import (
 	"github.com/simp7/nonograminGo/errs"
@@ -12,11 +12,9 @@ type mapFormatter struct {
 	raw  []byte
 }
 
-//TODO: Separate prototype from initializer(Maybe by using DI)
-
-func Map(prototype nonogram.Map) *mapFormatter {
+func Formatter() *mapFormatter {
 	formatter := new(mapFormatter)
-	formatter.data = prototype
+	formatter.data = New()
 	formatter.raw = make([]byte, 0)
 	return formatter
 }
@@ -51,7 +49,7 @@ func (m *mapFormatter) GetRaw(content []byte) {
 	m.raw = content
 
 	data := string(content)
-	builder := m.data.Builder()
+	mapBuilder := m.data.Builder()
 
 	data = strings.TrimSpace(data)
 	elements := strings.Split(data, "/")
@@ -61,8 +59,8 @@ func (m *mapFormatter) GetRaw(content []byte) {
 	height, err := strconv.Atoi(elements[1])
 	errs.Check(err)
 
-	m.data = builder.BuildWidth(width).BuildHeight(height).BuildMap(elements[2:]).GetMap()
-	m.data.CheckValidity()
+	m.data = mapBuilder.Width(width).Height(height).Map(elements[2:]).Build()
+	errs.Check(m.data.CheckValidity())
 
 }
 
