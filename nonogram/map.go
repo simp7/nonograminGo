@@ -7,13 +7,12 @@ package nonogram
 
 type Map interface {
 	ShouldFilled(x, y int) bool
-	CreateProblemFormat() (hProblem, vProblem []string, hMax, vMax int)
+	CreateProblem() Problem
 	GetHeight() int
 	GetWidth() int
-	BitmapToStrings() []string
 	FilledTotal() int
 	CheckValidity() error
 	HeightLimit() int
 	WidthLimit() int
-	Builder() MapBuilder
+	Formatter() Formatter
 }

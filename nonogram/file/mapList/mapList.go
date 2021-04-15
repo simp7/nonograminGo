@@ -1,11 +1,12 @@
-package loader
+package mapList
 
 import (
 	"fmt"
 	"github.com/simp7/nonograminGo/errs"
+	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
-	"math"
+	"github.com/simp7/nonograminGo/nonogram/file/saver"
 	"os"
 	"strings"
 )
@@ -107,30 +108,9 @@ func (l *mapList) GetCachedMapName() string {
 	This function will be called when player finish create mode by pressing enter key.
 */
 
-func (l *mapList) CreateMap(name string, width int, height int, bitmap [][]bool) {
-
-	mapData := make([]int, height)
-	nonomapData := fmt.Sprintf("%d/%d", width, height)
-
-	for n := range bitmap {
-		result := 0
-		for m, v := range bitmap[n] {
-			if v {
-				result += int(math.Pow(2, float64(width-m-1)))
-			}
-		}
-		mapData[n] = result
-	}
-
-	for _, v := range mapData {
-		nonomapData += fmt.Sprintf("/%d", v)
-	}
-
-	err := file.WriteFile(customPath.MapFile(name), []byte(nonomapData))
-	errs.Check(err)
-
+func (l *mapList) CreateMap(mapData nonogram.Map, name string) {
+	errs.Check(saver.Nonomap(name, mapData.Formatter()).Save(mapData))
 	l.refresh()
-
 }
 
 /*

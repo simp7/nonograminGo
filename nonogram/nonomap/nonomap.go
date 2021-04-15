@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file/loader"
-	"math"
+	"github.com/simp7/nonograminGo/nonogram/problem"
 	"strconv"
 )
 
@@ -13,10 +13,9 @@ var (
 )
 
 type nonomap struct {
-	Width   int
-	Height  int
-	MapData []int
-	Bitmap  [][]bool
+	Width  int
+	Height int
+	Bitmap [][]bool
 }
 
 /*
@@ -50,6 +49,18 @@ func Load(fileName string) nonogram.Map {
 	loaded := New()
 	loader.Nonomap(fileName, Formatter()).Load(&loaded)
 	return loaded
+}
+
+func NewByBitMap(bitmap [][]bool) nonogram.Map {
+
+	result := new(nonomap)
+
+	result.Height = len(bitmap)
+	result.Width = len(bitmap[0])
+	result.Bitmap = bitmap
+
+	return result
+
 }
 
 func (nm *nonomap) ShouldFilled(x int, y int) bool {
@@ -145,16 +156,16 @@ func (nm *nonomap) createVerticalProblemData() [][]int {
 	This function will be called when player enter the game.
 */
 
-func (nm *nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, hMax int, vMax int) {
+func (nm *nonomap) CreateProblem() nonogram.Problem {
 
 	hData := nm.createHorizontalProblemData()
 	vData := nm.createVerticalProblemData()
 
-	hMax = getMaxLength(hData)
-	vMax = getMaxLength(vData)
+	hMax := getMaxLength(hData)
+	vMax := getMaxLength(vData)
 
-	hProblem = make([]string, nm.Height)
-	vProblem = make([]string, vMax)
+	hProblem := make([]string, nm.Height)
+	vProblem := make([]string, vMax)
 
 	for i := 0; i < nm.Height; i++ {
 		hProblem[i] = ""
@@ -184,7 +195,7 @@ func (nm *nonomap) CreateProblemFormat() (hProblem []string, vProblem []string, 
 		}
 	}
 	hMax *= 2
-	return
+	return problem.New(hProblem, vProblem, hMax, vMax)
 
 }
 
@@ -198,33 +209,6 @@ func (nm *nonomap) GetHeight() int {
 
 func (nm *nonomap) GetWidth() int {
 	return nm.Width
-}
-
-/*
-	This function generates answer Bitmap of nonomap via MapData.
-	This function will be called when nonomap is initialized.
-*/
-
-func (nm *nonomap) BitmapToStrings() []string {
-	result := make([]string, nm.Height)
-	for y := 0; y < nm.Height; y++ {
-		result[y] = nm.rowToString(y)
-	}
-	return result
-}
-
-func (nm *nonomap) rowToString(y int) (result string) {
-	for x := 0; x < nm.Width; x++ {
-		result += nm.cellToString(x, y)
-	}
-	return
-}
-
-func (nm *nonomap) cellToString(x, y int) string {
-	if nm.Bitmap[y][x] {
-		return "1"
-	}
-	return "0"
 }
 
 /*
@@ -263,46 +247,15 @@ func (nm *nonomap) WidthLimit() int {
 	return 30
 }
 
-func (nm *nonomap) CheckValidity() (err error) {
+func (nm *nonomap) CheckValidity() error {
 
-	err = nm.checkSize()
-	if err != nil {
-		return
-	}
-
-	err = nm.checkWidth()
-	if err != nil {
-		return
-	}
-
-	err = nm.checkHeight()
-	return
-
-}
-
-func (nm *nonomap) checkSize() (err error) {
 	if nm.Height > nm.HeightLimit() || nm.Width > nm.WidthLimit() || nm.Height <= 0 || nm.Width <= 0 {
-		err = invalidMap
+		return invalidMap
 	}
-	return
+	return nil
+
 }
 
-func (nm *nonomap) checkWidth() (err error) {
-	for _, v := range nm.MapData {
-		if float64(v) >= math.Pow(2, float64(nm.Width)) {
-			err = invalidMap
-		}
-	}
-	return
-}
-
-func (nm *nonomap) checkHeight() (err error) {
-	if len(nm.MapData) != nm.Height {
-		err = invalidMap
-	}
-	return
-}
-
-func (nm *nonomap) Builder() nonogram.MapBuilder {
-	return NewBuilder()
+func (nm *nonomap) Formatter() nonogram.Formatter {
+	return Formatter()
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/direction"
 	"github.com/simp7/nonograminGo/nonogram/file"
-	"github.com/simp7/nonograminGo/nonogram/file/loader"
+	"github.com/simp7/nonograminGo/nonogram/file/mapList"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/player"
 	"github.com/simp7/nonograminGo/nonogram/setting"
@@ -45,7 +45,7 @@ func CLI() nonogram.Controller {
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
 	cc.Setting = setting.Get()
-	cc.mapList = loader.New()
+	cc.mapList = mapList.New()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -237,16 +237,16 @@ This function will be called when player select map.
 
 func (cc *cli) inGame(correctMap nonogram.Map) {
 
-	errs.Check(termbox.Clear(cc.Empty, cc.Empty))
+	termbox.Clear(cc.Empty, cc.Empty)
 
 	remainedCell := correctMap.FilledTotal()
 	wrongCell := 0
 
-	hProblem, vProblem, xProblemPos, yProblemPos := correctMap.CreateProblemFormat()
-	cc.showProblem(hProblem, vProblem, xProblemPos, yProblemPos)
+	problem := correctMap.CreateProblem()
+	cc.showProblem(problem)
 
-	p := player.New(xProblemPos, yProblemPos, correctMap.GetWidth(), correctMap.GetHeight())
-	p.SetMap(signal.Cursor)
+	p := player.New(problem.Horizontal().Max(), problem.Vertical().Max(), correctMap.GetWidth(), correctMap.GetHeight())
+	p.SetCell(signal.Cursor)
 
 	cc.showHeader()
 
@@ -278,7 +278,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 					remainedCell--
 
 					if remainedCell == 0 { //Enter when p complete the game
-						p.SetMap(signal.Fill)
+						p.SetCell(signal.Fill)
 						cc.showResult(wrongCell)
 						return
 					}
@@ -306,11 +306,13 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 
 }
 
-func (cc *cli) showProblem(hProblem []string, vProblem []string, xPos int, yPos int) {
+func (cc *cli) showProblem(problem nonogram.Problem) {
 
 	cc.redraw(func() {
-		cc.println(xPos, 1, vProblem)
-		cc.println(0, yPos+1, hProblem)
+		x := problem.Horizontal().Max()
+		y := problem.Vertical().Max() + 1
+		cc.println(x, 1, problem.Vertical().Get())
+		cc.println(0, y, problem.Horizontal().Get())
 	})
 
 }
@@ -460,7 +462,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 	cc.redraw(func() { cc.println(1, 0, []string{mapName}) })
 
 	p := player.New(cc.DefaultX, cc.DefaultY, width, height)
-	p.SetMap(signal.Cursor)
+	p.SetCell(signal.Cursor)
 
 	for {
 		err := termbox.Flush()
@@ -493,7 +495,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.mapList.CreateMap(mapName, width, height, p.FinishCreating())
+			cc.mapList.CreateMap(p.FinishCreating(), mapName)
 			return
 		}
 

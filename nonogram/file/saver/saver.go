@@ -17,7 +17,7 @@ func Nonomap(fileName string, formatter file.Formatter) *saver {
 	return s
 }
 
-func (s *saver) Save(i interface{}) {
+func (s *saver) Save(i interface{}) error {
 	s.formatter.Encode(i)
-	file.WriteFile(s.path, s.formatter.Content())
+	return file.WriteFile(s.path, s.formatter.Content())
 }

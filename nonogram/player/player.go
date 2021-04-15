@@ -4,6 +4,7 @@ import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/direction"
+	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/setting"
 	"github.com/simp7/nonograminGo/nonogram/signal"
 )
@@ -51,7 +52,7 @@ func (p *player) initMap(width int, height int) {
 	This function will be called when player inputs key in game or in create mode
 */
 
-func (p *player) SetMap(s nonogram.Signal) {
+func (p *player) SetCell(s nonogram.Signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
 		termbox.SetCell(p.xPos, p.yPos, first, fg, bg)
@@ -93,13 +94,13 @@ func (p *player) SetMap(s nonogram.Signal) {
 func (p *player) SetCursor(cellState nonogram.Signal) {
 	switch cellState {
 	case signal.Fill:
-		p.SetMap(signal.CursorFilled)
+		p.SetCell(signal.CursorFilled)
 	case signal.Check:
-		p.SetMap(signal.CursorChecked)
+		p.SetCell(signal.CursorChecked)
 	case signal.Wrong:
-		p.SetMap(signal.CursorWrong)
+		p.SetCell(signal.CursorWrong)
 	default:
-		p.SetMap(signal.Cursor)
+		p.SetCell(signal.Cursor)
 	}
 }
 
@@ -130,13 +131,13 @@ func (p *player) Toggle(s nonogram.Signal) {
 	p.SetMapSignal(s)
 	switch s {
 	case signal.Fill:
-		p.SetMap(signal.CursorFilled)
+		p.SetCell(signal.CursorFilled)
 	case signal.Check:
-		p.SetMap(signal.CursorChecked)
+		p.SetCell(signal.CursorChecked)
 	case signal.Wrong:
-		p.SetMap(signal.CursorWrong)
+		p.SetCell(signal.CursorWrong)
 	case signal.Empty:
-		p.SetMap(signal.Cursor)
+		p.SetCell(signal.Cursor)
 	}
 }
 
@@ -147,7 +148,7 @@ func (p *player) Toggle(s nonogram.Signal) {
 
 func (p *player) moveCursor(condition bool, function func()) {
 	if condition {
-		p.SetMap(p.GetMapSignal())
+		p.SetCell(p.GetMapSignal())
 		function()
 		p.SetCursor(p.GetMapSignal())
 	}
@@ -176,7 +177,7 @@ func (p *player) Move(d nonogram.Direction) {
 	This function will be called when user finish making map in create mode.
 */
 
-func (p *player) FinishCreating() [][]bool {
+func (p *player) FinishCreating() nonogram.Map {
 
 	p.bitmap = make([][]bool, len(p.playerMap))
 	for n := range p.bitmap {
@@ -184,7 +185,7 @@ func (p *player) FinishCreating() [][]bool {
 		p.convertByRow(n)
 	}
 
-	return p.bitmap
+	return nonomap.NewByBitMap(p.bitmap)
 
 }
 
