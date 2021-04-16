@@ -9,7 +9,6 @@ import (
 type textData struct {
 	FileVersion             string
 	Title                   string
-	TitleDelimiter          string
 	SelectRequest           string
 	Start                   string
 	Create                  string
@@ -19,22 +18,18 @@ type textData struct {
 	MapList                 string
 	Prev                    string
 	Next                    string
-	MapListDelimiter        string
 	Result                  string
-	ResultDelimiter         string
 	Clear                   string
 	MapName                 string
 	ClearTime               string
 	WrongCells              string
 	CompleteMsg             string
 	Manual                  string
-	ManualDelimiter         string
 	ExplArrowKey            string
 	ExplSpace               string
 	ExplX                   string
 	ExplEnter               string
 	ExplEsc                 string
-	CreditDelimiter         string
 	DeveloperInfo           string
 	License                 string
 	ThankYouMsg             string
@@ -47,24 +42,28 @@ type textData struct {
 	ArrowKey                string
 }
 
-func New(language string) *textData {
+func New(language string) (*textData, error) {
 	loaded := new(textData)
-	loader.Language(language).Load(&loaded)
-	return loaded
+	err := loader.Language(language).Load(&loaded)
+	if err != nil {
+		return nil, err
+	}
+	return loaded, nil
 }
 
 func (t *textData) MainMenu() []string {
 	list := listByNumber(t.Start, t.Create, t.Help, t.Credit, t.Exit)
-	return append([]string{t.TitleDelimiter, " " + t.Title, t.TitleDelimiter, "", t.SelectRequest, ""}, list...)
+	header := append(t.title(15, t.Title), "", t.SelectRequest, "")
+	return append(header, list...)
 }
 
 func (t *textData) GetSelectHeader() []string {
-	return []string{"[ " + t.MapList + " ]", "[ <-" + t.Prev + " | " + t.Next + "-> ]    ", t.MapListDelimiter, ""}
+	return []string{"[ " + t.MapList + " ]", "[ <-" + t.Prev + " | " + t.Next + "-> ]    ", t.delimiter(30), ""}
 }
 
 func (t *textData) GetResult() []string {
 	results := colonFormat(t.MapName, t.ClearTime, t.WrongCells)
-	return append([]string{t.ResultDelimiter, "       " + t.Clear, t.ResultDelimiter}, results...)
+	return append(t.title(15, t.Clear), results...)
 }
 
 func (t *textData) Complete() string {
@@ -72,11 +71,11 @@ func (t *textData) Complete() string {
 }
 
 func (t *textData) GetHelp() []string {
-	return append([]string{"    " + t.Manual, t.ManualDelimiter}, t.keyInstruction()...)
+	return append(t.title(15, t.Manual), t.keyInstruction()...)
 }
 
 func (t *textData) GetCredit() []string {
-	return []string{t.CreditDelimiter, "                " + t.Credit, t.CreditDelimiter, t.DeveloperInfo, t.License, t.ThankYouMsg, t.CreditDelimiter}
+	return append(t.title(15, t.Credit), t.DeveloperInfo, t.License, t.ThankYouMsg, t.delimiter(len(t.Credit)+30))
 }
 
 func (t *textData) RequestMapName() string {
@@ -154,4 +153,17 @@ func listByNumber(texts ...string) []string {
 		texts[i] = strconv.Itoa(i+1) + ". " + v
 	}
 	return texts
+}
+
+func (t *textData) delimiter(amount int) string {
+	return strings.Repeat("-", amount)
+}
+
+func (t *textData) title(blank int, text string) []string {
+	result := make([]string, 3)
+	length := len(text) + 2*blank
+	result[0] = t.delimiter(length)
+	result[1] = strings.Repeat(" ", blank) + text
+	result[2] = t.delimiter(length)
+	return result
 }

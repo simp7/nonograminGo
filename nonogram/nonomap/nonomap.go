@@ -1,15 +1,11 @@
 package nonomap
 
 import (
-	"errors"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file/loader"
+	"github.com/simp7/nonograminGo/nonogram/file/saver"
 	"github.com/simp7/nonograminGo/nonogram/problem"
 	"strconv"
-)
-
-var (
-	invalidMap = errors.New("map file has been broken")
 )
 
 type nonomap struct {
@@ -27,8 +23,7 @@ type nonomap struct {
 	Each elements indicates map data of each line.
 	They are designated by Bitmap, which 0 is blank and 1 is filled one.
 
-	Because the size of int is 32bits, Width of maps can't be more than 32 mathematically.
-
+	Since the size of int is 32bits, Width of maps can be equal or less than 32 mathematically.
 	But because of display's limit, Width and Height can't be more than 25
 
 	When it comes to player's map, 2 is checked one where player thinks that cell is blank.
@@ -49,6 +44,10 @@ func Load(fileName string) nonogram.Map {
 	loaded := New()
 	loader.Nonomap(fileName, Formatter()).Load(&loaded)
 	return loaded
+}
+
+func Save(name string, nonomap nonogram.Map) error {
+	return saver.Nonomap(name, nonomap.Formatter()).Save(nonomap)
 }
 
 func NewByBitMap(bitmap [][]bool) nonogram.Map {

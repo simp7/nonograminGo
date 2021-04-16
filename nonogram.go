@@ -1,12 +1,16 @@
 package main
 
 import (
+	"errors"
 	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram/controller"
 	"os"
 )
 
-var rd = controller.CLI()
+var (
+	rd          = controller.CLI()
+	tooManyArgs = errors.New("argument should be less than 2")
+)
 
 func init() {
 
@@ -18,7 +22,7 @@ func init() {
 			rd = controller.Improved()
 		}
 	default:
-		errs.Check(errs.TooManyArgs)
+		errs.Check(tooManyArgs)
 	}
 
 }

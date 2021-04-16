@@ -5,7 +5,7 @@ type unit struct {
 	max  int
 }
 
-func NewUnit(data []string, max int) unit {
+func newUnit(data []string, max int) unit {
 	return unit{data, max}
 }
 

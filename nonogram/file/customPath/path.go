@@ -20,6 +20,7 @@ var (
 	LanguageDir  = new("language")
 	LanguageFile = func(of string) file.Path { return LanguageDir.Append(of + ".json") }
 	MapFile      = func(of string) file.Path { return MapsDir.Append(of) }
+	homePathErr  = errors.New("HOME does not exist")
 )
 
 func new(leaf ...string) customPath {
@@ -41,7 +42,7 @@ func (p customPath) Append(newLeaf ...string) file.Path {
 func homeEnv() string {
 	root, ok := os.LookupEnv("HOME")
 	if !ok {
-		errs.Check(errors.New("HOME does not exist"))
+		errs.Check(homePathErr)
 	}
 	return root
 }

@@ -3,10 +3,8 @@ package mapList
 import (
 	"fmt"
 	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
-	"github.com/simp7/nonograminGo/nonogram/file/saver"
 	"os"
 	"strings"
 )
@@ -22,7 +20,7 @@ func New() file.MapList {
 
 	list := new(mapList)
 
-	list.refresh()
+	list.Refresh()
 	list.order = 0
 
 	return list
@@ -104,21 +102,11 @@ func (l *mapList) GetCachedMapName() string {
 }
 
 /*
-	This function creates file by bitmap that player generate in create mode.
-	This function will be called when player finish create mode by pressing enter key.
-*/
-
-func (l *mapList) CreateMap(mapData nonogram.Map, name string) {
-	errs.Check(saver.Nonomap(name, mapData.Formatter()).Save(mapData))
-	l.refresh()
-}
-
-/*
 	This function refresh list of map
 	This function will be called after user create map so it contains added map.
 */
 
-func (l *mapList) refresh() {
+func (l *mapList) Refresh() {
 	var err error
 	l.files, err = file.ReadDir(customPath.MapsDir)
 	errs.Check(err)

@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/file"
 	"github.com/simp7/nonograminGo/nonogram/file/customPath"
@@ -44,5 +45,7 @@ func loadSetting() {
 }
 
 func loadText() {
-	instance.Text = text.New(instance.Language)
+	var err error
+	instance.Text, err = text.New(instance.Language)
+	errs.Check(err)
 }
