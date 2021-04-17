@@ -3,10 +3,10 @@ package controller
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/errs"
+	"github.com/simp7/nonograminGo/file"
+	"github.com/simp7/nonograminGo/file/mapList"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/direction"
-	"github.com/simp7/nonograminGo/nonogram/file"
-	"github.com/simp7/nonograminGo/nonogram/file/mapList"
 	"github.com/simp7/nonograminGo/nonogram/nonomap"
 	"github.com/simp7/nonograminGo/nonogram/player"
 	"github.com/simp7/nonograminGo/nonogram/setting"
@@ -38,6 +38,10 @@ type cli struct {
 	*nonogram.Setting
 }
 
+/*
+	CLI() returns nonogram.Controller that runs in CLI
+*/
+
 func CLI() nonogram.Controller {
 
 	cc := new(cli)
@@ -53,8 +57,8 @@ func CLI() nonogram.Controller {
 }
 
 /*
-This function takes player's input into channel.
-This function will be called when program starts.
+Start() takes player's input into channel.
+Start() function will be called when program starts.
 */
 
 func (cc *cli) Start() {
@@ -80,8 +84,8 @@ func (cc *cli) Start() {
 }
 
 /*
-This function wait until player press some keys.
-This function would be called when key input is needed.
+pressKeyToContinue() wait until player press some keys.
+pressKeyToContinue() would be called when key input is needed.
 */
 
 func (cc *cli) pressKeyToContinue() {
@@ -465,6 +469,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 	p.SetCell(signal.Cursor)
 
 	for {
+
 		err := termbox.Flush()
 		errs.Check(err)
 
@@ -495,11 +500,14 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.mapList.CreateMap(p.FinishCreating(), mapName)
+			errs.Check(nonomap.Save(mapName, p.FinishCreating()))
+			cc.mapList.Refresh()
 			return
+
 		}
 
 	}
+
 }
 
 /*

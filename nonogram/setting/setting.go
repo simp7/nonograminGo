@@ -1,11 +1,12 @@
 package setting
 
 import (
+	"github.com/simp7/nonograminGo/errs"
+	"github.com/simp7/nonograminGo/file"
+	"github.com/simp7/nonograminGo/file/customPath"
+	"github.com/simp7/nonograminGo/file/loader"
+	"github.com/simp7/nonograminGo/file/updater"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/file"
-	"github.com/simp7/nonograminGo/nonogram/file/customPath"
-	"github.com/simp7/nonograminGo/nonogram/file/loader"
-	"github.com/simp7/nonograminGo/nonogram/file/updater"
 	"github.com/simp7/nonograminGo/nonogram/text"
 	"sync"
 )
@@ -44,5 +45,7 @@ func loadSetting() {
 }
 
 func loadText() {
-	instance.Text = text.New(instance.Language)
+	var err error
+	instance.Text, err = text.New(instance.Language)
+	errs.Check(err)
 }

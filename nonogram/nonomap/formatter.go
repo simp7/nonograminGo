@@ -1,12 +1,18 @@
 package nonomap
 
 import (
+	"errors"
 	"fmt"
 	"github.com/simp7/nonograminGo/errs"
 	"github.com/simp7/nonograminGo/nonogram"
 	"math"
 	"strconv"
 	"strings"
+)
+
+var (
+	invalidType = errors.New("this file is not valid for map")
+	invalidMap  = errors.New("map file has been broken")
 )
 
 type formatter struct {
@@ -29,7 +35,7 @@ func (f *formatter) Encode(i interface{}) error {
 		f.raw = convert(i.(*nonomap))
 		return nil
 	default:
-		return errs.InvalidType
+		return invalidType
 	}
 
 }
@@ -68,7 +74,7 @@ func (f *formatter) Decode(i interface{}) error {
 		*origin = f.data
 		return nil
 	default:
-		return errs.InvalidType
+		return invalidType
 	}
 
 }

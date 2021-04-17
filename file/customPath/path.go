@@ -3,7 +3,7 @@ package customPath
 import (
 	"errors"
 	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram/file"
+	"github.com/simp7/nonograminGo/file"
 	"os"
 	"path"
 )
@@ -20,10 +20,13 @@ var (
 	LanguageDir  = new("language")
 	LanguageFile = func(of string) file.Path { return LanguageDir.Append(of + ".json") }
 	MapFile      = func(of string) file.Path { return MapsDir.Append(of) }
+	homePathErr  = errors.New("HOME does not exist")
 )
 
 func new(leaf ...string) customPath {
-	return customPath{rootDir(), leaf}
+	root, err := rootDir()
+	errs.Check(err)
+	return customPath{root, leaf}
 }
 
 func (p customPath) String() string {
@@ -38,14 +41,18 @@ func (p customPath) Append(newLeaf ...string) file.Path {
 	return customPath{p.root, append(p.leaf, newLeaf...)}
 }
 
-func homeEnv() string {
+func homeEnv() (string, error) {
 	root, ok := os.LookupEnv("HOME")
 	if !ok {
-		errs.Check(errors.New("HOME does not exist"))
+		return "", homePathErr
 	}
-	return root
+	return root, nil
 }
 
-func rootDir() string {
-	return path.Join(homeEnv(), "nonogram")
+func rootDir() (string, error) {
+	home, err := homeEnv()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(home, "nonogram"), nil
 }
