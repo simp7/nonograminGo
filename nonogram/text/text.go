@@ -1,7 +1,7 @@
 package text
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/file/loader"
+	"github.com/simp7/nonograminGo/file/loader"
 	"strconv"
 	"strings"
 )

@@ -2,9 +2,9 @@ package loader
 
 import (
 	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram/file"
-	"github.com/simp7/nonograminGo/nonogram/file/customPath"
-	"github.com/simp7/nonograminGo/nonogram/file/formatter"
+	"github.com/simp7/nonograminGo/file"
+	"github.com/simp7/nonograminGo/file/customPath"
+	"github.com/simp7/nonograminGo/file/formatter"
 )
 
 type loader struct {

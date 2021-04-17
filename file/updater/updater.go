@@ -2,10 +2,9 @@ package updater
 
 import (
 	"embed"
-	_ "embed"
 	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram/file"
-	"github.com/simp7/nonograminGo/nonogram/file/customPath"
+	"github.com/simp7/nonograminGo/file"
+	"github.com/simp7/nonograminGo/file/customPath"
 	"path"
 )
 

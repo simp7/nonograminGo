@@ -1,8 +1,8 @@
 package saver
 
 import (
-	"github.com/simp7/nonograminGo/nonogram/file"
-	"github.com/simp7/nonograminGo/nonogram/file/customPath"
+	"github.com/simp7/nonograminGo/file"
+	"github.com/simp7/nonograminGo/file/customPath"
 )
 
 type saver struct {
