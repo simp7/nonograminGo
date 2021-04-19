@@ -7,39 +7,37 @@ import (
 )
 
 type textData struct {
-	FileVersion             string
-	Title                   string
-	SelectRequest           string
-	Start                   string
-	Create                  string
-	Help                    string
-	Credit                  string
-	Exit                    string
-	MapList                 string
-	Prev                    string
-	Next                    string
-	Result                  string
-	Clear                   string
-	MapName                 string
-	ClearTime               string
-	WrongCells              string
-	CompleteMsg             string
-	Manual                  string
-	ExplArrowKey            string
-	ExplSpace               string
-	ExplX                   string
-	ExplEnter               string
-	ExplEsc                 string
-	DeveloperInfo           string
-	License                 string
-	ThankYouMsg             string
-	ReqMapName              string
-	ReqWidth                string
-	ReqHeight               string
-	MapSizeError            string
-	MapFileNotExist         string
-	BlankBetweenMapAndTimer string
-	ArrowKey                string
+	FileVersion     string
+	Title           string
+	SelectRequest   string
+	Start           string
+	Create          string
+	Help            string
+	Credit          string
+	Exit            string
+	MapList         string
+	Prev            string
+	Next            string
+	Result          string
+	Clear           string
+	MapName         string
+	ClearTime       string
+	WrongCells      string
+	CompleteMsg     string
+	ExplArrowKey    string
+	ExplSpace       string
+	ExplX           string
+	ExplEnter       string
+	ExplEsc         string
+	DeveloperInfo   string
+	License         string
+	ThankYouMsg     string
+	ReqMapName      string
+	ReqWidth        string
+	ReqHeight       string
+	MapSizeError    string
+	MapFileNotExist string
+	ArrowKey        string
 }
 
 func New(language string) (*textData, error) {
@@ -71,7 +69,7 @@ func (t *textData) Complete() string {
 }
 
 func (t *textData) GetHelp() []string {
-	return append(t.title(15, t.Manual), t.keyInstruction()...)
+	return append(t.title(15, t.Help), t.keyInstruction()...)
 }
 
 func (t *textData) GetCredit() []string {
@@ -99,7 +97,7 @@ func (t *textData) FileNotExist() string {
 }
 
 func (t *textData) BlankBetweenMapNameAndTimer() string {
-	return t.BlankBetweenMapAndTimer
+	return "               "
 }
 
 func (t *textData) keyInstruction() []string {
