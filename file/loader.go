@@ -1,5 +1,5 @@
 package file
 
 type Loader interface {
-	Load(interface{})
+	Load(interface{}) error
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/simp7/times/gadget/stopwatch"
 	"strconv"
 	"sync"
+	"unicode"
 )
 
 type View uint8
@@ -126,6 +127,10 @@ func (cc *cli) refresh() {
 
 }
 
+func isCJK(char rune) bool {
+	return unicode.In(char, unicode.Hangul, unicode.Han, unicode.Hiragana, unicode.Katakana)
+}
+
 /*
 This function prints a list of strings line by line.
 This function will be called when display refreshed
@@ -139,6 +144,9 @@ func (cc *cli) println(x int, y int, texts []string) {
 
 		for _, ch := range msg {
 			termbox.SetCell(x, y, ch, cc.Char, cc.Empty)
+			if isCJK(ch) {
+				x++
+			}
 			x++
 		}
 
