@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+const (
+	delimiterSize = 40
+)
+
 type textData struct {
 	FileVersion     string
 	Title           string
@@ -51,17 +55,17 @@ func New(language string) (*textData, error) {
 
 func (t *textData) MainMenu() []string {
 	list := listByNumber(t.Start, t.Create, t.Help, t.Credit, t.Exit)
-	header := append(t.title(15, t.Title), "", t.SelectRequest, "")
+	header := append(t.title(t.Title), "", t.SelectRequest, "")
 	return append(header, list...)
 }
 
 func (t *textData) GetSelectHeader() []string {
-	return []string{"[ " + t.MapList + " ]", "[ <-" + t.Prev + " | " + t.Next + "-> ]    ", t.delimiter(30), ""}
+	return []string{"[ " + t.MapList + " ]", "[ <-" + t.Prev + " | " + t.Next + "-> ]    ", t.delimiter(), ""}
 }
 
 func (t *textData) GetResult() []string {
 	results := colonFormat(t.MapName, t.ClearTime, t.WrongCells)
-	return append(t.title(15, t.Clear), results...)
+	return append(t.title(t.Clear), results...)
 }
 
 func (t *textData) Complete() string {
@@ -69,11 +73,11 @@ func (t *textData) Complete() string {
 }
 
 func (t *textData) GetHelp() []string {
-	return append(t.title(15, t.Help), t.keyInstruction()...)
+	return append(t.title(t.Help), t.keyInstruction()...)
 }
 
 func (t *textData) GetCredit() []string {
-	return append(t.title(15, t.Credit), t.DeveloperInfo, t.License, t.ThankYouMsg, t.delimiter(len(t.Credit)+30))
+	return append(t.title(t.Credit), t.DeveloperInfo, t.License, t.ThankYouMsg, t.delimiter())
 }
 
 func (t *textData) RequestMapName() string {
@@ -153,15 +157,18 @@ func listByNumber(texts ...string) []string {
 	return texts
 }
 
-func (t *textData) delimiter(amount int) string {
-	return strings.Repeat("-", amount)
+func (t *textData) delimiter() string {
+	return strings.Repeat("-", delimiterSize)
 }
 
-func (t *textData) title(blank int, text string) []string {
+func (t *textData) title(text string) []string {
+	blank := (delimiterSize - len(text)) / 2
+	if blank < 0 {
+		return []string{text}
+	}
 	result := make([]string, 3)
-	length := len(text) + 2*blank
-	result[0] = t.delimiter(length)
+	result[0] = t.delimiter()
 	result[1] = strings.Repeat(" ", blank) + text
-	result[2] = t.delimiter(length)
+	result[2] = t.delimiter()
 	return result
 }

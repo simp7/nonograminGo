@@ -1,8 +1,8 @@
 package nonomap
 
 import (
-	loader2 "github.com/simp7/nonograminGo/file/loader"
-	saver2 "github.com/simp7/nonograminGo/file/saver"
+	"github.com/simp7/nonograminGo/file/loader"
+	"github.com/simp7/nonograminGo/file/saver"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/problem"
 	"strconv"
@@ -42,12 +42,12 @@ func New() nonogram.Map {
 
 func Load(fileName string) nonogram.Map {
 	loaded := New()
-	loader2.Nonomap(fileName, Formatter()).Load(&loaded)
+	loader.Nonomap(fileName, Formatter()).Load(&loaded)
 	return loaded
 }
 
 func Save(name string, nonomap nonogram.Map) error {
-	return saver2.Nonomap(name, nonomap.Formatter()).Save(nonomap)
+	return saver.Nonomap(name, nonomap.Formatter()).Save(nonomap)
 }
 
 func NewByBitMap(bitmap [][]bool) nonogram.Map {
