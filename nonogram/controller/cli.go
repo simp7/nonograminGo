@@ -104,8 +104,8 @@ func (cc *cli) pressKeyToContinue() {
 }
 
 /*
-This function refresh current display because of player's input or time passed
-This function will be called when player strokes key or time passed.
+refresh() refreshes current display because of player's input or time passed.
+refresh() will be called when player strokes key or time passed.
 */
 
 func (cc *cli) refresh() {
@@ -127,16 +127,21 @@ func (cc *cli) refresh() {
 
 }
 
+/*
+isCJK() determines character if it is CJK(Chinese-Japanese-Korean).
+isCJK() is only called in println() because printing CJK needs two cells.
+*/
+
 func isCJK(char rune) bool {
 	return unicode.In(char, unicode.Hangul, unicode.Han, unicode.Hiragana, unicode.Katakana)
 }
 
 /*
-This function prints a list of strings line by line.
-This function will be called when display refreshed
+println() prints a list of strings line by line.
+println() will be called when display refreshed
 */
 
-func (cc *cli) println(x int, y int, texts []string) {
+func (cc *cli) println(x int, y int, texts ...string) {
 
 	temp := x
 
@@ -157,13 +162,18 @@ func (cc *cli) println(x int, y int, texts []string) {
 
 }
 
+/*
+printStandard() is simplified version of println().
+The position of text is fixed in defaultX and defaultY
+*/
+
 func (cc *cli) printStandard(texts []string) {
-	cc.println(cc.DefaultX, cc.DefaultY, texts)
+	cc.println(cc.DefaultX, cc.DefaultY, texts...)
 }
 
 /*
-This function listens player's input in main menu.
-This function will be called when player enters main menu.
+menu() listens player's input in main menu.
+menu() will be called when player enters main menu.
 */
 
 func (cc *cli) menu() {
@@ -177,7 +187,7 @@ func (cc *cli) menu() {
 		case cc.event.Ch == '1':
 			cc.selectMap()
 		case cc.event.Ch == '2':
-			cc.createNonomapInfo()
+			cc.createNonomapSkeleton()
 		case cc.event.Ch == '3':
 			cc.currentView = Help
 			cc.refresh()
@@ -232,13 +242,13 @@ This function will be called when refreshing display while being in the select m
 
 func (cc *cli) showMapList() {
 
-	mapList := make([]string, len(cc.GetSelectHeader()))
-	copy(mapList, cc.GetSelectHeader())
-	mapList[0] += cc.mapList.GetOrder()
+	list := make([]string, len(cc.GetSelectHeader()))
+	copy(list, cc.GetSelectHeader())
+	list[0] += cc.mapList.GetOrder()
 
-	mapList = append(mapList, cc.mapList.Current()...)
+	list = append(list, cc.mapList.Current()...)
 
-	cc.printStandard(mapList)
+	cc.printStandard(list)
 
 }
 
@@ -249,7 +259,7 @@ This function will be called when player select map.
 
 func (cc *cli) inGame(correctMap nonogram.Map) {
 
-	termbox.Clear(cc.Empty, cc.Empty)
+	errs.Check(termbox.Clear(cc.Empty, cc.Empty))
 
 	remainedCell := correctMap.FilledTotal()
 	wrongCell := 0
@@ -323,8 +333,8 @@ func (cc *cli) showProblem(problem nonogram.Problem) {
 	cc.redraw(func() {
 		x := problem.Horizontal().Max()
 		y := problem.Vertical().Max() + 1
-		cc.println(x, 1, problem.Vertical().Get())
-		cc.println(0, y, problem.Horizontal().Get())
+		cc.println(x, 1, problem.Vertical().Get()...)
+		cc.println(0, y, problem.Horizontal().Get()...)
 	})
 
 }
@@ -340,17 +350,16 @@ func (cc *cli) showResult(wrong int) {
 	result := make([]string, len(resultFormat))
 	copy(result, resultFormat)
 
+	cc.locker.Lock()
 	result[3] += cc.mapList.GetCachedMapName()
 	result[4] += cc.timer.Stop()
 	result[5] += strconv.Itoa(wrong)
+	cc.locker.Unlock()
 
-	cc.locker.Lock()
-
-	cc.println(0, 0, []string{cc.Complete()})
+	cc.println(0, 0, cc.Complete())
 	errs.Check(termbox.Flush())
 
 	cc.pressKeyToContinue()
-	cc.locker.Unlock()
 
 	cc.redraw(func() { cc.printStandard(result) })
 
@@ -363,43 +372,52 @@ func (cc *cli) showResult(wrong int) {
 	This function will be called when player enter the create mode from main menu.
 */
 
-func (cc *cli) createNonomapInfo() {
+func (cc *cli) createNonomapSkeleton() {
 
 	width, height := 0, 0
 	var err error
 	criteria := nonomap.New()
+	header := cc.RequestMapName()
 
-	mapName := cc.stringReader(cc.RequestMapName())
+	mapName := cc.stringReader(header, cc.NameMax)
 	if mapName == "" {
 		return
 	}
 
-	mapWidth := cc.stringReader(cc.RequestWidth())
+	header = cc.RequestWidth()
 	for {
+
+		mapWidth := cc.stringReader(header, 2)
 		if mapWidth == "" {
 			return
-		} else {
-			width, err = strconv.Atoi(mapWidth)
-			errs.Check(err)
-			if width <= criteria.WidthLimit() && width > 0 {
-				break
-			}
-			mapWidth = cc.stringReader(cc.SizeError() + strconv.Itoa(criteria.WidthLimit()))
 		}
+
+		width, err = strconv.Atoi(mapWidth)
+		errs.Check(err)
+
+		if width <= criteria.WidthLimit() && width > 0 {
+			break
+		}
+		header = cc.SizeError() + strconv.Itoa(criteria.WidthLimit())
+
 	}
 
-	mapHeight := cc.stringReader(cc.RequestHeight())
+	header = cc.RequestHeight()
 	for {
+
+		mapHeight := cc.stringReader(header, 2)
 		if mapHeight == "" {
 			return
-		} else {
-			height, err = strconv.Atoi(mapHeight)
-			errs.Check(err)
-			if height <= criteria.HeightLimit() && height > 0 {
-				break
-			}
-			mapHeight = cc.stringReader(cc.SizeError() + strconv.Itoa(criteria.HeightLimit()))
 		}
+
+		height, err = strconv.Atoi(mapHeight)
+		errs.Check(err)
+
+		if height <= criteria.HeightLimit() && height > 0 {
+			break
+		}
+		header = cc.SizeError() + strconv.Itoa(criteria.HeightLimit())
+
 	}
 
 	cc.inCreate(mapName, width, height)
@@ -411,53 +429,67 @@ func (cc *cli) createNonomapInfo() {
 	This function will be called when player creates map so configures properties of map.
 */
 
-func (cc *cli) stringReader(header string) (result string) {
+func (cc *cli) stringReader(header string, maxLen int) string {
 
-	result = ""
-	resultByte := make([]rune, cc.NameMax)
-	n := 0
+	resultByte := make([]rune, 0)
 
-	cc.redraw(func() { cc.printStandard([]string{header}) })
+	writeChar := func(ch rune) {
+		resultByte = append(resultByte, ch)
+	}
+
+	placeholder := func() {
+
+		cc.printStandard([]string{header})
+		if len(resultByte) < maxLen {
+			cc.println(cc.DefaultX+len(resultByte), cc.DefaultY+2, "_")
+		}
+
+		if cc.DefaultX > 0 {
+			cc.println(cc.DefaultX-1, cc.DefaultY+2, "[")
+			cc.println(cc.DefaultX+maxLen, cc.DefaultY+2, "]")
+		}
+
+	}
+
+	cc.redraw(func() {
+		placeholder()
+	})
 
 	for {
+
 		cc.pressKeyToContinue()
 
 		cc.redraw(func() {
-			cc.printStandard([]string{header})
 
-			if n < cc.NameMax {
-				if header == cc.RequestMapName() {
-					if cc.event.Ch != 0 {
-						resultByte[n] = cc.event.Ch
-						n++
-					} else if cc.event.Key == termbox.KeySpace {
-						resultByte[n] = ' '
-						n++
-					}
-				} else if cc.event.Ch >= '0' && cc.event.Ch <= '9' {
-					resultByte[n] = cc.event.Ch
-					n++
+			defer func() {
+				cc.println(cc.DefaultX, cc.DefaultY+2, string(resultByte))
+				placeholder()
+			}()
+
+			if (cc.event.Key == termbox.KeyBackspace || cc.event.Key == termbox.KeyBackspace2 || cc.event.Key == termbox.KeyDelete) && len(resultByte) > 0 {
+				resultByte = resultByte[:len(resultByte)-1]
+			}
+
+			if len(resultByte) == maxLen {
+				return
+			}
+
+			if header == cc.RequestMapName() {
+				if cc.event.Ch != 0 {
+					writeChar(cc.event.Ch)
+				} else if cc.event.Key == termbox.KeySpace {
+					writeChar(' ')
 				}
+			} else if cc.event.Ch >= '0' && cc.event.Ch <= '9' {
+				writeChar(cc.event.Ch)
 			}
-
-			if (cc.event.Key == termbox.KeyBackspace || cc.event.Key == termbox.KeyBackspace2 || cc.event.Key == termbox.KeyDelete) && n > 0 {
-				n--
-			}
-
-			result = ""
-			for i := 0; i < n; i++ {
-				result += string(resultByte[i])
-			}
-
-			cc.println(cc.DefaultX, cc.DefaultY+2, []string{result})
 
 		})
 
 		if cc.event.Key == termbox.KeyEnter {
-			return
+			return string(resultByte)
 		} else if cc.event.Key == termbox.KeyEsc {
-			result = ""
-			return
+			return ""
 		}
 
 	}
@@ -471,7 +503,7 @@ func (cc *cli) stringReader(header string) (result string) {
 
 func (cc *cli) inCreate(mapName string, width int, height int) {
 
-	cc.redraw(func() { cc.println(1, 0, []string{mapName}) })
+	cc.redraw(func() { cc.println(1, 0, mapName) })
 
 	p := player.New(cc.DefaultX, cc.DefaultY, width, height)
 	p.SetCell(signal.Cursor)
@@ -529,7 +561,7 @@ func (cc *cli) showHeader() {
 	mapName := cc.mapList.GetCachedMapName()
 
 	cc.timer.Add(func(current string) {
-		cc.println(cc.DefaultX, 0, []string{mapName + cc.BlankBetweenMapNameAndTimer() + current})
+		cc.println(cc.DefaultX, 0, mapName+cc.BlankBetweenMapNameAndTimer()+current)
 		errs.Check(termbox.Flush())
 	})
 
