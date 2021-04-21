@@ -1,10 +1,5 @@
 package nonogram
 
-/*
-	This file deals with algorithms of whole game of nonogram.
-	User's control or display should be separated from this file.
-*/
-
 type Map interface {
 	ShouldFilled(x, y int) bool
 	CreateProblem() Problem

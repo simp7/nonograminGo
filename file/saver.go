@@ -1,5 +1,5 @@
 package file
 
 type Saver interface {
-	Save(interface{})
+	Save(interface{}) error
 }

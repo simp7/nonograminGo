@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"github.com/simp7/nonograminGo/errs"
-	"github.com/simp7/nonograminGo/nonogram/controller"
+	"fmt"
+	"github.com/simp7/nonograminGo/framework/controller"
 	"os"
 )
 
@@ -22,7 +22,7 @@ func init() {
 			rd = controller.Improved()
 		}
 	default:
-		errs.Check(tooManyArgs)
+		fmt.Println(tooManyArgs)
 	}
 
 }
