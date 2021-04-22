@@ -1,10 +1,8 @@
-package loader
+package localStorage
 
 import (
 	"github.com/simp7/nonograminGo/file"
-	"github.com/simp7/nonograminGo/file/localStorage"
-	"github.com/simp7/nonograminGo/file/localStorage/customPath"
-	"github.com/simp7/nonograminGo/file/localStorage/formatter"
+	"github.com/simp7/nonograminGo/file/formatter"
 )
 
 type loader struct {
@@ -12,24 +10,24 @@ type loader struct {
 	formatter file.Formatter
 }
 
-func Setting() (*loader, error) {
+func SettingLoader() (*loader, error) {
 
 	m := new(loader)
 	m.formatter = formatter.Json()
 
 	var err error
-	m.path, err = customPath.Get(localStorage.SETTING)
+	m.path, err = Get(SETTING)
 
 	return m, err
 
 }
 
-func Language(language string) (*loader, error) {
+func LanguageLoader(language string) (*loader, error) {
 
 	m := new(loader)
 	m.formatter = formatter.Json()
 
-	languageDir, err := customPath.Get(localStorage.LANGUAGEDIR)
+	languageDir, err := Get(LANGUAGEDIR)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +37,12 @@ func Language(language string) (*loader, error) {
 
 }
 
-func Nonomap(fileName string, formatter file.Formatter) (*loader, error) {
+func NonomapLoader(fileName string, formatter file.Formatter) (*loader, error) {
 
 	m := new(loader)
 	m.formatter = formatter
 
-	mapsDir, err := customPath.Get(localStorage.MAPSDIR)
+	mapsDir, err := Get(MAPSDIR)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +54,7 @@ func Nonomap(fileName string, formatter file.Formatter) (*loader, error) {
 
 func (m *loader) Load(target interface{}) error {
 
-	data, err := localStorage.ReadFile(m.path)
-
+	data, err := ReadFile(m.path)
 	if err != nil {
 		return err
 	}

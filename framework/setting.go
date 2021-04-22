@@ -1,6 +1,6 @@
 package framework
 
-type Setting struct {
+type Config struct {
 	Color
 	Text
 	Figure

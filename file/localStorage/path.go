@@ -1,9 +1,8 @@
-package customPath
+package localStorage
 
 import (
 	"errors"
 	"github.com/simp7/nonograminGo/file"
-	"github.com/simp7/nonograminGo/file/localStorage"
 	"os"
 	"path"
 )
@@ -17,13 +16,13 @@ var (
 	homePathErr = errors.New("HOME does not exist")
 )
 
-func new(leaf ...string) (customPath, error) {
+func pathTo(leaf ...string) (customPath, error) {
 	root, err := rootDir()
 	return customPath{root, leaf}, err
 }
 
-func Get(name localStorage.PathName) (file.Path, error) {
-	return new(string(name))
+func Get(name PathName) (file.Path, error) {
+	return pathTo(string(name))
 }
 
 func (p customPath) String() string {

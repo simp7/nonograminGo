@@ -1,14 +1,10 @@
-package controller
+package cli
 
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/file"
-	mapList2 "github.com/simp7/nonograminGo/file/localStorage/mapList"
+	"github.com/simp7/nonograminGo/file/localStorage"
 	"github.com/simp7/nonograminGo/framework"
-	direction2 "github.com/simp7/nonograminGo/framework/direction"
-	player2 "github.com/simp7/nonograminGo/framework/player"
-	setting2 "github.com/simp7/nonograminGo/framework/setting"
-	signal2 "github.com/simp7/nonograminGo/framework/signal"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/standard"
 	"github.com/simp7/times/gadget"
@@ -38,25 +34,21 @@ type cli struct {
 	mapList     file.MapList
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
-	*framework.Setting
+	*framework.Config
 }
 
 /*
 	CLI() returns nonogram.Controller that runs in CLI
 */
 
-func CLI() framework.Controller {
+func CLI(config *framework.Config) framework.Controller {
 
-	var err error
 	cc := new(cli)
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 	cc.currentView = MainMenu
-	cc.Setting, err = setting2.Get()
-	if err != nil {
-
-	}
-	cc.mapList = mapList2.New()
+	cc.Config = config
+	cc.mapList = localStorage.New()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -274,8 +266,8 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	problem := correctMap.CreateProblem()
 	cc.showProblem(problem)
 
-	p := player2.New(cc.Setting.Color, problem.Horizontal().Max(), problem.Vertical().Max(), correctMap.GetWidth(), correctMap.GetHeight())
-	p.SetCell(signal2.Cursor)
+	p := Player(cc.Config.Color, problem.Horizontal().Max(), problem.Vertical().Max(), correctMap.GetWidth(), correctMap.GetHeight())
+	p.SetCell(framework.Cursor)
 
 	cc.showHeader()
 
@@ -291,39 +283,39 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(direction2.Up)
+			p.Move(framework.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(direction2.Down)
+			p.Move(framework.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(direction2.Left)
+			p.Move(framework.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(direction2.Right)
+			p.Move(framework.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
-			if p.GetMapSignal() == signal2.Empty {
+			if p.GetMapSignal() == framework.Empty {
 
 				if correctMap.ShouldFilled(p.RealPos()) {
-					p.Toggle(signal2.Fill)
+					p.Toggle(framework.Fill)
 					remainedCell--
 
 					if remainedCell == 0 { //Enter when p complete the game
-						p.SetCell(signal2.Fill)
+						p.SetCell(framework.Fill)
 						cc.showResult(wrongCell)
 						return
 					}
 
 				} else {
-					p.Toggle(signal2.Wrong)
+					p.Toggle(framework.Wrong)
 					wrongCell++
 				}
 
 			}
 
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == signal2.Empty {
-				p.Toggle(signal2.Check)
-			} else if p.GetMapSignal() == signal2.Check {
-				p.Toggle(signal2.Empty)
+			if p.GetMapSignal() == framework.Empty {
+				p.Toggle(framework.Check)
+			} else if p.GetMapSignal() == framework.Check {
+				p.Toggle(framework.Empty)
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
@@ -512,8 +504,8 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	cc.redraw(func() { cc.println(1, 0, mapName) })
 
-	p := player2.New(cc.Setting.Color, cc.DefaultX, cc.DefaultY, width, height)
-	p.SetCell(signal2.Cursor)
+	p := Player(cc.Config.Color, cc.DefaultX, cc.DefaultY, width, height)
+	p.SetCell(framework.Cursor)
 
 	for {
 
@@ -525,24 +517,24 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(direction2.Up)
+			p.Move(framework.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(direction2.Down)
+			p.Move(framework.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(direction2.Left)
+			p.Move(framework.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(direction2.Right)
+			p.Move(framework.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
-			if p.GetMapSignal() == signal2.Empty {
-				p.Toggle(signal2.Fill)
-			} else if p.GetMapSignal() == signal2.Fill {
-				p.Toggle(signal2.Empty)
+			if p.GetMapSignal() == framework.Empty {
+				p.Toggle(framework.Fill)
+			} else if p.GetMapSignal() == framework.Fill {
+				p.Toggle(framework.Empty)
 			}
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == signal2.Empty {
-				p.Toggle(signal2.Check)
-			} else if p.GetMapSignal() == signal2.Check {
-				p.Toggle(signal2.Empty)
+			if p.GetMapSignal() == framework.Empty {
+				p.Toggle(framework.Check)
+			} else if p.GetMapSignal() == framework.Check {
+				p.Toggle(framework.Empty)
 			}
 		case cc.event.Key == termbox.KeyEsc:
 			return

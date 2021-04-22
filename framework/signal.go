@@ -1,9 +1,9 @@
-package cell
+package framework
 
-type Type int8
+type Signal uint8
 
 const (
-	Empty Type = iota
+	Empty Signal = iota
 	Fill
 	Check
 	Wrong

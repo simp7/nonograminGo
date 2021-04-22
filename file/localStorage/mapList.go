@@ -1,10 +1,8 @@
-package mapList
+package localStorage
 
 import (
 	"fmt"
 	"github.com/simp7/nonograminGo/file"
-	"github.com/simp7/nonograminGo/file/localStorage"
-	"github.com/simp7/nonograminGo/file/localStorage/customPath"
 	"os"
 	"strings"
 )
@@ -108,12 +106,12 @@ func (l *mapList) GetCachedMapName() string {
 
 func (l *mapList) Refresh() error {
 
-	mapDir, err := customPath.Get(localStorage.MAPSDIR)
+	mapDir, err := Get(MAPSDIR)
 	if err != nil {
 		return err
 	}
 
-	l.files, err = localStorage.ReadDir(mapDir)
+	l.files, err = ReadDir(mapDir)
 	return err
 
 }

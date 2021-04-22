@@ -1,10 +1,8 @@
-package player
+package cli
 
 import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/framework"
-	direction2 "github.com/simp7/nonograminGo/framework/direction"
-	signal2 "github.com/simp7/nonograminGo/framework/signal"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/standard"
 )
@@ -24,7 +22,7 @@ type player struct {
 	This function will be called when player enter the game or create the map.
 */
 
-func New(config framework.Color, x int, y int, width int, height int) framework.Player {
+func Player(config framework.Color, x int, y int, width int, height int) framework.Player {
 
 	p := new(player)
 	p.xProblemPos, p.yProblemPos = x, y
@@ -42,7 +40,7 @@ func (p *player) initMap(width int, height int) {
 	for n := range p.playerMap {
 		p.playerMap[n] = make([]framework.Signal, width)
 		for m := range p.playerMap[n] {
-			p.playerMap[n][m] = signal2.Empty
+			p.playerMap[n][m] = framework.Empty
 		}
 	}
 }
@@ -60,28 +58,28 @@ func (p *player) SetCell(s framework.Signal) {
 	}
 
 	switch s {
-	case signal2.Empty:
+	case framework.Empty:
 		setCell(' ', ' ', p.color.Empty, p.color.Empty)
 
-	case signal2.Fill:
+	case framework.Fill:
 		setCell(' ', ' ', p.color.Filled, p.color.Filled)
 
-	case signal2.Check:
+	case framework.Check:
 		setCell('>', '<', p.color.Checked, p.color.Empty)
 
-	case signal2.Wrong:
+	case framework.Wrong:
 		setCell('>', '<', p.color.Wrong, p.color.Empty)
 
-	case signal2.Cursor:
+	case framework.Cursor:
 		setCell('(', ')', p.color.Filled, p.color.Empty)
 
-	case signal2.CursorFilled:
+	case framework.CursorFilled:
 		setCell('(', ')', p.color.Empty, p.color.Filled)
 
-	case signal2.CursorChecked:
+	case framework.CursorChecked:
 		setCell('(', ')', p.color.Checked, p.color.Empty)
 
-	case signal2.CursorWrong:
+	case framework.CursorWrong:
 		setCell('(', ')', p.color.Wrong, p.color.Empty)
 	}
 }
@@ -93,14 +91,14 @@ func (p *player) SetCell(s framework.Signal) {
 
 func (p *player) SetCursor(cellState framework.Signal) {
 	switch cellState {
-	case signal2.Fill:
-		p.SetCell(signal2.CursorFilled)
-	case signal2.Check:
-		p.SetCell(signal2.CursorChecked)
-	case signal2.Wrong:
-		p.SetCell(signal2.CursorWrong)
+	case framework.Fill:
+		p.SetCell(framework.CursorFilled)
+	case framework.Check:
+		p.SetCell(framework.CursorChecked)
+	case framework.Wrong:
+		p.SetCell(framework.CursorWrong)
 	default:
-		p.SetCell(signal2.Cursor)
+		p.SetCell(framework.Cursor)
 	}
 }
 
@@ -130,14 +128,14 @@ func (p *player) SetMapSignal(signal framework.Signal) {
 func (p *player) Toggle(s framework.Signal) {
 	p.SetMapSignal(s)
 	switch s {
-	case signal2.Fill:
-		p.SetCell(signal2.CursorFilled)
-	case signal2.Check:
-		p.SetCell(signal2.CursorChecked)
-	case signal2.Wrong:
-		p.SetCell(signal2.CursorWrong)
-	case signal2.Empty:
-		p.SetCell(signal2.Cursor)
+	case framework.Fill:
+		p.SetCell(framework.CursorFilled)
+	case framework.Check:
+		p.SetCell(framework.CursorChecked)
+	case framework.Wrong:
+		p.SetCell(framework.CursorWrong)
+	case framework.Empty:
+		p.SetCell(framework.Cursor)
 	}
 }
 
@@ -161,13 +159,13 @@ func (p *player) moveCursor(condition bool, function func()) {
 
 func (p *player) Move(d framework.Direction) {
 	switch d {
-	case direction2.Up:
+	case framework.Up:
 		p.moveCursor(p.yPos-1 >= p.yProblemPos+1, func() { p.yPos-- })
-	case direction2.Down:
+	case framework.Down:
 		p.moveCursor(p.yPos+1 < p.yProblemPos+1+len(p.playerMap), func() { p.yPos++ })
-	case direction2.Left:
+	case framework.Left:
 		p.moveCursor(p.xPos-2 >= p.xProblemPos, func() { p.xPos -= 2 })
-	case direction2.Right:
+	case framework.Right:
 		p.moveCursor(p.xPos+2 < p.xProblemPos+(2*len(p.playerMap[0])), func() { p.xPos += 2 })
 	}
 }
@@ -191,6 +189,6 @@ func (p *player) FinishCreating() nonogram.Map {
 
 func (p *player) convertByRow(y int) {
 	for x := range p.bitmap[y] {
-		p.bitmap[y][x] = p.playerMap[y][x] == signal2.Fill
+		p.bitmap[y][x] = p.playerMap[y][x] == framework.Fill
 	}
 }

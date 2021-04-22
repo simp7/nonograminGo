@@ -1,9 +1,7 @@
-package saver
+package localStorage
 
 import (
 	"github.com/simp7/nonograminGo/file"
-	"github.com/simp7/nonograminGo/file/localStorage"
-	customPath "github.com/simp7/nonograminGo/file/localStorage/customPath"
 )
 
 type saver struct {
@@ -11,11 +9,11 @@ type saver struct {
 	formatter file.Formatter
 }
 
-func Nonomap(fileName string, formatter file.Formatter) (*saver, error) {
+func NonomapSaver(fileName string, formatter file.Formatter) (*saver, error) {
 
 	s := new(saver)
 
-	mapDir, err := customPath.Get(localStorage.MAPSDIR)
+	mapDir, err := Get(MAPSDIR)
 	if err != nil {
 		return nil, err
 	}
@@ -34,6 +32,6 @@ func (s *saver) Save(i interface{}) error {
 		return err
 	}
 
-	return localStorage.WriteFile(s.path, s.formatter.Content())
+	return WriteFile(s.path, s.formatter.Content())
 
 }

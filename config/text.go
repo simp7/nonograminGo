@@ -1,7 +1,7 @@
-package text
+package config
 
 import (
-	"github.com/simp7/nonograminGo/file/localStorage/loader"
+	"github.com/simp7/nonograminGo/file/localStorage"
 	"strconv"
 	"strings"
 )
@@ -48,7 +48,7 @@ func New(language string) (*textData, error) {
 
 	loaded := new(textData)
 
-	languageLoader, err := loader.Language(language)
+	languageLoader, err := localStorage.LanguageLoader(language)
 	if err != nil {
 		return nil, err
 	}
