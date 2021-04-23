@@ -1,4 +1,4 @@
-package framework
+package client
 
 type Pos struct {
 	X, Y int

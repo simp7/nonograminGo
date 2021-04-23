@@ -2,7 +2,7 @@ package cli
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/framework"
+	"github.com/simp7/nonograminGo/client"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/standard"
 )
@@ -12,9 +12,9 @@ type player struct {
 	yProblemPos int
 	xPos        int
 	yPos        int
-	playerMap   [][]framework.Signal
+	playerMap   [][]client.Signal
 	bitmap      [][]bool
-	color       framework.Color
+	color       client.Color
 }
 
 /*
@@ -22,7 +22,7 @@ type player struct {
 	This function will be called when player enter the game or create the map.
 */
 
-func Player(config framework.Color, x int, y int, width int, height int) framework.Player {
+func Player(config client.Color, x int, y int, width int, height int) client.Player {
 
 	p := new(player)
 	p.xProblemPos, p.yProblemPos = x, y
@@ -36,11 +36,11 @@ func Player(config framework.Color, x int, y int, width int, height int) framewo
 }
 
 func (p *player) initMap(width int, height int) {
-	p.playerMap = make([][]framework.Signal, height)
+	p.playerMap = make([][]client.Signal, height)
 	for n := range p.playerMap {
-		p.playerMap[n] = make([]framework.Signal, width)
+		p.playerMap[n] = make([]client.Signal, width)
 		for m := range p.playerMap[n] {
-			p.playerMap[n][m] = framework.Empty
+			p.playerMap[n][m] = client.Empty
 		}
 	}
 }
@@ -50,7 +50,7 @@ func (p *player) initMap(width int, height int) {
 	This function will be called when player inputs key in game or in create mode
 */
 
-func (p *player) SetCell(s framework.Signal) {
+func (p *player) SetCell(s client.Signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
 		termbox.SetCell(p.xPos, p.yPos, first, fg, bg)
@@ -58,28 +58,28 @@ func (p *player) SetCell(s framework.Signal) {
 	}
 
 	switch s {
-	case framework.Empty:
+	case client.Empty:
 		setCell(' ', ' ', p.color.Empty, p.color.Empty)
 
-	case framework.Fill:
+	case client.Fill:
 		setCell(' ', ' ', p.color.Filled, p.color.Filled)
 
-	case framework.Check:
+	case client.Check:
 		setCell('>', '<', p.color.Checked, p.color.Empty)
 
-	case framework.Wrong:
+	case client.Wrong:
 		setCell('>', '<', p.color.Wrong, p.color.Empty)
 
-	case framework.Cursor:
+	case client.Cursor:
 		setCell('(', ')', p.color.Filled, p.color.Empty)
 
-	case framework.CursorFilled:
+	case client.CursorFilled:
 		setCell('(', ')', p.color.Empty, p.color.Filled)
 
-	case framework.CursorChecked:
+	case client.CursorChecked:
 		setCell('(', ')', p.color.Checked, p.color.Empty)
 
-	case framework.CursorWrong:
+	case client.CursorWrong:
 		setCell('(', ')', p.color.Wrong, p.color.Empty)
 	}
 }
@@ -89,16 +89,16 @@ func (p *player) SetCell(s framework.Signal) {
 	This function will be called when player move cursor.
 */
 
-func (p *player) SetCursor(cellState framework.Signal) {
+func (p *player) SetCursor(cellState client.Signal) {
 	switch cellState {
-	case framework.Fill:
-		p.SetCell(framework.CursorFilled)
-	case framework.Check:
-		p.SetCell(framework.CursorChecked)
-	case framework.Wrong:
-		p.SetCell(framework.CursorWrong)
+	case client.Fill:
+		p.SetCell(client.CursorFilled)
+	case client.Check:
+		p.SetCell(client.CursorChecked)
+	case client.Wrong:
+		p.SetCell(client.CursorWrong)
 	default:
-		p.SetCell(framework.Cursor)
+		p.SetCell(client.Cursor)
 	}
 }
 
@@ -111,31 +111,31 @@ func (p *player) RealPos() (realXPos int, realYPos int) {
 
 //This function returns current state of current cell of cursor
 
-func (p *player) GetMapSignal() framework.Signal {
+func (p *player) GetMapSignal() client.Signal {
 	realXPos, realYPos := p.RealPos()
 	return p.playerMap[realYPos][realXPos]
 }
 
 //This function change state of cell in map
 
-func (p *player) SetMapSignal(signal framework.Signal) {
+func (p *player) SetMapSignal(signal client.Signal) {
 	realXPos, realYPos := p.RealPos()
 	p.playerMap[realYPos][realXPos] = signal
 }
 
 // Toggle is called when state of selected cell changed
 
-func (p *player) Toggle(s framework.Signal) {
+func (p *player) Toggle(s client.Signal) {
 	p.SetMapSignal(s)
 	switch s {
-	case framework.Fill:
-		p.SetCell(framework.CursorFilled)
-	case framework.Check:
-		p.SetCell(framework.CursorChecked)
-	case framework.Wrong:
-		p.SetCell(framework.CursorWrong)
-	case framework.Empty:
-		p.SetCell(framework.Cursor)
+	case client.Fill:
+		p.SetCell(client.CursorFilled)
+	case client.Check:
+		p.SetCell(client.CursorChecked)
+	case client.Wrong:
+		p.SetCell(client.CursorWrong)
+	case client.Empty:
+		p.SetCell(client.Cursor)
 	}
 }
 
@@ -157,15 +157,15 @@ func (p *player) moveCursor(condition bool, function func()) {
 	This function will be called when cursor moves
 */
 
-func (p *player) Move(d framework.Direction) {
+func (p *player) Move(d client.Direction) {
 	switch d {
-	case framework.Up:
+	case client.Up:
 		p.moveCursor(p.yPos-1 >= p.yProblemPos+1, func() { p.yPos-- })
-	case framework.Down:
+	case client.Down:
 		p.moveCursor(p.yPos+1 < p.yProblemPos+1+len(p.playerMap), func() { p.yPos++ })
-	case framework.Left:
+	case client.Left:
 		p.moveCursor(p.xPos-2 >= p.xProblemPos, func() { p.xPos -= 2 })
-	case framework.Right:
+	case client.Right:
 		p.moveCursor(p.xPos+2 < p.xProblemPos+(2*len(p.playerMap[0])), func() { p.xPos += 2 })
 	}
 }
@@ -189,6 +189,6 @@ func (p *player) FinishCreating() nonogram.Map {
 
 func (p *player) convertByRow(y int) {
 	for x := range p.bitmap[y] {
-		p.bitmap[y][x] = p.playerMap[y][x] == framework.Fill
+		p.bitmap[y][x] = p.playerMap[y][x] == client.Fill
 	}
 }

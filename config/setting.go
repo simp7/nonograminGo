@@ -1,15 +1,15 @@
 package config
 
 import (
-	local2 "github.com/simp7/nonograminGo/file/localStorage"
-	"github.com/simp7/nonograminGo/framework"
+	"github.com/simp7/nonograminGo/client"
+	"github.com/simp7/nonograminGo/file/localStorage"
 	"sync"
 )
 
-var instance *framework.Config
+var instance *client.Config
 var once sync.Once
 
-func Get() (*framework.Config, error) {
+func Get() (*client.Config, error) {
 
 	var err error
 
@@ -20,16 +20,16 @@ func Get() (*framework.Config, error) {
 				return
 			}
 		}
-		load()
+		err = load()
 	})
 
-	return instance, nil
+	return instance, err
 
 }
 
 func initializeDir() error {
 
-	rootUpdater, err := local2.AllUpdater()
+	rootUpdater, err := localStorage.AllUpdater()
 	if err != nil {
 		return err
 	}
@@ -40,8 +40,8 @@ func initializeDir() error {
 }
 
 func isFirst() bool {
-	root, _ := local2.Get(local2.ROOT)
-	return !local2.IsThere(root)
+	root, _ := localStorage.Get(localStorage.ROOT)
+	return !localStorage.IsThere(root)
 }
 
 func load() error {
@@ -57,7 +57,7 @@ func load() error {
 
 func loadSetting() error {
 
-	settingLoader, err := local2.SettingLoader()
+	settingLoader, err := localStorage.SettingLoader()
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func updateLanguage(err error) error {
 
 	if err != nil || !instance.Text.IsLatest("1.0") {
 
-		languageUpdater, anotherErr := local2.LanguageUpdater()
+		languageUpdater, anotherErr := localStorage.LanguageUpdater()
 		if anotherErr != nil {
 			return anotherErr
 		}

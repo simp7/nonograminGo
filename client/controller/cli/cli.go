@@ -2,9 +2,9 @@ package cli
 
 import (
 	"github.com/nsf/termbox-go"
+	"github.com/simp7/nonograminGo/client"
 	"github.com/simp7/nonograminGo/file"
 	"github.com/simp7/nonograminGo/file/localStorage"
-	"github.com/simp7/nonograminGo/framework"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/nonograminGo/nonogram/standard"
 	"github.com/simp7/times/gadget"
@@ -34,14 +34,14 @@ type cli struct {
 	mapList     file.MapList
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
-	*framework.Config
+	*client.Config
 }
 
 /*
-	CLI() returns nonogram.Controller that runs in CLI
+	Controller() returns nonogram.Controller that runs in Controller
 */
 
-func CLI(config *framework.Config) framework.Controller {
+func Controller(config *client.Config) client.Controller {
 
 	cc := new(cli)
 	cc.eventChan = make(chan termbox.Event)
@@ -267,7 +267,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	cc.showProblem(problem)
 
 	p := Player(cc.Config.Color, problem.Horizontal().Max(), problem.Vertical().Max(), correctMap.GetWidth(), correctMap.GetHeight())
-	p.SetCell(framework.Cursor)
+	p.SetCell(client.Cursor)
 
 	cc.showHeader()
 
@@ -283,39 +283,39 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(framework.Up)
+			p.Move(client.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(framework.Down)
+			p.Move(client.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(framework.Left)
+			p.Move(client.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(framework.Right)
+			p.Move(client.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
-			if p.GetMapSignal() == framework.Empty {
+			if p.GetMapSignal() == client.Empty {
 
 				if correctMap.ShouldFilled(p.RealPos()) {
-					p.Toggle(framework.Fill)
+					p.Toggle(client.Fill)
 					remainedCell--
 
 					if remainedCell == 0 { //Enter when p complete the game
-						p.SetCell(framework.Fill)
+						p.SetCell(client.Fill)
 						cc.showResult(wrongCell)
 						return
 					}
 
 				} else {
-					p.Toggle(framework.Wrong)
+					p.Toggle(client.Wrong)
 					wrongCell++
 				}
 
 			}
 
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == framework.Empty {
-				p.Toggle(framework.Check)
-			} else if p.GetMapSignal() == framework.Check {
-				p.Toggle(framework.Empty)
+			if p.GetMapSignal() == client.Empty {
+				p.Toggle(client.Check)
+			} else if p.GetMapSignal() == client.Check {
+				p.Toggle(client.Empty)
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
@@ -505,7 +505,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 	cc.redraw(func() { cc.println(1, 0, mapName) })
 
 	p := Player(cc.Config.Color, cc.DefaultX, cc.DefaultY, width, height)
-	p.SetCell(framework.Cursor)
+	p.SetCell(client.Cursor)
 
 	for {
 
@@ -517,24 +517,24 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(framework.Up)
+			p.Move(client.Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(framework.Down)
+			p.Move(client.Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(framework.Left)
+			p.Move(client.Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(framework.Right)
+			p.Move(client.Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
-			if p.GetMapSignal() == framework.Empty {
-				p.Toggle(framework.Fill)
-			} else if p.GetMapSignal() == framework.Fill {
-				p.Toggle(framework.Empty)
+			if p.GetMapSignal() == client.Empty {
+				p.Toggle(client.Fill)
+			} else if p.GetMapSignal() == client.Fill {
+				p.Toggle(client.Empty)
 			}
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == framework.Empty {
-				p.Toggle(framework.Check)
-			} else if p.GetMapSignal() == framework.Check {
-				p.Toggle(framework.Empty)
+			if p.GetMapSignal() == client.Empty {
+				p.Toggle(client.Check)
+			} else if p.GetMapSignal() == client.Check {
+				p.Toggle(client.Empty)
 			}
 		case cc.event.Key == termbox.KeyEsc:
 			return

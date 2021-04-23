@@ -1,4 +1,4 @@
-package framework
+package client
 
 type Text interface {
 	IsLatest(string) bool

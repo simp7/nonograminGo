@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/simp7/nonograminGo/client/controller/cli"
 	config2 "github.com/simp7/nonograminGo/config"
-	"github.com/simp7/nonograminGo/framework/controller/cli"
 )
 
 func main() {
@@ -12,6 +12,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	rd := cli.CLI(setting)
+	rd := cli.Controller(setting)
 	rd.Start()
 }

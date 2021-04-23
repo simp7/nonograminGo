@@ -1,4 +1,4 @@
-package framework
+package client
 
 import "github.com/simp7/nonograminGo/nonogram"
 
