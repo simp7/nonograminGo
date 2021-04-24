@@ -2,7 +2,6 @@ package localStorage
 
 import (
 	"errors"
-	"github.com/simp7/nonograminGo/file"
 	"os"
 	"path"
 )
@@ -21,7 +20,7 @@ func pathTo(leaf ...string) (customPath, error) {
 	return customPath{root, leaf}, err
 }
 
-func Get(name PathName) (file.Path, error) {
+func Get(name PathName) (customPath, error) {
 	return pathTo(string(name))
 }
 
@@ -33,7 +32,7 @@ func (p customPath) String() string {
 	return result
 }
 
-func (p customPath) Append(newLeaf ...string) file.Path {
+func (p customPath) Append(newLeaf ...string) customPath {
 	return customPath{p.root, append(p.leaf, newLeaf...)}
 }
 

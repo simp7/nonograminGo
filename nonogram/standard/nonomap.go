@@ -42,7 +42,7 @@ func Load(fileName string) (nonogram.Map, error) {
 
 	loaded := Map()
 
-	mapLoader, err := localStorage.NonomapLoader(fileName, Formatter())
+	mapLoader, err := localStorage.Map(fileName, Formatter())
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func Load(fileName string) (nonogram.Map, error) {
 
 func Save(name string, nonomap nonogram.Map) error {
 
-	mapSaver, err := localStorage.NonomapSaver(name, nonomap.Formatter())
+	mapSaver, err := localStorage.Map(name, nonomap.Formatter())
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package localStorage
 
 import (
 	"embed"
-	"github.com/simp7/nonograminGo/file"
 	"path"
 )
 
@@ -11,7 +10,7 @@ var f embed.FS
 
 type updater struct {
 	source string
-	target file.Path
+	target customPath
 }
 
 func newUpdater(source string, target PathName) (*updater, error) {
@@ -31,7 +30,7 @@ func (u *updater) Update() {
 	u.updateDir(u.source, u.target)
 }
 
-func (u *updater) updateDir(from string, to file.Path) error {
+func (u *updater) updateDir(from string, to customPath) error {
 
 	err := MkDir(to)
 	if err != nil {

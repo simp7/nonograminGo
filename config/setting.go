@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/simp7/nonograminGo/client"
+	"github.com/simp7/nonograminGo/file/formatter"
 	"github.com/simp7/nonograminGo/file/localStorage"
 	"sync"
 )
@@ -57,7 +58,7 @@ func load() error {
 
 func loadSetting() error {
 
-	settingLoader, err := localStorage.SettingLoader()
+	settingLoader, err := localStorage.Setting(formatter.Json())
 	if err != nil {
 		return err
 	}

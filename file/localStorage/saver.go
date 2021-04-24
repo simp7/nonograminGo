@@ -5,24 +5,8 @@ import (
 )
 
 type saver struct {
-	path      file.Path
+	path      customPath
 	formatter file.Formatter
-}
-
-func NonomapSaver(fileName string, formatter file.Formatter) (*saver, error) {
-
-	s := new(saver)
-
-	mapDir, err := Get(MAPSDIR)
-	if err != nil {
-		return nil, err
-	}
-
-	s.path = mapDir.Append(fileName + ".nm")
-	s.formatter = formatter
-
-	return s, nil
-
 }
 
 func (s *saver) Save(i interface{}) error {

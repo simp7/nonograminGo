@@ -35,14 +35,16 @@ func (l *mapList) Current() []string {
 	list := make([]string, 10)
 
 	for n := 0; n < 10; n++ {
-		if n+10*l.order < len(l.files) {
-			list[n] = fmt.Sprintf("%d. %s", n, strings.TrimSuffix(l.files[n+10*l.order].Name(), ".nm"))
+		order := l.realIdx(n)
+		if order < len(l.files) {
+			fileName := l.files[order].Name()
+			list[n] = fmt.Sprintf("%d. %s", n, trimSuffix(fileName))
 		}
 	}
 
 	return list
 
-} //TODO: Separate suffix formatting function.
+}
 
 /*
 	This function gets player to the next page of list.
@@ -84,13 +86,13 @@ func (l *mapList) GetOrder() string {
 	This function will be called when user inputs number in select.
 */
 
-func (l *mapList) GetMapName(target int) (string, bool) {
+func (l *mapList) GetMapName(idx int) (string, bool) {
 
-	if target >= len(l.files) {
+	if idx >= len(l.files) {
 		return "", false
 	}
 
-	l.currentFile = l.files[target+10*l.order].Name()
+	l.currentFile = trimSuffix(l.files[l.realIdx(idx)].Name())
 	return l.currentFile, true
 
 }
@@ -114,4 +116,12 @@ func (l *mapList) Refresh() error {
 	l.files, err = ReadDir(mapDir)
 	return err
 
+}
+
+func (l *mapList) realIdx(idx int) int {
+	return idx + 10*l.order
+}
+
+func trimSuffix(name string) string {
+	return strings.TrimSuffix(name, ".nm")
 }
