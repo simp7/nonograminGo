@@ -1,32 +1,20 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"github.com/simp7/nonograminGo/framework/controller"
-	"os"
+	"github.com/simp7/nonograminGo/client/controller/cli"
+	"github.com/simp7/nonograminGo/config"
 )
-
-var (
-	rd          = controller.CLI()
-	tooManyArgs = errors.New("argument should be less than 2")
-)
-
-func init() {
-
-	switch len(os.Args) {
-	case 1:
-		return
-	case 2:
-		if os.Args[1] == "alpha" {
-			rd = controller.Improved()
-		}
-	default:
-		fmt.Println(tooManyArgs)
-	}
-
-}
 
 func main() {
+
+	setting, err := config.Get()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	rd := cli.Controller(setting)
 	rd.Start()
+
 }

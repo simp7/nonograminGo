@@ -1,8 +1,7 @@
 package standard
 
 import (
-	"github.com/simp7/nonograminGo/file/localStorage/loader"
-	"github.com/simp7/nonograminGo/file/localStorage/saver"
+	"github.com/simp7/nonograminGo/file/localStorage"
 	"github.com/simp7/nonograminGo/nonogram"
 	"strconv"
 )
@@ -43,7 +42,7 @@ func Load(fileName string) (nonogram.Map, error) {
 
 	loaded := Map()
 
-	mapLoader, err := loader.Nonomap(fileName, Formatter())
+	mapLoader, err := localStorage.Map(fileName, Formatter())
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +54,7 @@ func Load(fileName string) (nonogram.Map, error) {
 
 func Save(name string, nonomap nonogram.Map) error {
 
-	mapSaver, err := saver.Nonomap(name, nonomap.Formatter())
+	mapSaver, err := localStorage.Map(name, nonomap.Formatter())
 	if err != nil {
 		return err
 	}
