@@ -7,5 +7,5 @@ type MapList interface {
 	GetOrder() string
 	GetMapName(from int) (name string, ok bool)
 	GetCachedMapName() string
-	Refresh()
+	Refresh() error
 }

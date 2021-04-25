@@ -3,6 +3,6 @@ package file
 type Formatter interface {
 	Encode(interface{}) error
 	Decode(interface{}) error
-	GetRaw(from []byte)
+	GetRaw(from []byte) error
 	Content() []byte
 }
