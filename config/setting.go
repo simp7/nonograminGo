@@ -15,7 +15,7 @@ func Get() (*client.Config, error) {
 	var err error
 
 	once.Do(func() {
-		if isFirst() {
+		if localStorage.IsInitial() {
 			err = initializeDir()
 			if err != nil {
 				return
@@ -38,11 +38,6 @@ func initializeDir() error {
 	rootUpdater.Update()
 	return nil
 
-}
-
-func isFirst() bool {
-	root, _ := localStorage.Get(localStorage.ROOT)
-	return !localStorage.IsThere(root)
 }
 
 func load() error {
