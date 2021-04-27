@@ -224,13 +224,25 @@ func (cc *cli) selectMap() {
 			if !ok {
 				continue
 			} else {
-				loaded, err := standard.Load(name)
-				checkErr(err)
-				cc.inGame(loaded)
+				cc.inGame(loadMap(name))
 			}
 		}
 
 	}
+
+}
+
+func loadMap(name string) nonogram.Map {
+
+	mapData := standard.Map()
+
+	s, err := localStorage.Map(name, mapData.Formatter())
+	checkErr(err)
+
+	err = s.Load(&mapData)
+	checkErr(err)
+
+	return mapData
 
 }
 
@@ -539,13 +551,23 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			checkErr(standard.Save(mapName, p.FinishCreating()))
+			saveMap(mapName, p.FinishCreating())
 			cc.mapList.Refresh()
 			return
 
 		}
 
 	}
+
+}
+
+func saveMap(name string, mapData nonogram.Map) {
+
+	mapSaver, err := localStorage.Map(name, mapData.Formatter())
+	checkErr(err)
+
+	mapSaver.Save(mapData)
+	checkErr(err)
 
 }
 
