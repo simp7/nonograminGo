@@ -181,7 +181,7 @@ func (nm *nonomap) CreateProblem() nonogram.Problem {
 		}
 	}
 	hMax *= 2
-	return Problem(hProblem, vProblem, hMax, vMax)
+	return newProblem(hProblem, vProblem, hMax, vMax)
 
 }
 
@@ -243,5 +243,5 @@ func (nm *nonomap) CheckValidity() error {
 }
 
 func (nm *nonomap) Formatter() nonogram.Formatter {
-	return Formatter()
+	return newFormatter()
 }

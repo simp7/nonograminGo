@@ -14,7 +14,7 @@ type mapList struct {
 	order       int
 }
 
-func New() file.MapList {
+func MapList() file.MapList {
 
 	list := new(mapList)
 

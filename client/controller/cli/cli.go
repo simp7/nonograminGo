@@ -6,7 +6,6 @@ import (
 	"github.com/simp7/nonograminGo/file"
 	"github.com/simp7/nonograminGo/file/localStorage"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/standard"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
 	"io"
@@ -29,6 +28,7 @@ const (
 type cli struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
+	nonomap     nonogram.Map
 	currentView View
 	event       termbox.Event
 	mapList     file.MapList
@@ -41,14 +41,15 @@ type cli struct {
 	Controller() returns nonogram.Controller that runs in Controller
 */
 
-func Controller(config *client.Config) client.Controller {
+func Controller(config *client.Config, mapPrototype nonogram.Map) client.Controller {
 
 	cc := new(cli)
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
+	cc.nonomap = mapPrototype
 	cc.currentView = MainMenu
 	cc.Config = config
-	cc.mapList = localStorage.New()
+	cc.mapList = localStorage.MapList()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -224,7 +225,7 @@ func (cc *cli) selectMap() {
 			if !ok {
 				continue
 			} else {
-				cc.inGame(loadMap(name))
+				cc.inGame(cc.loadMap(name))
 			}
 		}
 
@@ -232,9 +233,9 @@ func (cc *cli) selectMap() {
 
 }
 
-func loadMap(name string) nonogram.Map {
+func (cc *cli) loadMap(name string) nonogram.Map {
 
-	mapData := standard.Map()
+	mapData := cc.nonomap
 
 	s, err := localStorage.Map(name, mapData.Formatter())
 	checkErr(err)
@@ -387,7 +388,7 @@ func (cc *cli) createNonomapSkeleton() {
 
 	width, height := 0, 0
 	var err error
-	criteria := standard.Map()
+	criteria := cc.nonomap
 	header := cc.RequestMapName()
 
 	mapName := cc.stringReader(header, cc.NameMax)
