@@ -1,7 +1,6 @@
 package standard
 
 import (
-	"github.com/simp7/nonograminGo/file/localStorage"
 	"github.com/simp7/nonograminGo/nonogram"
 	"strconv"
 )
@@ -36,31 +35,6 @@ type nonomap struct {
 
 func Map() nonogram.Map {
 	return new(nonomap)
-}
-
-func Load(fileName string) (nonogram.Map, error) {
-
-	loaded := Map()
-
-	mapLoader, err := localStorage.Map(fileName, Formatter())
-	if err != nil {
-		return nil, err
-	}
-
-	err = mapLoader.Load(&loaded)
-	return loaded, err
-
-}
-
-func Save(name string, nonomap nonogram.Map) error {
-
-	mapSaver, err := localStorage.Map(name, nonomap.Formatter())
-	if err != nil {
-		return err
-	}
-
-	return mapSaver.Save(nonomap)
-
 }
 
 func NewByBitMap(bitmap [][]bool) nonogram.Map {

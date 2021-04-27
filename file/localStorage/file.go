@@ -20,13 +20,13 @@ func WriteFile(path customPath, data []byte) error {
 	return os.WriteFile(path.String(), data, 0644)
 }
 
-func IsThere(path customPath) bool {
+func IsInitial() bool {
 
-	_, err := ReadDir(path)
-	if err == nil {
-		return true
-	}
-	_, err = ReadFile(path)
-	return err == nil
+	path, _ := Get(ROOT)
+
+	_, err1 := ReadDir(path)
+	_, err2 := ReadFile(path)
+
+	return err1 != nil && err2 != nil
 
 }
