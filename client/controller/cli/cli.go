@@ -4,7 +4,6 @@ import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/client"
 	"github.com/simp7/nonograminGo/file"
-	"github.com/simp7/nonograminGo/file/localStorage"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
@@ -29,11 +28,12 @@ type cli struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
 	nonomap     nonogram.Map
+	fileSystem  file.System
 	currentView View
 	event       termbox.Event
-	mapList     file.MapList
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
+	mapList     file.MapList
 	*client.Config
 }
 
@@ -41,15 +41,21 @@ type cli struct {
 	Controller() returns nonogram.Controller that runs in Controller
 */
 
-func Controller(config *client.Config, mapPrototype nonogram.Map) client.Controller {
+func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype nonogram.Map) client.Controller {
 
+	var err error
 	cc := new(cli)
+
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
+
+	cc.Config, err = client.InitSetting(fileSystem, formatter)
+	checkErr(err)
+
 	cc.nonomap = mapPrototype
+	cc.fileSystem = fileSystem
 	cc.currentView = MainMenu
-	cc.Config = config
-	cc.mapList = localStorage.MapList()
+	cc.mapList = fileSystem.MapList()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -237,7 +243,7 @@ func (cc *cli) loadMap(name string) nonogram.Map {
 
 	mapData := cc.nonomap
 
-	s, err := localStorage.Map(name, mapData.Formatter())
+	s, err := cc.fileSystem.Map(name, mapData.Formatter())
 	checkErr(err)
 
 	err = s.Load(&mapData)
@@ -552,8 +558,8 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			saveMap(mapName, p.FinishCreating())
-			cc.mapList.Refresh()
+			cc.saveMap(mapName, p.FinishCreating(cc.nonomap))
+			checkErr(cc.mapList.Refresh())
 			return
 
 		}
@@ -562,13 +568,12 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 }
 
-func saveMap(name string, mapData nonogram.Map) {
+func (cc *cli) saveMap(name string, mapData nonogram.Map) {
 
-	mapSaver, err := localStorage.Map(name, mapData.Formatter())
+	mapSaver, err := cc.fileSystem.Map(name, mapData.Formatter())
 	checkErr(err)
 
-	mapSaver.Save(mapData)
-	checkErr(err)
+	checkErr(mapSaver.Save(mapData))
 
 }
 

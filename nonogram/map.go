@@ -9,5 +9,6 @@ type Map interface {
 	CheckValidity() error
 	HeightLimit() int
 	WidthLimit() int
+	CopyWithBitmap([][]bool) Map
 	Formatter() Formatter
 }

@@ -10,5 +10,5 @@ type Player interface {
 	SetMapSignal(Signal)
 	Toggle(Signal)
 	Move(Direction)
-	FinishCreating() nonogram.Map
+	FinishCreating(prototype nonogram.Map) nonogram.Map
 }

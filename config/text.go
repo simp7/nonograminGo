@@ -49,7 +49,12 @@ func New(language string) (*textData, error) {
 
 	loaded := new(textData)
 
-	languageLoader, err := localStorage.Language(language, formatter.Json())
+	fs, err := localStorage.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	languageLoader, err := fs.LanguageOf(language, formatter.Json())
 	if err != nil {
 		return nil, err
 	}

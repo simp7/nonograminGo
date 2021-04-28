@@ -4,7 +4,6 @@ import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/client"
 	"github.com/simp7/nonograminGo/nonogram"
-	"github.com/simp7/nonograminGo/nonogram/standard"
 )
 
 type player struct {
@@ -175,7 +174,7 @@ func (p *player) Move(d client.Direction) {
 	This function will be called when user finish making map in create mode.
 */
 
-func (p *player) FinishCreating() nonogram.Map {
+func (p *player) FinishCreating(prototype nonogram.Map) nonogram.Map {
 
 	p.bitmap = make([][]bool, len(p.playerMap))
 	for n := range p.bitmap {
@@ -183,7 +182,7 @@ func (p *player) FinishCreating() nonogram.Map {
 		p.convertByRow(n)
 	}
 
-	return standard.NewByBitMap(p.bitmap)
+	return prototype.CopyWithBitmap(p.bitmap)
 
 }
 

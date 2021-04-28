@@ -14,15 +14,15 @@ type updater struct {
 }
 
 func newUpdater(source string, target PathName) (*updater, error) {
-	path, err := Get(target)
+	path, err := get(target)
 	return &updater{source: source, target: path}, err
 }
 
-func AllUpdater() (*updater, error) {
+func allUpdater() (*updater, error) {
 	return newUpdater("skel", ROOT)
 }
 
-func LanguageUpdater() (*updater, error) {
+func languageUpdater() (*updater, error) {
 	return newUpdater(path.Join("skel", "language"), LANGUAGEDIR)
 }
 

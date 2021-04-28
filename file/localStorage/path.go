@@ -20,7 +20,7 @@ func pathTo(leaf ...string) (customPath, error) {
 	return customPath{root, leaf}, err
 }
 
-func Get(name PathName) (customPath, error) {
+func get(name PathName) (customPath, error) {
 	return pathTo(string(name))
 }
 
