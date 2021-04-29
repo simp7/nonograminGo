@@ -15,7 +15,6 @@ import (
 )
 
 type View uint8
-type Signal uint8
 
 const (
 	MainMenu View = iota
@@ -34,7 +33,7 @@ type cli struct {
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
 	mapList     file.MapList
-	*client.Config
+	*Config
 }
 
 /*
@@ -49,7 +48,7 @@ func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype n
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 
-	cc.Config, err = client.InitSetting(fileSystem, formatter)
+	cc.Config, err = InitSetting(fileSystem, formatter)
 	checkErr(err)
 
 	cc.nonomap = mapPrototype
@@ -286,7 +285,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	cc.showProblem(problem)
 
 	p := Player(cc.Config.Color, problem.Horizontal().Max(), problem.Vertical().Max(), correctMap.GetWidth(), correctMap.GetHeight())
-	p.SetCell(client.Cursor)
+	p.SetCell(Cursor)
 
 	cc.showHeader()
 
@@ -302,39 +301,39 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(client.Up)
+			p.Move(Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(client.Down)
+			p.Move(Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(client.Left)
+			p.Move(Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(client.Right)
+			p.Move(Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
-			if p.GetMapSignal() == client.Empty {
+			if p.GetMapSignal() == Empty {
 
 				if correctMap.ShouldFilled(p.RealPos()) {
-					p.Toggle(client.Fill)
+					p.Toggle(Fill)
 					remainedCell--
 
 					if remainedCell == 0 { //Enter when p complete the game
-						p.SetCell(client.Fill)
+						p.SetCell(Fill)
 						cc.showResult(wrongCell)
 						return
 					}
 
 				} else {
-					p.Toggle(client.Wrong)
+					p.Toggle(Wrong)
 					wrongCell++
 				}
 
 			}
 
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == client.Empty {
-				p.Toggle(client.Check)
-			} else if p.GetMapSignal() == client.Check {
-				p.Toggle(client.Empty)
+			if p.GetMapSignal() == Empty {
+				p.Toggle(Check)
+			} else if p.GetMapSignal() == Check {
+				p.Toggle(Empty)
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
@@ -524,7 +523,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 	cc.redraw(func() { cc.println(1, 0, mapName) })
 
 	p := Player(cc.Config.Color, cc.DefaultX, cc.DefaultY, width, height)
-	p.SetCell(client.Cursor)
+	p.SetCell(Cursor)
 
 	for {
 
@@ -536,24 +535,24 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(client.Up)
+			p.Move(Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(client.Down)
+			p.Move(Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(client.Left)
+			p.Move(Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(client.Right)
+			p.Move(Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
-			if p.GetMapSignal() == client.Empty {
-				p.Toggle(client.Fill)
-			} else if p.GetMapSignal() == client.Fill {
-				p.Toggle(client.Empty)
+			if p.GetMapSignal() == Empty {
+				p.Toggle(Fill)
+			} else if p.GetMapSignal() == Fill {
+				p.Toggle(Empty)
 			}
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == client.Empty {
-				p.Toggle(client.Check)
-			} else if p.GetMapSignal() == client.Check {
-				p.Toggle(client.Empty)
+			if p.GetMapSignal() == Empty {
+				p.Toggle(Check)
+			} else if p.GetMapSignal() == Check {
+				p.Toggle(Empty)
 			}
 		case cc.event.Key == termbox.KeyEsc:
 			return

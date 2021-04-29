@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/simp7/nonograminGo/client/controller/cli"
-	"github.com/simp7/nonograminGo/file"
 	"github.com/simp7/nonograminGo/file/formatter"
 	"github.com/simp7/nonograminGo/file/localStorage"
 	"github.com/simp7/nonograminGo/nonogram/standard"
@@ -11,10 +10,7 @@ import (
 
 func main() {
 
-	var err error
-	var fs file.System
-
-	fs, err = localStorage.Get()
+	fs, err := localStorage.Get()
 	if err != nil {
 		fmt.Println(err)
 		return

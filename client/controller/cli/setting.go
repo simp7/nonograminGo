@@ -1,12 +1,13 @@
-package client
+package cli
 
 import (
+	"github.com/simp7/nonograminGo/client"
 	"github.com/simp7/nonograminGo/file"
 )
 
 type Config struct {
 	Color
-	Text
+	client.Text
 	Figure
 	Language string
 }
@@ -45,7 +46,8 @@ func loadSetting(settingLoader file.Loader) (instance *Config, err error) {
 	return
 }
 
-func loadText(languageLoader file.Loader, languageUpdater file.Updater) (text Text, err error) {
+func loadText(languageLoader file.Loader, languageUpdater file.Updater) (text client.Text, err error) {
+	text = new(textData)
 	err = languageLoader.Load(&text)
 	if err != nil || !text.IsLatest("1.0") {
 		languageUpdater.Update()
