@@ -15,7 +15,7 @@ func newStorage(name PathName, formatter file.Formatter, leaf ...string) (*stora
 	var err error
 
 	s.formatter = formatter
-	path, err := Get(name)
+	path, err := get(name)
 
 	if err != nil {
 		return nil, err
@@ -26,15 +26,11 @@ func newStorage(name PathName, formatter file.Formatter, leaf ...string) (*stora
 
 }
 
-func Language(language string, formatter file.Formatter) (*storage, error) {
-	return newStorage(LANGUAGEDIR, formatter, language+".json")
-}
-
-func Map(name string, formatter file.Formatter) (*storage, error) {
+func mapStorage(name string, formatter file.Formatter) (*storage, error) {
 	return newStorage(MAPSDIR, formatter, name+".nm")
 }
 
-func Setting(formatter file.Formatter) (*storage, error) {
+func settingStorage(formatter file.Formatter) (*storage, error) {
 	return newStorage(SETTING, formatter)
 }
 

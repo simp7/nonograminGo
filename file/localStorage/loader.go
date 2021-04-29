@@ -24,3 +24,15 @@ func (l *loader) Load(target interface{}) error {
 	return l.formatter.Decode(target)
 
 }
+
+func languageLoader(language string, formatter file.Formatter) (*loader, error) {
+
+	path, err := get(LANGUAGEDIR)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &loader{path.Append(language + ".json"), formatter}, nil
+
+}

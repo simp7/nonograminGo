@@ -1,4 +1,4 @@
-package client
+package cli
 
 type Pos struct {
 	X, Y int

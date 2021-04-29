@@ -4,7 +4,6 @@ import (
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/client"
 	"github.com/simp7/nonograminGo/file"
-	"github.com/simp7/nonograminGo/file/localStorage"
 	"github.com/simp7/nonograminGo/nonogram"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
@@ -16,7 +15,6 @@ import (
 )
 
 type View uint8
-type Signal uint8
 
 const (
 	MainMenu View = iota
@@ -29,27 +27,34 @@ type cli struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
 	nonomap     nonogram.Map
+	fileSystem  file.System
 	currentView View
 	event       termbox.Event
-	mapList     file.MapList
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
-	*client.Config
+	mapList     file.MapList
+	*Config
 }
 
 /*
 	Controller() returns nonogram.Controller that runs in Controller
 */
 
-func Controller(config *client.Config, mapPrototype nonogram.Map) client.Controller {
+func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype nonogram.Map) client.Controller {
 
+	var err error
 	cc := new(cli)
+
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
+
+	cc.Config, err = InitSetting(fileSystem, formatter)
+	checkErr(err)
+
 	cc.nonomap = mapPrototype
+	cc.fileSystem = fileSystem
 	cc.currentView = MainMenu
-	cc.Config = config
-	cc.mapList = localStorage.MapList()
+	cc.mapList = fileSystem.MapList()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -237,7 +242,7 @@ func (cc *cli) loadMap(name string) nonogram.Map {
 
 	mapData := cc.nonomap
 
-	s, err := localStorage.Map(name, mapData.Formatter())
+	s, err := cc.fileSystem.Map(name, mapData.Formatter())
 	checkErr(err)
 
 	err = s.Load(&mapData)
@@ -280,7 +285,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	cc.showProblem(problem)
 
 	p := Player(cc.Config.Color, problem.Horizontal().Max(), problem.Vertical().Max(), correctMap.GetWidth(), correctMap.GetHeight())
-	p.SetCell(client.Cursor)
+	p.SetCell(Cursor)
 
 	cc.showHeader()
 
@@ -296,39 +301,39 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(client.Up)
+			p.Move(Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(client.Down)
+			p.Move(Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(client.Left)
+			p.Move(Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(client.Right)
+			p.Move(Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
 
-			if p.GetMapSignal() == client.Empty {
+			if p.GetMapSignal() == Empty {
 
 				if correctMap.ShouldFilled(p.RealPos()) {
-					p.Toggle(client.Fill)
+					p.Toggle(Fill)
 					remainedCell--
 
 					if remainedCell == 0 { //Enter when p complete the game
-						p.SetCell(client.Fill)
+						p.SetCell(Fill)
 						cc.showResult(wrongCell)
 						return
 					}
 
 				} else {
-					p.Toggle(client.Wrong)
+					p.Toggle(Wrong)
 					wrongCell++
 				}
 
 			}
 
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == client.Empty {
-				p.Toggle(client.Check)
-			} else if p.GetMapSignal() == client.Check {
-				p.Toggle(client.Empty)
+			if p.GetMapSignal() == Empty {
+				p.Toggle(Check)
+			} else if p.GetMapSignal() == Check {
+				p.Toggle(Empty)
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
@@ -518,7 +523,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 	cc.redraw(func() { cc.println(1, 0, mapName) })
 
 	p := Player(cc.Config.Color, cc.DefaultX, cc.DefaultY, width, height)
-	p.SetCell(client.Cursor)
+	p.SetCell(Cursor)
 
 	for {
 
@@ -530,30 +535,30 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		switch {
 
 		case cc.event.Key == termbox.KeyArrowUp:
-			p.Move(client.Up)
+			p.Move(Up)
 		case cc.event.Key == termbox.KeyArrowDown:
-			p.Move(client.Down)
+			p.Move(Down)
 		case cc.event.Key == termbox.KeyArrowLeft:
-			p.Move(client.Left)
+			p.Move(Left)
 		case cc.event.Key == termbox.KeyArrowRight:
-			p.Move(client.Right)
+			p.Move(Right)
 		case cc.event.Key == termbox.KeySpace || cc.event.Ch == 'z' || cc.event.Ch == 'Z':
-			if p.GetMapSignal() == client.Empty {
-				p.Toggle(client.Fill)
-			} else if p.GetMapSignal() == client.Fill {
-				p.Toggle(client.Empty)
+			if p.GetMapSignal() == Empty {
+				p.Toggle(Fill)
+			} else if p.GetMapSignal() == Fill {
+				p.Toggle(Empty)
 			}
 		case cc.event.Ch == 'x' || cc.event.Ch == 'X':
-			if p.GetMapSignal() == client.Empty {
-				p.Toggle(client.Check)
-			} else if p.GetMapSignal() == client.Check {
-				p.Toggle(client.Empty)
+			if p.GetMapSignal() == Empty {
+				p.Toggle(Check)
+			} else if p.GetMapSignal() == Check {
+				p.Toggle(Empty)
 			}
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			saveMap(mapName, p.FinishCreating())
-			cc.mapList.Refresh()
+			cc.saveMap(mapName, p.FinishCreating(cc.nonomap))
+			checkErr(cc.mapList.Refresh())
 			return
 
 		}
@@ -562,13 +567,12 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 }
 
-func saveMap(name string, mapData nonogram.Map) {
+func (cc *cli) saveMap(name string, mapData nonogram.Map) {
 
-	mapSaver, err := localStorage.Map(name, mapData.Formatter())
+	mapSaver, err := cc.fileSystem.Map(name, mapData.Formatter())
 	checkErr(err)
 
-	mapSaver.Save(mapData)
-	checkErr(err)
+	checkErr(mapSaver.Save(mapData))
 
 }
 

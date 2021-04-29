@@ -22,7 +22,7 @@ func WriteFile(path customPath, data []byte) error {
 
 func IsInitial() bool {
 
-	path, _ := Get(ROOT)
+	path, _ := get(ROOT)
 
 	_, err1 := ReadDir(path)
 	_, err2 := ReadFile(path)

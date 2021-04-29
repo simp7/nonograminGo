@@ -102,7 +102,7 @@ func (f *formatter) GetRaw(content []byte) error {
 		return err
 	}
 
-	f.data = NewByBitMap(bitmap)
+	f.data = f.data.CopyWithBitmap(bitmap)
 	return f.data.CheckValidity()
 
 }

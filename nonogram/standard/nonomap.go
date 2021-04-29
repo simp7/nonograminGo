@@ -37,7 +37,7 @@ func Map() nonogram.Map {
 	return new(nonomap)
 }
 
-func NewByBitMap(bitmap [][]bool) nonogram.Map {
+func (nm *nonomap) CopyWithBitmap(bitmap [][]bool) nonogram.Map {
 
 	result := new(nonomap)
 

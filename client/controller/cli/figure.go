@@ -1,4 +1,4 @@
-package client
+package cli
 
 type Figure struct {
 	NameMax    int

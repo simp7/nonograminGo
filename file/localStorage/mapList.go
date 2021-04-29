@@ -14,7 +14,7 @@ type mapList struct {
 	order       int
 }
 
-func MapList() file.MapList {
+func newMapList() file.MapList {
 
 	list := new(mapList)
 
@@ -108,7 +108,7 @@ func (l *mapList) GetCachedMapName() string {
 
 func (l *mapList) Refresh() error {
 
-	mapDir, err := Get(MAPSDIR)
+	mapDir, err := get(MAPSDIR)
 	if err != nil {
 		return err
 	}

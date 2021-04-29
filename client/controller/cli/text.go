@@ -1,8 +1,6 @@
-package config
+package cli
 
 import (
-	"github.com/simp7/nonograminGo/file/formatter"
-	"github.com/simp7/nonograminGo/file/localStorage"
 	"strconv"
 	"strings"
 )
@@ -43,20 +41,6 @@ type textData struct {
 	MapSizeError    string
 	MapFileNotExist string
 	ArrowKey        string
-}
-
-func New(language string) (*textData, error) {
-
-	loaded := new(textData)
-
-	languageLoader, err := localStorage.Language(language, formatter.Json())
-	if err != nil {
-		return nil, err
-	}
-
-	err = languageLoader.Load(&loaded)
-	return loaded, err
-
 }
 
 func (t *textData) MainMenu() []string {
