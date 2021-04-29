@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/simp7/nonograminGo/client/controller/cli"
 	"github.com/simp7/nonograminGo/config"
+	"github.com/simp7/nonograminGo/nonogram/standard"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 		return
 	}
 
-	rd := cli.Controller(setting)
+	rd := cli.Controller(setting, standard.Map())
 	rd.Start()
 
 }

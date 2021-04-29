@@ -19,7 +19,7 @@ type formatter struct {
 	raw  []byte
 }
 
-func Formatter() *formatter {
+func newFormatter() *formatter {
 	f := new(formatter)
 	f.data = Map()
 	f.raw = make([]byte, 0)
