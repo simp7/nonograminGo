@@ -117,13 +117,13 @@ func (cc *cli) refresh() {
 	cc.redraw(func() {
 		switch cc.currentView {
 		case MainMenu:
-			cc.printStandard(cc.MainMenu())
+			cc.printStandard(cc.MainMenu()...)
 		case Select:
 			cc.showMapList()
 		case Help:
-			cc.printStandard(cc.GetHelp())
+			cc.printStandard(cc.GetHelp()...)
 		case Credit:
-			cc.printStandard(cc.GetCredit())
+			cc.printStandard(cc.GetCredit()...)
 		}
 	})
 
@@ -133,7 +133,7 @@ func (cc *cli) refresh() {
 
 /*
 isCJK() determines character if it is CJK(Chinese-Japanese-Korean).
-isCJK() is only called in println() because printing CJK needs two cells.
+isCJK() is only called in print() because printing CJK needs two cells.
 */
 
 func isCJK(char rune) bool {
@@ -141,38 +141,42 @@ func isCJK(char rune) bool {
 }
 
 /*
-println() prints a list of strings line by line.
-println() will be called when display refreshed
+print() prints a list of strings line by line.
+print() will be called when display refreshed
 */
 
-func (cc *cli) println(x int, y int, texts ...string) {
+func (cc *cli) print(position Pos, texts ...string) {
 
-	temp := x
+	y := 0
 
 	for _, msg := range texts {
+		cc.println(position.Move(0, y), msg)
+		y++
+	}
 
-		for _, ch := range msg {
-			termbox.SetCell(x, y, ch, cc.Char, cc.Empty)
-			if isCJK(ch) {
-				x++
-			}
+}
+
+func (cc *cli) println(position Pos, text string) {
+
+	x := position.X
+
+	for _, ch := range text {
+		termbox.SetCell(x, position.Y, ch, cc.Char, cc.Empty)
+		if isCJK(ch) {
 			x++
 		}
-
-		x = temp
-		y++
-
+		x++
 	}
 
 }
 
 /*
-printStandard() is simplified version of println().
+printStandard() is simplified version of print().
 The position of text is fixed in defaultX and defaultY
 */
 
-func (cc *cli) printStandard(texts []string) {
-	cc.println(cc.DefaultX, cc.DefaultY, texts...)
+func (cc *cli) printStandard(texts ...string) {
+	cc.print(cc.DefaultPos, texts...)
 }
 
 /*
@@ -265,7 +269,7 @@ func (cc *cli) showMapList() {
 
 	list = append(list, cc.mapList.Current()...)
 
-	cc.printStandard(list)
+	cc.printStandard(list...)
 
 }
 
@@ -284,7 +288,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	problem := correctMap.CreateProblem()
 	cc.showProblem(problem)
 
-	p := Player(cc.Config.Color, problem.Horizontal().Max(), problem.Vertical().Max(), correctMap.GetWidth(), correctMap.GetHeight())
+	p := Player(cc.Config.Color, Pos{problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
 	p.SetCell(Cursor)
 
 	cc.showHeader()
@@ -312,7 +316,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 
 			if p.GetMapSignal() == Empty {
 
-				if correctMap.ShouldFilled(p.RealPos()) {
+				if correctMap.ShouldFilled(p.RealPos().X, p.RealPos().Y) {
 					p.Toggle(Fill)
 					remainedCell--
 
@@ -348,10 +352,13 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 func (cc *cli) showProblem(problem nonogram.Problem) {
 
 	cc.redraw(func() {
-		x := problem.Horizontal().Max()
-		y := problem.Vertical().Max() + 1
-		cc.println(x, 1, problem.Vertical().Get()...)
-		cc.println(0, y, problem.Horizontal().Get()...)
+
+		verticalPos := Pos{problem.Horizontal().Max(), 1}
+		horizontalPos := Pos{0, problem.Vertical().Max() + 1}
+
+		cc.print(verticalPos, problem.Vertical().Get()...)
+		cc.print(horizontalPos, problem.Horizontal().Get()...)
+
 	})
 
 }
@@ -373,12 +380,12 @@ func (cc *cli) showResult(wrong int) {
 	result[5] += strconv.Itoa(wrong)
 	cc.locker.Unlock()
 
-	cc.println(0, 0, cc.Complete())
+	cc.print(Pos{0, 0}, cc.Complete())
 	checkErr(termbox.Flush())
 
 	cc.pressKeyToContinue()
 
-	cc.redraw(func() { cc.printStandard(result) })
+	cc.redraw(func() { cc.printStandard(result...) })
 
 	cc.pressKeyToContinue()
 
@@ -456,14 +463,14 @@ func (cc *cli) stringReader(header string, maxLen int) string {
 
 	placeholder := func() {
 
-		cc.printStandard([]string{header})
+		cc.printStandard(header)
 		if len(resultByte) < maxLen {
-			cc.println(cc.DefaultX+len(resultByte), cc.DefaultY+2, "_")
+			cc.print(cc.DefaultPos.Move(len(resultByte), 2), "_")
 		}
 
-		if cc.DefaultX > 0 {
-			cc.println(cc.DefaultX-1, cc.DefaultY+2, "[")
-			cc.println(cc.DefaultX+maxLen, cc.DefaultY+2, "]")
+		if cc.DefaultPos.X > 0 {
+			cc.print(cc.DefaultPos.Move(-1, 2), "[")
+			cc.print(cc.DefaultPos.Move(maxLen, 2), "]")
 		}
 
 	}
@@ -479,7 +486,7 @@ func (cc *cli) stringReader(header string, maxLen int) string {
 		cc.redraw(func() {
 
 			defer func() {
-				cc.println(cc.DefaultX, cc.DefaultY+2, string(resultByte))
+				cc.print(cc.DefaultPos.Move(0, 2), string(resultByte))
 				placeholder()
 			}()
 
@@ -520,9 +527,9 @@ func (cc *cli) stringReader(header string, maxLen int) string {
 
 func (cc *cli) inCreate(mapName string, width int, height int) {
 
-	cc.redraw(func() { cc.println(1, 0, mapName) })
+	cc.redraw(func() { cc.print(Pos{1, 0}, mapName) })
 
-	p := Player(cc.Config.Color, cc.DefaultX, cc.DefaultY, width, height)
+	p := Player(cc.Config.Color, cc.DefaultPos, width, height)
 	p.SetCell(Cursor)
 
 	for {
@@ -587,7 +594,7 @@ func (cc *cli) showHeader() {
 	mapName := cc.mapList.GetCachedMapName()
 
 	cc.timer.Add(func(current string) {
-		cc.println(cc.DefaultX, 0, mapName+cc.BlankBetweenMapNameAndTimer()+current)
+		cc.print(Pos{cc.DefaultPos.X, 0}, mapName+cc.BlankBetweenMapNameAndTimer()+current)
 		checkErr(termbox.Flush())
 	})
 
