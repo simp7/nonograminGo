@@ -32,7 +32,7 @@ func (u *updater) Update() {
 
 func (u *updater) updateDir(from string, to customPath) error {
 
-	err := MkDir(to)
+	err := mkDir(to)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (u *updater) updateDir(from string, to customPath) error {
 			err = u.updateDir(source, target)
 		} else {
 			data, _ := f.ReadFile(source)
-			err = WriteFile(target, data)
+			err = writeFile(target, data)
 		}
 
 	}
