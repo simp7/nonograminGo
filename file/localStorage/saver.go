@@ -16,6 +16,6 @@ func (s *saver) Save(i interface{}) error {
 		return err
 	}
 
-	return WriteFile(s.path, s.formatter.Content())
+	return writeFile(s.path, s.formatter.Content())
 
 }

@@ -6,13 +6,11 @@ import (
 )
 
 type player struct {
-	xProblemPos int
-	yProblemPos int
-	xPos        int
-	yPos        int
-	playerMap   [][]Signal
-	bitmap      [][]bool
-	color       Color
+	problemPosition Pos
+	position        Pos
+	playerMap       [][]Signal
+	bitmap          [][]bool
+	color           Color
 }
 
 /*
@@ -20,14 +18,14 @@ type player struct {
 	This function will be called when player enter the game or create the map.
 */
 
-func Player(config Color, x int, y int, width int, height int) *player {
+func Player(config Color, problemPosition Pos, width int, height int) *player {
 
 	p := new(player)
-	p.xProblemPos, p.yProblemPos = x, y
+	p.problemPosition = problemPosition
 
 	p.initMap(width, height)
 
-	p.xPos, p.yPos = p.xProblemPos, p.yProblemPos+1
+	p.position = p.problemPosition.Move(0, 1)
 	p.color = config
 
 	return p
@@ -51,8 +49,8 @@ func (p *player) initMap(width int, height int) {
 func (p *player) SetCell(s Signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
-		termbox.SetCell(p.xPos, p.yPos, first, fg, bg)
-		termbox.SetCell(p.xPos+1, p.yPos, second, fg, bg)
+		termbox.SetCell(p.position.X, p.position.Y, first, fg, bg)
+		termbox.SetCell(p.position.X+1, p.position.Y, second, fg, bg)
 	}
 
 	switch s {
@@ -102,23 +100,23 @@ func (p *player) SetCursor(cellState Signal) {
 
 //This function returns real position of the map by calculating cursor position and problem position.
 
-func (p *player) RealPos() (realXPos int, realYPos int) {
-	realXPos, realYPos = (p.xPos-p.xProblemPos)/2, p.yPos-p.yProblemPos-1
-	return
+func (p *player) RealPos() (realPos Pos) {
+	tmp := p.position.Move(-p.problemPosition.X, -p.problemPosition.Y-1)
+	return Pos{tmp.X / 2, tmp.Y}
 }
 
 //This function returns current state of current cell of cursor
 
 func (p *player) GetMapSignal() Signal {
-	realXPos, realYPos := p.RealPos()
-	return p.playerMap[realYPos][realXPos]
+	realPos := p.RealPos()
+	return p.playerMap[realPos.Y][realPos.X]
 }
 
 //This function change state of cell in map
 
 func (p *player) SetMapSignal(signal Signal) {
-	realXPos, realYPos := p.RealPos()
-	p.playerMap[realYPos][realXPos] = signal
+	realPos := p.RealPos()
+	p.playerMap[realPos.Y][realPos.X] = signal
 }
 
 // Toggle is called when state of selected cell changed
@@ -142,10 +140,10 @@ func (p *player) Toggle(s Signal) {
 	This function will be called when cursor moves
 */
 
-func (p *player) moveCursor(condition bool, function func()) {
+func (p *player) moveCursor(condition bool, x int, y int) {
 	if condition {
 		p.SetCell(p.GetMapSignal())
-		function()
+		p.position = p.position.Move(x, y)
 		p.SetCursor(p.GetMapSignal())
 	}
 }
@@ -158,13 +156,13 @@ func (p *player) moveCursor(condition bool, function func()) {
 func (p *player) Move(d Direction) {
 	switch d {
 	case Up:
-		p.moveCursor(p.yPos-1 >= p.yProblemPos+1, func() { p.yPos-- })
+		p.moveCursor(p.position.Y-1 >= p.problemPosition.Y+1, 0, -1)
 	case Down:
-		p.moveCursor(p.yPos+1 < p.yProblemPos+1+len(p.playerMap), func() { p.yPos++ })
+		p.moveCursor(p.position.Y+1 < p.problemPosition.Y+1+len(p.playerMap), 0, 1)
 	case Left:
-		p.moveCursor(p.xPos-2 >= p.xProblemPos, func() { p.xPos -= 2 })
+		p.moveCursor(p.position.X-2 >= p.problemPosition.X, -2, 0)
 	case Right:
-		p.moveCursor(p.xPos+2 < p.xProblemPos+(2*len(p.playerMap[0])), func() { p.xPos += 2 })
+		p.moveCursor(p.position.X+2 < p.problemPosition.X+(2*len(p.playerMap[0])), 2, 0)
 	}
 }
 

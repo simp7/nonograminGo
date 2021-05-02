@@ -11,7 +11,7 @@ type loader struct {
 
 func (l *loader) Load(target interface{}) error {
 
-	data, err := ReadFile(l.path)
+	data, err := readFile(l.path)
 	if err != nil {
 		return err
 	}

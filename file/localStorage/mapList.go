@@ -113,7 +113,7 @@ func (l *mapList) Refresh() error {
 		return err
 	}
 
-	l.files, err = ReadDir(mapDir)
+	l.files, err = readDir(mapDir)
 	return err
 
 }

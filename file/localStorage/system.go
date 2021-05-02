@@ -13,7 +13,7 @@ func Get() (file.System, error) {
 	var err error
 
 	once.Do(func() {
-		if IsInitial() {
+		if isInitial() {
 			var u file.Updater
 			u, err = allUpdater()
 			u.Update()
