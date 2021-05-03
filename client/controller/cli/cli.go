@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"github.com/nsf/termbox-go"
 	"github.com/simp7/nonograminGo/client"
 	"github.com/simp7/nonograminGo/file"
@@ -37,7 +38,7 @@ type cli struct {
 }
 
 /*
-	Controller() returns nonogram.Controller that runs in Controller
+	Controller returns nonogram.Controller that runs in Controller
 */
 
 func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype nonogram.Map) client.Controller {
@@ -54,7 +55,7 @@ func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype n
 	cc.nonomap = mapPrototype
 	cc.fileSystem = fileSystem
 	cc.currentView = MainMenu
-	cc.mapList = fileSystem.MapList()
+	cc.mapList = fileSystem.Maps()
 	cc.timer = stopwatch.Standard
 
 	return cc
@@ -265,7 +266,7 @@ func (cc *cli) showMapList() {
 
 	list := make([]string, len(cc.GetSelectHeader()))
 	copy(list, cc.GetSelectHeader())
-	list[0] += cc.mapList.GetOrder()
+	list[0] += fmt.Sprintf("(%d/%d)", cc.mapList.CurrentPage(), cc.mapList.LastPage())
 
 	list = append(list, cc.mapList.Current()...)
 
