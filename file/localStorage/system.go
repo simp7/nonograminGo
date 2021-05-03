@@ -44,6 +44,6 @@ func (s *system) Language() (file.Updater, error) {
 	return languageUpdater()
 }
 
-func (s *system) MapList() file.MapList {
+func (s *system) Maps() file.MapList {
 	return newMapList()
 }

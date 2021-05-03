@@ -1,6 +1,7 @@
 package file
 
+//Storage is an interface that implements Saver and Loader.
 type Storage interface {
-	Save(interface{}) error
-	Load(interface{}) error
+	Saver
+	Loader
 }

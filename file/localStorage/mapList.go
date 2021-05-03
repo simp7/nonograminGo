@@ -11,7 +11,7 @@ type mapList struct {
 	dirPath     []byte
 	files       []os.DirEntry
 	currentFile string
-	order       int
+	currentPage int
 }
 
 func newMapList() file.MapList {
@@ -19,7 +19,7 @@ func newMapList() file.MapList {
 	list := new(mapList)
 
 	list.Refresh()
-	list.order = 0
+	list.currentPage = 1
 
 	return list
 
@@ -52,10 +52,10 @@ func (l *mapList) Current() []string {
 */
 
 func (l *mapList) Next() {
-	if 10*(l.order+1) >= len(l.files) {
-		l.order = 0
+	if 10*l.currentPage >= len(l.files) {
+		l.currentPage = 1
 	} else {
-		l.order++
+		l.currentPage++
 	}
 }
 
@@ -65,10 +65,10 @@ func (l *mapList) Next() {
 */
 
 func (l *mapList) Prev() {
-	if l.order == 0 {
-		l.order = (len(l.files) - 1) / 10
+	if l.currentPage == 1 {
+		l.currentPage = (len(l.files) - 1) / 10
 	} else {
-		l.order--
+		l.currentPage--
 	}
 }
 
@@ -77,8 +77,12 @@ func (l *mapList) Prev() {
 	This function will be called with list of map, attached with list header.
 */
 
-func (l *mapList) GetOrder() string {
-	return fmt.Sprintf("(%d/%d)", l.order+1, len(l.files)/10+1)
+func (l *mapList) CurrentPage() int {
+	return l.currentPage
+}
+
+func (l *mapList) LastPage() int {
+	return len(l.files)/10 + 1
 }
 
 /*
@@ -119,7 +123,7 @@ func (l *mapList) Refresh() error {
 }
 
 func (l *mapList) realIdx(idx int) int {
-	return idx + 10*l.order
+	return idx + 10*(l.currentPage-1)
 }
 
 func trimSuffix(name string) string {
