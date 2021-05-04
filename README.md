@@ -9,7 +9,7 @@ Visit and follow the instruction in https://golang.org/doc/install
 
 ## After or When Already installed golang...
 1. Open the terminal
-2. Execute go install github.com/simp7/nonograminGo
+2. Execute go install github.com/simp7/nonograminGo@latest
 3. Execute nonograminGo
 
 # External package
@@ -28,7 +28,7 @@ https://golang.org/dl/의 지시대로 Go언어를 설치합니다.
 
 # Go언어를 설치하셨다면...
 1. 터미널을 엽니다.
-2. go install github.com/simp7/nonograminGo를 실행합니다.
+2. go install github.com/simp7/nonograminGo@latest를 실행합니다.
 3. nonograminGo를 실행합니다.
 
 # 외부 패키지
