@@ -8,6 +8,8 @@ import (
 var instance file.System
 var once sync.Once
 
+//Get returns struct that implements file.System by local storage
+//Returned struct by Get is standard option for using file package.
 func Get() (file.System, error) {
 
 	var err error
