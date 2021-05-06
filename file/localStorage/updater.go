@@ -33,10 +33,6 @@ func (u *updater) Update() {
 func (u *updater) updateDir(from string, to customPath) error {
 
 	err := mkDir(to)
-	if err != nil {
-		return err
-	}
-
 	files, _ := f.ReadDir(from)
 
 	for _, v := range files {
