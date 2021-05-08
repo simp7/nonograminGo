@@ -264,8 +264,8 @@ This function will be called when refreshing display while being in the select m
 
 func (cc *cli) showMapList() {
 
-	list := make([]string, len(cc.GetSelectHeader()))
-	copy(list, cc.GetSelectHeader())
+	list := make([]string, len(cc.SelectHeader()))
+	copy(list, cc.SelectHeader())
 	list[0] += fmt.Sprintf("(%d/%d)", cc.mapList.CurrentPage(), cc.mapList.LastPage())
 
 	list = append(list, cc.mapList.Current()...)

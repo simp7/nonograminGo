@@ -49,7 +49,7 @@ func (t *textData) MainMenu() []string {
 	return append(header, list...)
 }
 
-func (t *textData) GetSelectHeader() []string {
+func (t *textData) SelectHeader() []string {
 	return []string{"[ " + t.MapList + " ]", "[ <-" + t.Prev + " | " + t.Next + "-> ]    ", t.delimiter(), ""}
 }
 
