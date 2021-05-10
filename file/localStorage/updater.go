@@ -13,7 +13,7 @@ type updater struct {
 	target customPath
 }
 
-func newUpdater(source string, target PathName) (*updater, error) {
+func newUpdater(source string, target pathID) (*updater, error) {
 	path, err := get(target)
 	return &updater{source: source, target: path}, err
 }

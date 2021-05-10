@@ -9,7 +9,7 @@ type storage struct {
 	formatter file.Formatter
 }
 
-func newStorage(name PathName, formatter file.Formatter, leaf ...string) (*storage, error) {
+func newStorage(name pathID, formatter file.Formatter, leaf ...string) (*storage, error) {
 
 	s := new(storage)
 	var err error
