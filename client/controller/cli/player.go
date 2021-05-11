@@ -13,11 +13,7 @@ type player struct {
 	color           Color
 }
 
-/*
-	This function Creates player structure with problem position, Width, and Height of map.
-	This function will be called when player enter the game or create the map.
-*/
-
+//Player returns in-play logic of nonogram.
 func Player(config Color, problemPosition Pos, width int, height int) *player {
 
 	p := new(player)
@@ -40,11 +36,6 @@ func (p *player) initMap(width int, height int) {
 		}
 	}
 }
-
-/*
-	This function set a cell that cursor exist.
-	This function will be called when player inputs key in game or in create mode
-*/
 
 func (p *player) SetCell(s Signal) {
 
@@ -80,11 +71,6 @@ func (p *player) SetCell(s Signal) {
 	}
 }
 
-/*
-	This function especially set cursor among cells.
-	This function will be called when player move cursor.
-*/
-
 func (p *player) SetCursor(cellState Signal) {
 	switch cellState {
 	case Fill:
@@ -98,28 +84,20 @@ func (p *player) SetCursor(cellState Signal) {
 	}
 }
 
-//This function returns real position of the map by calculating cursor position and problem position.
-
 func (p *player) RealPos() (realPos Pos) {
 	tmp := p.position.Move(-p.problemPosition.X, -p.problemPosition.Y-1)
 	return Pos{tmp.X / 2, tmp.Y}
 }
-
-//This function returns current state of current cell of cursor
 
 func (p *player) GetMapSignal() Signal {
 	realPos := p.RealPos()
 	return p.playerMap[realPos.Y][realPos.X]
 }
 
-//This function change state of cell in map
-
 func (p *player) SetMapSignal(signal Signal) {
 	realPos := p.RealPos()
 	p.playerMap[realPos.Y][realPos.X] = signal
 }
-
-// Toggle is called when state of selected cell changed
 
 func (p *player) Toggle(s Signal) {
 	p.SetMapSignal(s)
@@ -135,11 +113,6 @@ func (p *player) Toggle(s Signal) {
 	}
 }
 
-/*
-	This function process movement of cursor with the help of SetCursor
-	This function will be called when cursor moves
-*/
-
 func (p *player) moveCursor(condition bool, x int, y int) {
 	if condition {
 		p.SetCell(p.GetMapSignal())
@@ -147,11 +120,6 @@ func (p *player) moveCursor(condition bool, x int, y int) {
 		p.SetCursor(p.GetMapSignal())
 	}
 }
-
-/*
-	This function process movement of cursor with the help of moveCursor
-	This function will be called when cursor moves
-*/
 
 func (p *player) Move(d Direction) {
 	switch d {
@@ -165,11 +133,6 @@ func (p *player) Move(d Direction) {
 		p.moveCursor(p.position.X+2 < p.problemPosition.X+(2*len(p.playerMap[0])), 2, 0)
 	}
 }
-
-/*
-	This function process playerMap into Bitmap that is just composed with Fill and empty.
-	This function will be called when user finish making map in create mode.
-*/
 
 func (p *player) FinishCreating(prototype nonogram.Map) nonogram.Map {
 

@@ -1,5 +1,6 @@
 package cli
 
+//Signal represents state of nonogram cell.
 type Signal uint8
 
 const (

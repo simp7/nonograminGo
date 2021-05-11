@@ -34,13 +34,10 @@ type cli struct {
 	timer       gadget.Stopwatch
 	locker      sync.Mutex
 	mapList     file.MapList
-	*Config
+	*config
 }
 
-/*
-	Controller returns nonogram.Controller that runs in Controller
-*/
-
+//Controller returns nonogram.Controller that runs in Controller
 func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype nonogram.Map) client.Controller {
 
 	var err error
@@ -49,7 +46,7 @@ func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype n
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 
-	cc.Config, err = InitSetting(fileSystem, formatter)
+	cc.config, err = InitSetting(fileSystem, formatter)
 	checkErr(err)
 
 	cc.nonomap = mapPrototype
@@ -61,11 +58,6 @@ func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype n
 	return cc
 
 }
-
-/*
-Start() takes player's input into channel.
-Start() function will be called when program starts.
-*/
 
 func (cc *cli) Start() {
 
@@ -89,11 +81,6 @@ func (cc *cli) Start() {
 
 }
 
-/*
-pressKeyToContinue() wait until player press some keys.
-pressKeyToContinue() would be called when key input is needed.
-*/
-
 func (cc *cli) pressKeyToContinue() {
 
 	for {
@@ -107,11 +94,6 @@ func (cc *cli) pressKeyToContinue() {
 	}
 
 }
-
-/*
-refresh() refreshes current display because of player's input or time passed.
-refresh() will be called when player strokes key or time passed.
-*/
 
 func (cc *cli) refresh() {
 
@@ -132,19 +114,9 @@ func (cc *cli) refresh() {
 
 }
 
-/*
-isCJK() determines character if it is CJK(Chinese-Japanese-Korean).
-isCJK() is only called in print() because printing CJK needs two cells.
-*/
-
 func isCJK(char rune) bool {
 	return unicode.In(char, unicode.Hangul, unicode.Han, unicode.Hiragana, unicode.Katakana)
 }
-
-/*
-print() prints a list of strings line by line.
-print() will be called when display refreshed
-*/
 
 func (cc *cli) print(position Pos, texts ...string) {
 
@@ -171,19 +143,9 @@ func (cc *cli) println(position Pos, text string) {
 
 }
 
-/*
-printStandard() is simplified version of print().
-The position of text is fixed in defaultX and defaultY
-*/
-
 func (cc *cli) printStandard(texts ...string) {
 	cc.print(cc.DefaultPos, texts...)
 }
-
-/*
-menu() listens player's input in main menu.
-menu() will be called when player enters main menu.
-*/
 
 func (cc *cli) menu() {
 
@@ -210,11 +172,6 @@ func (cc *cli) menu() {
 	}
 
 }
-
-/*
-This function listens player's input in map-select
-This function will be called when player enters map-select.
-*/
 
 func (cc *cli) selectMap() {
 
@@ -257,11 +214,6 @@ func (cc *cli) loadMap(name string) nonogram.Map {
 
 }
 
-/*
-This function shows the list of the map
-This function will be called when refreshing display while being in the select mode
-*/
-
 func (cc *cli) showMapList() {
 
 	list := make([]string, len(cc.SelectHeader()))
@@ -274,11 +226,6 @@ func (cc *cli) showMapList() {
 
 }
 
-/*
-This function shows the map current player plays and change its appearance when player press key.
-This function will be called when player select map.
-*/
-
 func (cc *cli) inGame(correctMap nonogram.Map) {
 
 	checkErr(termbox.Clear(cc.Empty, cc.Empty))
@@ -289,7 +236,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	problem := correctMap.CreateProblem()
 	cc.showProblem(problem)
 
-	p := Player(cc.Config.Color, Pos{problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
+	p := Player(cc.config.Color, Pos{problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
 	p.SetCell(Cursor)
 
 	cc.showHeader()
@@ -364,11 +311,6 @@ func (cc *cli) showProblem(problem nonogram.Problem) {
 
 }
 
-/*
-	This function shows total result in game.
-	This function will be called when player finally solve the problem and after seeing the whole answer picture.
-*/
-
 func (cc *cli) showResult(wrong int) {
 
 	resultFormat := cc.GetResult()
@@ -391,11 +333,6 @@ func (cc *cli) showResult(wrong int) {
 	cc.pressKeyToContinue()
 
 }
-
-/*
-	This function receive user's key input to create name of nonogram map in create mode.
-	This function will be called when player enter the create mode from main menu.
-*/
 
 func (cc *cli) createNonomapSkeleton() {
 
@@ -448,11 +385,6 @@ func (cc *cli) createNonomapSkeleton() {
 	cc.inCreate(mapName, width, height)
 
 }
-
-/*
-	This function gets string value from player.
-	This function will be called when player creates map so configures properties of map.
-*/
 
 func (cc *cli) stringReader(header string, maxLen int) string {
 
@@ -521,16 +453,11 @@ func (cc *cli) stringReader(header string, maxLen int) string {
 
 }
 
-/*
-	This function shows player's current map in create mode and receive player's key input.
-	This function will be called when player finish writing name of nonomap that player would create.
-*/
-
 func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	cc.redraw(func() { cc.print(Pos{1, 0}, mapName) })
 
-	p := Player(cc.Config.Color, cc.DefaultPos, width, height)
+	p := Player(cc.config.Color, cc.DefaultPos, width, height)
 	p.SetCell(Cursor)
 
 	for {
@@ -584,12 +511,6 @@ func (cc *cli) saveMap(name string, mapData nonogram.Map) {
 
 }
 
-/*
-	This function shows time passed in game.
-	This function will be called when player enter the game.
-	This function should be called as goroutine and should finish when player finish the game.
-*/
-
 func (cc *cli) showHeader() {
 
 	mapName := cc.mapList.GetCachedMapName()
@@ -600,12 +521,6 @@ func (cc *cli) showHeader() {
 	})
 
 }
-
-/*
-	This function erase existing things in display and draw things in function.
-	This function will be called when display has to be cleared.
-*/
-
 func (cc *cli) redraw(function func()) {
 
 	checkErr(termbox.Clear(cc.Empty, cc.Empty))

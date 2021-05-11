@@ -5,14 +5,14 @@ import (
 	"github.com/simp7/nonograminGo/file"
 )
 
-type Config struct {
+type config struct {
 	Color
 	client.Text
 	Figure
 	Language string
 }
 
-func InitSetting(fs file.System, formatter file.Formatter) (*Config, error) {
+func InitSetting(fs file.System, formatter file.Formatter) (*config, error) {
 
 	settingLoader, err := fs.Setting(formatter)
 	if err != nil {
@@ -41,7 +41,7 @@ func InitSetting(fs file.System, formatter file.Formatter) (*Config, error) {
 
 }
 
-func loadSetting(settingLoader file.Loader) (instance *Config, err error) {
+func loadSetting(settingLoader file.Loader) (instance *config, err error) {
 	err = settingLoader.Load(&instance)
 	return
 }
