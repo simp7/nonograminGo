@@ -1,7 +1,6 @@
 package nonogram
 
-//Formatter is just an duplication of file.Formatter.
-
+//Formatter is just an duplication of file.GetFormatter.
 type Formatter interface {
 	Encode(interface{}) error
 	Decode(interface{}) error

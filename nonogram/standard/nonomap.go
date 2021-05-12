@@ -242,6 +242,6 @@ func (nm *nonomap) CheckValidity() error {
 
 }
 
-func (nm *nonomap) Formatter() nonogram.Formatter {
+func (nm *nonomap) GetFormatter() nonogram.Formatter {
 	return newFormatter()
 }

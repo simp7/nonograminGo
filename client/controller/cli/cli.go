@@ -204,7 +204,7 @@ func (cc *cli) loadMap(name string) nonogram.Map {
 
 	mapData := cc.nonomap
 
-	s, err := cc.fileSystem.Map(name, mapData.Formatter())
+	s, err := cc.fileSystem.Map(name, mapData.GetFormatter())
 	checkErr(err)
 
 	err = s.Load(&mapData)
@@ -504,7 +504,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 func (cc *cli) saveMap(name string, mapData nonogram.Map) {
 
-	mapSaver, err := cc.fileSystem.Map(name, mapData.Formatter())
+	mapSaver, err := cc.fileSystem.Map(name, mapData.GetFormatter())
 	checkErr(err)
 
 	checkErr(mapSaver.Save(mapData))
