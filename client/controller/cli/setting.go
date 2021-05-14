@@ -47,7 +47,7 @@ func loadSetting(settingLoader file.Loader) (instance *config, err error) {
 }
 
 func loadText(languageLoader file.Loader, languageUpdater file.Updater) (text client.Text, err error) {
-	text = new(textData)
+	text = new(TextData)
 	err = languageLoader.Load(&text)
 	if err != nil || !text.IsLatest("1.0") {
 		languageUpdater.Update()

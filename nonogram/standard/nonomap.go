@@ -27,6 +27,7 @@ type nonomap struct {
 	The extension of file is nm(*.nm)
 */
 
+//Map returns prototype of Map in this package.
 func Map() nonogram.Map {
 	return new(nonomap)
 }

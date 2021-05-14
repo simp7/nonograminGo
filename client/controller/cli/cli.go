@@ -15,6 +15,7 @@ import (
 	"unicode"
 )
 
+//View is an const that represents view of client.
 type View uint8
 
 const (
