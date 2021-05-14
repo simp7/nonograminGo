@@ -2,7 +2,6 @@ package standard
 
 import (
 	"github.com/simp7/nonograminGo/nonogram"
-	"strconv"
 )
 
 type nonomap struct {
@@ -28,11 +27,7 @@ type nonomap struct {
 	The extension of file is nm(*.nm)
 */
 
-/*
-	This function compares selected row's player data and answer data so it can judge if player painted wrong cell.
-	This function will be called when player paints cell(NOT when checking).
-*/
-
+//Map returns prototype of Map in this package.
 func Map() nonogram.Map {
 	return new(nonomap)
 }
@@ -70,17 +65,17 @@ func (nm *nonomap) createHorizontalProblemData() [][]int {
 	for i := 0; i < nm.Height; i++ {
 
 		previousCell := false
-		temp := 0
+		tmp := 0
 
 		for j := 0; j < nm.Width; j++ {
 
 			if nm.Bitmap[i][j] {
-				temp++
+				tmp++
 				previousCell = true
 			} else {
 				if previousCell {
-					horizontal[i] = append(horizontal[i], temp)
-					temp = 0
+					horizontal[i] = append(horizontal[i], tmp)
+					tmp = 0
 				}
 				previousCell = false
 			}
@@ -88,7 +83,7 @@ func (nm *nonomap) createHorizontalProblemData() [][]int {
 		}
 
 		if previousCell {
-			horizontal[i] = append(horizontal[i], temp)
+			horizontal[i] = append(horizontal[i], tmp)
 		}
 
 		if len(horizontal[i]) == 0 {
@@ -108,23 +103,23 @@ func (nm *nonomap) createVerticalProblemData() [][]int {
 	for i := 0; i < nm.Width; i++ {
 
 		previousCell := false
-		temp := 0
+		tmp := 0
 
 		for j := 0; j < nm.Height; j++ {
 			if nm.Bitmap[j][i] {
-				temp++
+				tmp++
 				previousCell = true
 			} else {
 				if previousCell {
-					vertical[i] = append(vertical[i], temp)
-					temp = 0
+					vertical[i] = append(vertical[i], tmp)
+					tmp = 0
 				}
 				previousCell = false
 			}
 		}
 
 		if previousCell {
-			vertical[i] = append(vertical[i], temp)
+			vertical[i] = append(vertical[i], tmp)
 		}
 
 		if len(vertical[i]) == 0 {
@@ -137,11 +132,6 @@ func (nm *nonomap) createVerticalProblemData() [][]int {
 
 }
 
-/*
-	This function trim problem data to show player problem clearly.
-	This function will be called when player enter the game.
-*/
-
 func (nm *nonomap) CreateProblem() nonogram.Problem {
 
 	hData := nm.createHorizontalProblemData()
@@ -150,38 +140,7 @@ func (nm *nonomap) CreateProblem() nonogram.Problem {
 	hMax := getMaxLength(hData)
 	vMax := getMaxLength(vData)
 
-	hProblem := make([]string, nm.Height)
-	vProblem := make([]string, vMax)
-
-	for i := 0; i < nm.Height; i++ {
-		hProblem[i] = ""
-		for j := hMax; j > 0; j-- {
-			if len(hData[i]) < j {
-				hProblem[i] += "  "
-			} else {
-				if hData[i][len(hData[i])-j] < 10 {
-					hProblem[i] += " "
-				}
-				hProblem[i] += strconv.Itoa(hData[i][len(hData[i])-j])
-			}
-		}
-	}
-
-	for i := vMax; i > 0; i-- {
-		vProblem[vMax-i] = ""
-		for j := 0; j < nm.Width; j++ {
-			if i > len(vData[j]) {
-				vProblem[vMax-i] += "  "
-			} else {
-				if vData[j][len(vData[j])-i] < 10 {
-					vProblem[vMax-i] += " "
-				}
-				vProblem[vMax-i] += strconv.Itoa(vData[j][len(vData[j])-i])
-			}
-		}
-	}
-	hMax *= 2
-	return newProblem(hProblem, vProblem, hMax, vMax)
+	return newProblem(hData, vData, hMax, vMax)
 
 }
 
@@ -191,17 +150,9 @@ func (nm *nonomap) GetHeight() int {
 	return nm.Height
 }
 
-//This function returns Width of nonomap
-
 func (nm *nonomap) GetWidth() int {
 	return nm.Width
 }
-
-/*
-	This function count total cells that should be filled.
-	The result will be used when judging whether player complete the map.
-	This function will be called when player enter the game.
-*/
 
 func (nm *nonomap) FilledTotal() (total int) {
 

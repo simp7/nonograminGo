@@ -9,7 +9,8 @@ const (
 	delimiterSize = 40
 )
 
-type textData struct {
+//TextData is an data of text that are not yet be processed but stored.
+type TextData struct {
 	FileVersion     string
 	Title           string
 	SelectRequest   string
@@ -43,64 +44,64 @@ type textData struct {
 	ArrowKey        string
 }
 
-func (t *textData) MainMenu() []string {
+func (t *TextData) MainMenu() []string {
 	list := listByNumber(t.Start, t.Create, t.Help, t.Credit, t.Exit)
 	header := append(t.title(t.Title), "", t.SelectRequest, "")
 	return append(header, list...)
 }
 
-func (t *textData) SelectHeader() []string {
+func (t *TextData) SelectHeader() []string {
 	return []string{"[ " + t.MapList + " ]", "[ <-" + t.Prev + " | " + t.Next + "-> ]    ", t.delimiter(), ""}
 }
 
-func (t *textData) GetResult() []string {
+func (t *TextData) GetResult() []string {
 	results := colonFormat(t.MapName, t.ClearTime, t.WrongCells)
 	return append(t.title(t.Clear), results...)
 }
 
-func (t *textData) Complete() string {
+func (t *TextData) Complete() string {
 	return t.CompleteMsg
 }
 
-func (t *textData) GetHelp() []string {
+func (t *TextData) GetHelp() []string {
 	return append(t.title(t.Help), t.keyInstruction()...)
 }
 
-func (t *textData) GetCredit() []string {
+func (t *TextData) GetCredit() []string {
 	return append(t.title(t.Credit), t.DeveloperInfo, t.License, t.ThankYouMsg, t.delimiter())
 }
 
-func (t *textData) RequestMapName() string {
+func (t *TextData) RequestMapName() string {
 	return t.ReqMapName
 }
 
-func (t *textData) RequestWidth() string {
+func (t *TextData) RequestWidth() string {
 	return t.ReqWidth
 }
 
-func (t *textData) RequestHeight() string {
+func (t *TextData) RequestHeight() string {
 	return t.ReqHeight
 }
 
-func (t *textData) SizeError() string {
+func (t *TextData) SizeError() string {
 	return t.MapSizeError
 }
 
-func (t *textData) FileNotExist() string {
+func (t *TextData) FileNotExist() string {
 	return t.MapFileNotExist
 }
 
-func (t *textData) BlankBetweenMapNameAndTimer() string {
+func (t *TextData) BlankBetweenMapNameAndTimer() string {
 	return "               "
 }
 
-func (t *textData) keyInstruction() []string {
+func (t *TextData) keyInstruction() []string {
 	key := []string{t.ArrowKey, "Space/Z", "X", "Enter", "Esc"}
 	instruction := []string{t.ExplArrowKey, t.ExplSpace, t.ExplX, t.ExplEnter, t.ExplEsc}
 	return completeColonFormat(key, instruction)
 }
 
-func (t *textData) IsLatest(s string) bool {
+func (t *TextData) IsLatest(s string) bool {
 	return s == t.FileVersion
 }
 
@@ -147,11 +148,11 @@ func listByNumber(texts ...string) []string {
 	return texts
 }
 
-func (t *textData) delimiter() string {
+func (t *TextData) delimiter() string {
 	return strings.Repeat("-", delimiterSize)
 }
 
-func (t *textData) title(text string) []string {
+func (t *TextData) title(text string) []string {
 	blank := (delimiterSize - len(text)) / 2
 	if blank < 0 {
 		return []string{text}

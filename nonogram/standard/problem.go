@@ -9,7 +9,7 @@ type problem struct {
 	vertical   unit
 }
 
-func newProblem(hProblem []string, vProblem []string, hMax int, vMax int) problem {
+func newProblem(hProblem [][]int, vProblem [][]int, hMax int, vMax int) problem {
 	return problem{newUnit(hProblem, hMax), newUnit(vProblem, vMax)}
 }
 

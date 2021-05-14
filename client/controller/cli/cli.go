@@ -15,6 +15,7 @@ import (
 	"unicode"
 )
 
+//View is an const that represents view of client.
 type View uint8
 
 const (
@@ -25,15 +26,15 @@ const (
 )
 
 type cli struct {
-	eventChan   chan termbox.Event
-	endChan     chan struct{}
-	nonomap     nonogram.Map
-	fileSystem  file.System
-	currentView View
-	event       termbox.Event
-	timer       gadget.Stopwatch
-	locker      sync.Mutex
-	mapList     file.MapList
+	eventChan    chan termbox.Event
+	endChan      chan struct{}
+	mapPrototype nonogram.Map
+	fileSystem   file.System
+	currentView  View
+	event        termbox.Event
+	timer        gadget.Stopwatch
+	locker       sync.Mutex
+	mapList      file.MapList
 	*config
 }
 
@@ -49,7 +50,7 @@ func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype n
 	cc.config, err = InitSetting(fileSystem, formatter)
 	checkErr(err)
 
-	cc.nonomap = mapPrototype
+	cc.mapPrototype = mapPrototype
 	cc.fileSystem = fileSystem
 	cc.currentView = MainMenu
 	cc.mapList = fileSystem.Maps()
@@ -202,7 +203,7 @@ func (cc *cli) selectMap() {
 
 func (cc *cli) loadMap(name string) nonogram.Map {
 
-	mapData := cc.nonomap
+	mapData := cc.mapPrototype
 
 	s, err := cc.fileSystem.Map(name, mapData.GetFormatter())
 	checkErr(err)
@@ -234,9 +235,9 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	wrongCell := 0
 
 	problem := correctMap.CreateProblem()
-	cc.showProblem(problem)
+	cc.showProblem(correctMap)
 
-	p := Player(cc.config.Color, Pos{problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
+	p := Player(cc.config.Color, Pos{2 * problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
 	p.SetCell(Cursor)
 
 	cc.showHeader()
@@ -297,15 +298,72 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 
 }
 
-func (cc *cli) showProblem(problem nonogram.Problem) {
+func (cc *cli) formatVertical(nonomap nonogram.Map) []string {
+
+	unit := nonomap.CreateProblem().Vertical()
+	max := unit.Max()
+
+	problem := make([]string, max)
+
+	for i := max; i > 0; i-- {
+		problem[max-i] = ""
+		for j := 0; j < nonomap.GetWidth(); j++ {
+			currentRow := unit.Get(j)
+			if i > len(currentRow) {
+				problem[max-i] += "  "
+			} else {
+				if currentRow[len(currentRow)-i] < 10 {
+					problem[max-i] += " "
+				}
+				problem[max-i] += strconv.Itoa(currentRow[len(currentRow)-i])
+			}
+		}
+	}
+
+	return problem
+
+}
+
+func (cc *cli) formatHorizontal(nonomap nonogram.Map) []string {
+
+	unit := nonomap.CreateProblem().Horizontal()
+	max := unit.Max()
+
+	problem := make([]string, nonomap.GetHeight())
+
+	for i := 0; i < nonomap.GetHeight(); i++ {
+		currentRow := unit.Get(i)
+		problem[i] = ""
+		for j := max; j > 0; j-- {
+			if len(currentRow) < j {
+				problem[i] += "  "
+			} else {
+				if currentRow[len(currentRow)-j] < 10 {
+					problem[i] += " "
+				}
+				problem[i] += strconv.Itoa(currentRow[len(currentRow)-j])
+			}
+		}
+	}
+
+	return problem
+
+}
+
+func (cc *cli) showProblem(nonomap nonogram.Map) {
 
 	cc.redraw(func() {
 
-		verticalPos := Pos{problem.Horizontal().Max(), 1}
-		horizontalPos := Pos{0, problem.Vertical().Max() + 1}
+		problem := nonomap.CreateProblem()
 
-		cc.print(verticalPos, problem.Vertical().Get()...)
-		cc.print(horizontalPos, problem.Horizontal().Get()...)
+		hMax := problem.Horizontal().Max()
+		vMax := problem.Vertical().Max()
+
+		verticalPos := Pos{hMax * 2, 1}
+		horizontalPos := Pos{0, vMax + 1}
+
+		cc.print(horizontalPos, cc.formatHorizontal(nonomap)...)
+		cc.print(verticalPos, cc.formatVertical(nonomap)...)
 
 	})
 
@@ -327,9 +385,7 @@ func (cc *cli) showResult(wrong int) {
 	checkErr(termbox.Flush())
 
 	cc.pressKeyToContinue()
-
 	cc.redraw(func() { cc.printStandard(result...) })
-
 	cc.pressKeyToContinue()
 
 }
@@ -338,7 +394,7 @@ func (cc *cli) createNonomapSkeleton() {
 
 	width, height := 0, 0
 	var err error
-	criteria := cc.nonomap
+	criteria := cc.mapPrototype
 	header := cc.RequestMapName()
 
 	mapName := cc.stringReader(header, cc.NameMax)
@@ -492,7 +548,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.saveMap(mapName, p.FinishCreating(cc.nonomap))
+			cc.saveMap(mapName, p.FinishCreating(cc.mapPrototype))
 			checkErr(cc.mapList.Refresh())
 			return
 
@@ -521,6 +577,7 @@ func (cc *cli) showHeader() {
 	})
 
 }
+
 func (cc *cli) redraw(function func()) {
 
 	checkErr(termbox.Clear(cc.Empty, cc.Empty))
