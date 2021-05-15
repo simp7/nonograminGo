@@ -1,10 +1,9 @@
 package cli
 
-//Signal represents state of nonogram cell.
-type Signal uint8
+type signal uint8
 
 const (
-	Empty Signal = iota
+	Empty signal = iota
 	Fill
 	Check
 	Wrong

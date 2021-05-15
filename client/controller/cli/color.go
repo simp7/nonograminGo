@@ -4,7 +4,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-//Color represents colors for display of application.
+//Color is an struct that includes color of cells.
 type Color struct {
 	Empty   termbox.Attribute
 	Filled  termbox.Attribute
