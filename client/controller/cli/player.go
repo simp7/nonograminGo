@@ -8,7 +8,7 @@ import (
 type player struct {
 	problemPosition Pos
 	position        Pos
-	playerMap       [][]Signal
+	playerMap       [][]signal
 	bitmap          [][]bool
 	color           Color
 }
@@ -28,16 +28,16 @@ func Player(config Color, problemPosition Pos, width int, height int) *player {
 }
 
 func (p *player) initMap(width int, height int) {
-	p.playerMap = make([][]Signal, height)
+	p.playerMap = make([][]signal, height)
 	for n := range p.playerMap {
-		p.playerMap[n] = make([]Signal, width)
+		p.playerMap[n] = make([]signal, width)
 		for m := range p.playerMap[n] {
 			p.playerMap[n][m] = Empty
 		}
 	}
 }
 
-func (p *player) SetCell(s Signal) {
+func (p *player) SetCell(s signal) {
 
 	setCell := func(first rune, second rune, fg termbox.Attribute, bg termbox.Attribute) {
 		termbox.SetCell(p.position.X, p.position.Y, first, fg, bg)
@@ -71,7 +71,7 @@ func (p *player) SetCell(s Signal) {
 	}
 }
 
-func (p *player) SetCursor(cellState Signal) {
+func (p *player) SetCursor(cellState signal) {
 	switch cellState {
 	case Fill:
 		p.SetCell(CursorFilled)
@@ -89,17 +89,17 @@ func (p *player) RealPos() (realPos Pos) {
 	return Pos{tmp.X / 2, tmp.Y}
 }
 
-func (p *player) GetMapSignal() Signal {
+func (p *player) GetMapSignal() signal {
 	realPos := p.RealPos()
 	return p.playerMap[realPos.Y][realPos.X]
 }
 
-func (p *player) SetMapSignal(signal Signal) {
+func (p *player) SetMapSignal(signal signal) {
 	realPos := p.RealPos()
 	p.playerMap[realPos.Y][realPos.X] = signal
 }
 
-func (p *player) Toggle(s Signal) {
+func (p *player) Toggle(s signal) {
 	p.SetMapSignal(s)
 	switch s {
 	case Fill:

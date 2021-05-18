@@ -5,26 +5,27 @@ import (
 	"github.com/simp7/nonograminGo/file"
 )
 
-type config struct {
+type Config struct {
 	Color
 	client.Text
-	Figure
-	Language string
+	NameMax    int    //NameMax is an maximum length of name.
+	DefaultPos Pos    //DefaultPos is an default position for display things.
+	Language   string //Language is an language of this application.
 }
 
-func InitSetting(fs file.System, formatter file.Formatter) (*config, error) {
+func initSetting(fs file.System, formatter file.Formatter) (*Config, error) {
 
 	settingLoader, err := fs.Setting(formatter)
 	if err != nil {
 		return nil, err
 	}
 
-	config, err := loadSetting(settingLoader)
+	conf, err := loadSetting(settingLoader)
 	if err != nil {
 		return nil, err
 	}
 
-	languageLoader, err := fs.LanguageOf(config.Language, formatter)
+	languageLoader, err := fs.LanguageOf(conf.Language, formatter)
 	if err != nil {
 		return nil, err
 	}
@@ -35,13 +36,13 @@ func InitSetting(fs file.System, formatter file.Formatter) (*config, error) {
 	}
 
 	text, err := loadText(languageLoader, languageUpdater)
-	config.Text = text
+	conf.Text = text
 
-	return config, err
+	return conf, err
 
 }
 
-func loadSetting(settingLoader file.Loader) (instance *config, err error) {
+func loadSetting(settingLoader file.Loader) (instance *Config, err error) {
 	err = settingLoader.Load(&instance)
 	return
 }

@@ -15,11 +15,10 @@ import (
 	"unicode"
 )
 
-//View is an const that represents view of client.
-type View uint8
+type view uint8
 
 const (
-	MainMenu View = iota
+	MainMenu view = iota
 	Select
 	Help
 	Credit
@@ -30,12 +29,12 @@ type cli struct {
 	endChan      chan struct{}
 	mapPrototype nonogram.Map
 	fileSystem   file.System
-	currentView  View
+	currentView  view
 	event        termbox.Event
 	timer        gadget.Stopwatch
 	locker       sync.Mutex
 	mapList      file.MapList
-	*config
+	*Config
 }
 
 //Controller returns nonogram.Controller that runs in Controller
@@ -47,7 +46,7 @@ func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype n
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 
-	cc.config, err = InitSetting(fileSystem, formatter)
+	cc.Config, err = initSetting(fileSystem, formatter)
 	checkErr(err)
 
 	cc.mapPrototype = mapPrototype
@@ -237,7 +236,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	problem := correctMap.CreateProblem()
 	cc.showProblem(correctMap)
 
-	p := Player(cc.config.Color, Pos{2 * problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
+	p := Player(cc.Config.Color, Pos{2 * problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
 	p.SetCell(Cursor)
 
 	cc.showHeader()
@@ -513,7 +512,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	cc.redraw(func() { cc.print(Pos{1, 0}, mapName) })
 
-	p := Player(cc.config.Color, cc.DefaultPos, width, height)
+	p := Player(cc.Config.Color, cc.DefaultPos, width, height)
 	p.SetCell(Cursor)
 
 	for {
