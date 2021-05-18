@@ -21,7 +21,7 @@ type formatter struct {
 
 func newFormatter() *formatter {
 	f := new(formatter)
-	f.data = Map()
+	f.data = Prototype()
 	f.raw = make([]byte, 0)
 	return f
 }

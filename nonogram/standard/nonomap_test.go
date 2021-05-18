@@ -7,7 +7,7 @@ import (
 
 func TestNonomap_CreateProblem(t *testing.T) {
 
-	nm := Map()
+	nm := Prototype()
 
 	table := []struct {
 		bitmap     [][]bool

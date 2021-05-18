@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 
-	rd := cli.Controller(fs, formatter.Json(), standard.Map())
+	rd := cli.Controller(fs, formatter.Json(), standard.Prototype())
 	rd.Start()
 
 }
