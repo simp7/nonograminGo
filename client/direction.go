@@ -1,4 +1,4 @@
-package cli
+package client
 
 //Direction represents directions for playing nonogram.
 type Direction uint8

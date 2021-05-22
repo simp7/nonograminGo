@@ -1,17 +1,15 @@
-package cli
+package client
 
 import (
 	"fmt"
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/client"
-	"github.com/simp7/nonograminGo/file"
-	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonogram"
+	"github.com/simp7/nonogram/unit"
 	"github.com/simp7/times/gadget"
 	"github.com/simp7/times/gadget/stopwatch"
 	"io"
 	"log"
 	"strconv"
-	"sync"
 	"unicode"
 )
 
@@ -25,35 +23,34 @@ const (
 )
 
 type cli struct {
-	eventChan    chan termbox.Event
-	endChan      chan struct{}
-	mapPrototype nonogram.Map
-	fileSystem   file.System
-	currentView  view
-	event        termbox.Event
-	timer        gadget.Stopwatch
-	locker       sync.Mutex
-	mapList      file.MapList
-	*Config
+	eventChan   chan termbox.Event
+	endChan     chan struct{}
+	currentView view
+	core        nonogram.Core
+	event       termbox.Event
+	stopwatch   gadget.Stopwatch
+	mapList     *mapList
+	config      Config
 }
 
 //Controller returns nonogram.Controller that runs in Controller
-func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype nonogram.Map) client.Controller {
+func Controller(core nonogram.Core) *cli {
 
-	var err error
 	cc := new(cli)
 
 	cc.eventChan = make(chan termbox.Event)
 	cc.endChan = make(chan struct{})
 
-	cc.Config, err = initSetting(fileSystem, formatter)
+	cc.core = core
+
+	config, err := core.LoadSetting()
 	checkErr(err)
 
-	cc.mapPrototype = mapPrototype
-	cc.fileSystem = fileSystem
+	cc.config = AdjustConfig(config)
+
 	cc.currentView = MainMenu
-	cc.mapList = fileSystem.Maps()
-	cc.timer = stopwatch.Standard
+	cc.refreshMapList()
+	cc.stopwatch = stopwatch.Standard
 
 	return cc
 
@@ -61,6 +58,7 @@ func Controller(fileSystem file.System, formatter file.Formatter, mapPrototype n
 
 func (cc *cli) Start() {
 
+	termbox.SetOutputMode(termbox.OutputRGB)
 	err := termbox.Init()
 	checkErr(err)
 	defer termbox.Close()
@@ -100,13 +98,13 @@ func (cc *cli) refresh() {
 	cc.redraw(func() {
 		switch cc.currentView {
 		case MainMenu:
-			cc.printStandard(cc.MainMenu()...)
+			cc.printStandard(cc.config.MainMenu()...)
 		case Select:
 			cc.showMapList()
 		case Help:
-			cc.printStandard(cc.GetHelp()...)
+			cc.printStandard(cc.config.GetHelp()...)
 		case Credit:
-			cc.printStandard(cc.GetCredit()...)
+			cc.printStandard(cc.config.GetCredit()...)
 		}
 	})
 
@@ -134,7 +132,7 @@ func (cc *cli) println(position Pos, text string) {
 	x := position.X
 
 	for _, ch := range text {
-		termbox.SetCell(x, position.Y, ch, cc.Char, cc.Empty)
+		termbox.SetCell(x, position.Y, ch, cc.config.Char, cc.config.Empty)
 		if isCJK(ch) {
 			x++
 		}
@@ -144,7 +142,7 @@ func (cc *cli) println(position Pos, text string) {
 }
 
 func (cc *cli) printStandard(texts ...string) {
-	cc.print(cc.DefaultPos, texts...)
+	cc.print(cc.config.DefaultPos, texts...)
 }
 
 func (cc *cli) menu() {
@@ -192,7 +190,9 @@ func (cc *cli) selectMap() {
 			if !ok {
 				continue
 			} else {
-				cc.inGame(cc.loadMap(name))
+				nonomap, err := cc.core.LoadMap(name)
+				checkErr(err)
+				cc.inGame(nonomap)
 			}
 		}
 
@@ -200,24 +200,10 @@ func (cc *cli) selectMap() {
 
 }
 
-func (cc *cli) loadMap(name string) nonogram.Map {
-
-	mapData := cc.mapPrototype
-
-	s, err := cc.fileSystem.Map(name, mapData.GetFormatter())
-	checkErr(err)
-
-	err = s.Load(&mapData)
-	checkErr(err)
-
-	return mapData
-
-}
-
 func (cc *cli) showMapList() {
 
-	list := make([]string, len(cc.SelectHeader()))
-	copy(list, cc.SelectHeader())
+	list := make([]string, len(cc.config.SelectHeader()))
+	copy(list, cc.config.SelectHeader())
 	list[0] += fmt.Sprintf("(%d/%d)", cc.mapList.CurrentPage(), cc.mapList.LastPage())
 
 	list = append(list, cc.mapList.Current()...)
@@ -226,9 +212,9 @@ func (cc *cli) showMapList() {
 
 }
 
-func (cc *cli) inGame(correctMap nonogram.Map) {
+func (cc *cli) inGame(correctMap unit.Map) {
 
-	checkErr(termbox.Clear(cc.Empty, cc.Empty))
+	checkErr(termbox.Clear(cc.config.Empty, cc.config.Empty))
 
 	remainedCell := correctMap.FilledTotal()
 	wrongCell := 0
@@ -236,12 +222,12 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 	problem := correctMap.CreateProblem()
 	cc.showProblem(correctMap)
 
-	p := Player(cc.Config.Color, Pos{2 * problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight())
+	p := Player(cc.config.Color, Pos{2 * problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight(), cc.core)
 	p.SetCell(Cursor)
 
 	cc.showHeader()
 
-	go cc.timer.Start()
+	go cc.stopwatch.Start()
 
 	for {
 
@@ -289,7 +275,7 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 			}
 
 		case cc.event.Key == termbox.KeyEsc:
-			cc.timer.Stop()
+			cc.stopwatch.Stop()
 			return
 		}
 
@@ -297,17 +283,17 @@ func (cc *cli) inGame(correctMap nonogram.Map) {
 
 }
 
-func (cc *cli) formatVertical(nonomap nonogram.Map) []string {
+func (cc *cli) formatVertical(nonomap unit.Map) []string {
 
-	unit := nonomap.CreateProblem().Vertical()
-	max := unit.Max()
+	vertical := nonomap.CreateProblem().Vertical()
+	max := vertical.Max()
 
 	problem := make([]string, max)
 
 	for i := max; i > 0; i-- {
 		problem[max-i] = ""
 		for j := 0; j < nonomap.GetWidth(); j++ {
-			currentRow := unit.Get(j)
+			currentRow := vertical.Get(j)
 			if i > len(currentRow) {
 				problem[max-i] += "  "
 			} else {
@@ -323,15 +309,15 @@ func (cc *cli) formatVertical(nonomap nonogram.Map) []string {
 
 }
 
-func (cc *cli) formatHorizontal(nonomap nonogram.Map) []string {
+func (cc *cli) formatHorizontal(nonomap unit.Map) []string {
 
-	unit := nonomap.CreateProblem().Horizontal()
-	max := unit.Max()
+	horizontal := nonomap.CreateProblem().Horizontal()
+	max := horizontal.Max()
 
 	problem := make([]string, nonomap.GetHeight())
 
 	for i := 0; i < nonomap.GetHeight(); i++ {
-		currentRow := unit.Get(i)
+		currentRow := horizontal.Get(i)
 		problem[i] = ""
 		for j := max; j > 0; j-- {
 			if len(currentRow) < j {
@@ -349,7 +335,7 @@ func (cc *cli) formatHorizontal(nonomap nonogram.Map) []string {
 
 }
 
-func (cc *cli) showProblem(nonomap nonogram.Map) {
+func (cc *cli) showProblem(nonomap unit.Map) {
 
 	cc.redraw(func() {
 
@@ -370,17 +356,15 @@ func (cc *cli) showProblem(nonomap nonogram.Map) {
 
 func (cc *cli) showResult(wrong int) {
 
-	resultFormat := cc.GetResult()
+	resultFormat := cc.config.GetResult()
 	result := make([]string, len(resultFormat))
 	copy(result, resultFormat)
 
-	cc.locker.Lock()
 	result[3] += cc.mapList.GetCachedMapName()
-	result[4] += cc.timer.Stop()
+	result[4] += cc.stopwatch.Stop()
 	result[5] += strconv.Itoa(wrong)
-	cc.locker.Unlock()
 
-	cc.print(Pos{0, 0}, cc.Complete())
+	cc.print(Pos{0, 0}, cc.config.Complete())
 	checkErr(termbox.Flush())
 
 	cc.pressKeyToContinue()
@@ -393,15 +377,15 @@ func (cc *cli) createNonomapSkeleton() {
 
 	width, height := 0, 0
 	var err error
-	criteria := cc.mapPrototype
-	header := cc.RequestMapName()
+	criteria := cc.core.InitMap([][]bool{{true}})
+	header := cc.config.RequestMapName()
 
-	mapName := cc.stringReader(header, cc.NameMax)
+	mapName := cc.stringReader(header, cc.config.NameMax)
 	if mapName == "" {
 		return
 	}
 
-	header = cc.RequestWidth()
+	header = cc.config.RequestWidth()
 	for {
 
 		mapWidth := cc.stringReader(header, 2)
@@ -415,11 +399,11 @@ func (cc *cli) createNonomapSkeleton() {
 		if width <= criteria.WidthLimit() && width > 0 {
 			break
 		}
-		header = cc.SizeError() + strconv.Itoa(criteria.WidthLimit())
+		header = cc.config.SizeError() + strconv.Itoa(criteria.WidthLimit())
 
 	}
 
-	header = cc.RequestHeight()
+	header = cc.config.RequestHeight()
 	for {
 
 		mapHeight := cc.stringReader(header, 2)
@@ -433,7 +417,7 @@ func (cc *cli) createNonomapSkeleton() {
 		if height <= criteria.HeightLimit() && height > 0 {
 			break
 		}
-		header = cc.SizeError() + strconv.Itoa(criteria.HeightLimit())
+		header = cc.config.SizeError() + strconv.Itoa(criteria.HeightLimit())
 
 	}
 
@@ -451,14 +435,16 @@ func (cc *cli) stringReader(header string, maxLen int) string {
 
 	placeholder := func() {
 
+		defaultPos := cc.config.DefaultPos
+
 		cc.printStandard(header)
 		if len(resultByte) < maxLen {
-			cc.print(cc.DefaultPos.Move(len(resultByte), 2), "_")
+			cc.print(defaultPos.Move(len(resultByte), 2), "_")
 		}
 
-		if cc.DefaultPos.X > 0 {
-			cc.print(cc.DefaultPos.Move(-1, 2), "[")
-			cc.print(cc.DefaultPos.Move(maxLen, 2), "]")
+		if defaultPos.X > 0 {
+			cc.print(defaultPos.Move(-1, 2), "[")
+			cc.print(defaultPos.Move(maxLen, 2), "]")
 		}
 
 	}
@@ -474,7 +460,7 @@ func (cc *cli) stringReader(header string, maxLen int) string {
 		cc.redraw(func() {
 
 			defer func() {
-				cc.print(cc.DefaultPos.Move(0, 2), string(resultByte))
+				cc.print(cc.config.DefaultPos.Move(0, 2), string(resultByte))
 				placeholder()
 			}()
 
@@ -486,7 +472,7 @@ func (cc *cli) stringReader(header string, maxLen int) string {
 				return
 			}
 
-			if header == cc.RequestMapName() {
+			if header == cc.config.RequestMapName() {
 				if cc.event.Ch != 0 {
 					writeChar(cc.event.Ch)
 				} else if cc.event.Key == termbox.KeySpace {
@@ -512,7 +498,7 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 
 	cc.redraw(func() { cc.print(Pos{1, 0}, mapName) })
 
-	p := Player(cc.Config.Color, cc.DefaultPos, width, height)
+	p := Player(cc.config.Color, cc.config.DefaultPos, width, height, cc.core)
 	p.SetCell(Cursor)
 
 	for {
@@ -547,31 +533,26 @@ func (cc *cli) inCreate(mapName string, width int, height int) {
 		case cc.event.Key == termbox.KeyEsc:
 			return
 		case cc.event.Key == termbox.KeyEnter:
-			cc.saveMap(mapName, p.FinishCreating(cc.mapPrototype))
-			checkErr(cc.mapList.Refresh())
+			checkErr(cc.core.SaveMap(mapName, p.FinishCreating()))
+			cc.refreshMapList()
 			return
-
 		}
 
 	}
 
 }
 
-func (cc *cli) saveMap(name string, mapData nonogram.Map) {
-
-	mapSaver, err := cc.fileSystem.Map(name, mapData.GetFormatter())
-	checkErr(err)
-
-	checkErr(mapSaver.Save(mapData))
-
+func (cc *cli) refreshMapList() {
+	maps, _ := cc.core.Maps()
+	cc.mapList = newMapList(maps)
 }
 
 func (cc *cli) showHeader() {
 
 	mapName := cc.mapList.GetCachedMapName()
 
-	cc.timer.Add(func(current string) {
-		cc.print(Pos{cc.DefaultPos.X, 0}, mapName+cc.BlankBetweenMapNameAndTimer()+current)
+	cc.stopwatch.Add(func(current string) {
+		cc.print(Pos{cc.config.DefaultPos.X, 0}, mapName+cc.config.BlankBetweenMapNameAndTimer()+current)
 		checkErr(termbox.Flush())
 	})
 
@@ -579,7 +560,7 @@ func (cc *cli) showHeader() {
 
 func (cc *cli) redraw(function func()) {
 
-	checkErr(termbox.Clear(cc.Empty, cc.Empty))
+	checkErr(termbox.Clear(cc.config.Empty, cc.config.Empty))
 	function()
 	checkErr(termbox.Flush())
 

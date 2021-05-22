@@ -1,4 +1,4 @@
-package cli
+package client
 
 //Pos is an struct that represents position.
 type Pos struct {
