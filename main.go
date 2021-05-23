@@ -2,21 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/simp7/nonograminGo/client/controller/cli"
-	"github.com/simp7/nonograminGo/file/formatter"
-	"github.com/simp7/nonograminGo/file/localstorage"
-	"github.com/simp7/nonograminGo/nonogram/standard"
+	"github.com/simp7/nonogram/core"
+	"github.com/simp7/nonogram/file/formatter"
+	"github.com/simp7/nonogram/file/local"
+	"github.com/simp7/nonogram/unit/standard"
+	"github.com/simp7/nonograminGo/client"
 )
 
 func main() {
 
-	fs, err := localstorage.Get()
+	fs, err := local.System()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	coreData := core.New(fs, standard.Prototype(), formatter.Json(), formatter.Json())
 
-	rd := cli.Controller(fs, formatter.Json(), standard.Prototype())
+	rd := client.Controller(coreData)
 	rd.Start()
 
 }

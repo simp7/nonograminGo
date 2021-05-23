@@ -1,8 +1,9 @@
-package cli
+package client
 
 import (
 	"github.com/nsf/termbox-go"
-	"github.com/simp7/nonograminGo/nonogram"
+	"github.com/simp7/nonogram"
+	"github.com/simp7/nonogram/unit"
 )
 
 type player struct {
@@ -11,10 +12,11 @@ type player struct {
 	playerMap       [][]signal
 	bitmap          [][]bool
 	color           Color
+	core            nonogram.Core
 }
 
 //Player returns in-play logic of nonogram.
-func Player(config Color, problemPosition Pos, width int, height int) *player {
+func Player(config Color, problemPosition Pos, width int, height int, core nonogram.Core) *player {
 
 	p := new(player)
 	p.problemPosition = problemPosition
@@ -23,6 +25,7 @@ func Player(config Color, problemPosition Pos, width int, height int) *player {
 
 	p.position = p.problemPosition.Move(0, 1)
 	p.color = config
+	p.core = core
 
 	return p
 }
@@ -134,7 +137,7 @@ func (p *player) Move(d Direction) {
 	}
 }
 
-func (p *player) FinishCreating(prototype nonogram.Map) nonogram.Map {
+func (p *player) FinishCreating() unit.Map {
 
 	p.bitmap = make([][]bool, len(p.playerMap))
 	for n := range p.bitmap {
@@ -142,7 +145,7 @@ func (p *player) FinishCreating(prototype nonogram.Map) nonogram.Map {
 		p.convertByRow(n)
 	}
 
-	return prototype.CopyWithBitmap(p.bitmap)
+	return p.core.InitMap(p.bitmap)
 
 }
 

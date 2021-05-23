@@ -1,4 +1,4 @@
-package cli
+package client
 
 type signal uint8
 
