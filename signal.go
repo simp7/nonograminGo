@@ -1,4 +1,4 @@
-package client
+package main
 
 type signal uint8
 
