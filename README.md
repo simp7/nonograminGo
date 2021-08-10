@@ -9,8 +9,9 @@ Visit and follow the instruction in https://golang.org/doc/install
 
 ## After or When Already installed golang...
 1. Open the terminal
-2. Execute go install github.com/simp7/nonograminGo@latest
-3. Execute nonograminGo
+2. Excute `go get -u github.com/simp7/nonograminGo`
+3. Execute `go install github.com/simp7/nonograminGo@latest`
+4. Execute nonograminGo
 
 # External package
 - [termbox-go](https://github.com/nsf/termbox-go): for handling CLI environment
@@ -28,8 +29,9 @@ https://golang.org/dl/의 지시대로 Go언어를 설치합니다.
 
 # Go언어를 설치하셨다면...
 1. 터미널을 엽니다.
-2. go install github.com/simp7/nonograminGo@latest를 실행합니다.
-3. nonograminGo를 실행합니다.
+2. `go get -u github.com/simp7/nonograminGo`를 실행합니다.
+3. `go install github.com/simp7/nonograminGo@latest`를 실행합니다.
+4. nonograminGo를 실행합니다.
 
 # 외부 패키지
 - [termbox-go](https://github.com/nsf/termbox-go): CLI 환경 관련 패키지
