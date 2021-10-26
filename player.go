@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell/termbox"
 	"github.com/simp7/nonogram"
 	"github.com/simp7/nonogram/unit"
 )

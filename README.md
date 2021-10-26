@@ -14,7 +14,8 @@ Visit and follow the instruction in https://golang.org/doc/install
 4. Execute nonograminGo
 
 # External package
-- [termbox-go](https://github.com/nsf/termbox-go): for handling CLI environment
+~~- [termbox-go](https://github.com/nsf/termbox-go): for handling CLI environment~~
+- [tcell](https://github.com/gdamore/tcell): for handling CLI environment
 - [times](https://github.com/simp7/times): for estimating time when playing
 
 ---------------------------------------------------------------------------------------------------------------------

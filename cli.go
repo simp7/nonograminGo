@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell/termbox"
 	"github.com/simp7/nonogram"
 	"github.com/simp7/nonogram/unit"
 	"github.com/simp7/times/gadget"
@@ -58,7 +58,6 @@ func Controller(core nonogram.Core) *cli {
 
 func (cc *cli) Start() {
 
-	termbox.SetOutputMode(termbox.OutputRGB)
 	err := termbox.Init()
 	checkErr(err)
 	defer termbox.Close()
@@ -68,14 +67,13 @@ func (cc *cli) Start() {
 			select {
 			case cc.eventChan <- termbox.PollEvent():
 			case <-cc.endChan:
+				close(cc.eventChan)
 				return
 			}
 		}
 	}()
 
 	cc.menu()
-
-	close(cc.eventChan)
 
 }
 
@@ -214,7 +212,7 @@ func (cc *cli) showMapList() {
 
 func (cc *cli) inGame(correctMap unit.Map) {
 
-	checkErr(termbox.Clear(cc.config.Empty, cc.config.Empty))
+	termbox.Clear(cc.config.Empty, cc.config.Empty)
 
 	remainedCell := correctMap.FilledTotal()
 	wrongCell := 0
@@ -560,7 +558,7 @@ func (cc *cli) showHeader() {
 
 func (cc *cli) redraw(function func()) {
 
-	checkErr(termbox.Clear(cc.config.Empty, cc.config.Empty))
+	termbox.Clear(cc.config.Empty, cc.config.Empty)
 	function()
 	checkErr(termbox.Flush())
 
@@ -572,9 +570,7 @@ func checkErr(e error) {
 		return
 	}
 
-	if termbox.IsInit {
-		termbox.Close()
-	}
+	termbox.Close()
 	log.Fatal(e)
 
 }

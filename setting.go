@@ -13,5 +13,5 @@ type Config struct {
 }
 
 func AdjustConfig(conf setting.Config) Config {
-	return Config{AdaptColor(conf.Color), AdaptText(conf.Text), conf.Language, 30, Pos{5, 5}}
+	return Config{Light(), AdaptText(conf.Text), conf.Language, 30, Pos{5, 5}}
 }
