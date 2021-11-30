@@ -12,6 +12,6 @@ type Config struct {
 	DefaultPos Pos
 }
 
-func AdjustConfig(conf setting.Config) Config {
+func AdaptConfig(conf setting.Config) Config {
 	return Config{Light(), AdaptText(conf.Text), conf.Language, 30, Pos{5, 5}}
 }

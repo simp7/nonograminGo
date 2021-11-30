@@ -12,11 +12,11 @@ type player struct {
 	playerMap       [][]signal
 	bitmap          [][]bool
 	color           Color
-	core            nonogram.Core
+	core            *nonogram.Core
 }
 
 //Player returns in-play logic of nonogram.
-func Player(config Color, problemPosition Pos, width int, height int, core nonogram.Core) *player {
+func Player(config Color, problemPosition Pos, width int, height int, core *nonogram.Core) *player {
 
 	p := new(player)
 	p.problemPosition = problemPosition

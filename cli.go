@@ -26,7 +26,7 @@ type cli struct {
 	eventChan   chan termbox.Event
 	endChan     chan struct{}
 	currentView view
-	core        nonogram.Core
+	core        *nonogram.Core
 	event       termbox.Event
 	stopwatch   gadget.Stopwatch
 	mapList     *mapList
@@ -34,7 +34,7 @@ type cli struct {
 }
 
 //Controller returns nonogram.Controller that runs in Controller
-func Controller(core nonogram.Core) *cli {
+func Controller(core *nonogram.Core) *cli {
 
 	cc := new(cli)
 
@@ -46,7 +46,7 @@ func Controller(core nonogram.Core) *cli {
 	config, err := core.LoadSetting()
 	checkErr(err)
 
-	cc.config = AdjustConfig(config)
+	cc.config = AdaptConfig(config)
 
 	cc.currentView = MainMenu
 	cc.refreshMapList()
@@ -220,7 +220,7 @@ func (cc *cli) inGame(correctMap unit.Map) {
 	problem := correctMap.CreateProblem()
 	cc.showProblem(correctMap)
 
-	p := Player(cc.config.Color, Pos{2 * problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.GetWidth(), correctMap.GetHeight(), cc.core)
+	p := Player(cc.config.Color, Pos{2 * problem.Horizontal().Max(), problem.Vertical().Max()}, correctMap.Width(), correctMap.Height(), cc.core)
 	p.SetCell(Cursor)
 
 	cc.showHeader()
@@ -290,7 +290,7 @@ func (cc *cli) formatVertical(nonomap unit.Map) []string {
 
 	for i := max; i > 0; i-- {
 		problem[max-i] = ""
-		for j := 0; j < nonomap.GetWidth(); j++ {
+		for j := 0; j < nonomap.Width(); j++ {
 			currentRow := vertical.Get(j)
 			if i > len(currentRow) {
 				problem[max-i] += "  "
@@ -312,9 +312,9 @@ func (cc *cli) formatHorizontal(nonomap unit.Map) []string {
 	horizontal := nonomap.CreateProblem().Horizontal()
 	max := horizontal.Max()
 
-	problem := make([]string, nonomap.GetHeight())
+	problem := make([]string, nonomap.Height())
 
-	for i := 0; i < nonomap.GetHeight(); i++ {
+	for i := 0; i < nonomap.Height(); i++ {
 		currentRow := horizontal.Get(i)
 		problem[i] = ""
 		for j := max; j > 0; j-- {
