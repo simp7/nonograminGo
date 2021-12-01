@@ -10,13 +10,13 @@ const (
 	delimiterSize = 40
 )
 
-//Text is an data of text that are not yet be processed but stored.
+//Text is data of text that are not yet be processed but stored.
 type Text struct {
 	setting.Text
 }
 
 func AdaptText(target setting.Text) Text {
-	return Text{target}
+	return Text{Text: target}
 }
 
 func (t Text) MainMenu() []string {

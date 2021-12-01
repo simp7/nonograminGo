@@ -62,33 +62,30 @@ func (cc *cli) Start() {
 	checkErr(err)
 	defer termbox.Close()
 
-	go func() {
-		for {
-			select {
-			case cc.eventChan <- termbox.PollEvent():
-			case <-cc.endChan:
-				close(cc.eventChan)
-				return
-			}
-		}
-	}()
+	go cc.startEventHandler()
 
 	cc.menu()
+	<-cc.endChan
 
 }
 
-func (cc *cli) pressKeyToContinue() {
-
+func (cc *cli) startEventHandler() {
 	for {
-
-		cc.event = <-cc.eventChan
-
-		if cc.event.Type == termbox.EventKey {
+		select {
+		case cc.eventChan <- termbox.PollEvent():
+		case <-cc.endChan:
+			close(cc.eventChan)
 			return
 		}
-
 	}
+}
 
+func (cc *cli) pressKeyToContinue() {
+	for {
+		if cc.event = <-cc.eventChan; cc.event.Type == termbox.EventKey {
+			return
+		}
+	}
 }
 
 func (cc *cli) refresh() {
@@ -115,14 +112,9 @@ func isCJK(char rune) bool {
 }
 
 func (cc *cli) print(position Pos, texts ...string) {
-
-	y := 0
-
-	for _, msg := range texts {
+	for y, msg := range texts {
 		cc.println(position.Move(0, y), msg)
-		y++
 	}
-
 }
 
 func (cc *cli) println(position Pos, text string) {
@@ -144,6 +136,8 @@ func (cc *cli) printStandard(texts ...string) {
 }
 
 func (cc *cli) menu() {
+
+	defer close(cc.endChan)
 
 	for {
 
@@ -184,10 +178,7 @@ func (cc *cli) selectMap() {
 		case cc.event.Key == termbox.KeyArrowLeft:
 			cc.mapList.Prev()
 		case cc.event.Ch >= '0' && cc.event.Ch <= '9':
-			name, ok := cc.mapList.GetMapName(int(cc.event.Ch - '0'))
-			if !ok {
-				continue
-			} else {
+			if name, ok := cc.mapList.GetMapName(int(cc.event.Ch - '0')); ok {
 				nonomap, err := cc.core.LoadMap(name)
 				checkErr(err)
 				cc.inGame(nonomap)
@@ -294,12 +285,12 @@ func (cc *cli) formatVertical(nonomap unit.Map) []string {
 			currentRow := vertical.Get(j)
 			if i > len(currentRow) {
 				problem[max-i] += "  "
-			} else {
-				if currentRow[len(currentRow)-i] < 10 {
-					problem[max-i] += " "
-				}
-				problem[max-i] += strconv.Itoa(currentRow[len(currentRow)-i])
+				continue
 			}
+			if currentRow[len(currentRow)-i] < 10 {
+				problem[max-i] += " "
+			}
+			problem[max-i] += strconv.Itoa(currentRow[len(currentRow)-i])
 		}
 	}
 
@@ -320,12 +311,12 @@ func (cc *cli) formatHorizontal(nonomap unit.Map) []string {
 		for j := max; j > 0; j-- {
 			if len(currentRow) < j {
 				problem[i] += "  "
-			} else {
-				if currentRow[len(currentRow)-j] < 10 {
-					problem[i] += " "
-				}
-				problem[i] += strconv.Itoa(currentRow[len(currentRow)-j])
+				continue
 			}
+			if currentRow[len(currentRow)-j] < 10 {
+				problem[i] += " "
+			}
+			problem[i] += strconv.Itoa(currentRow[len(currentRow)-j])
 		}
 	}
 
@@ -373,7 +364,7 @@ func (cc *cli) showResult(wrong int) {
 
 func (cc *cli) createNonomapSkeleton() {
 
-	width, height := 0, 0
+	var width, height int
 	var err error
 	criteria := cc.core.InitMap([][]bool{{true}})
 	header := cc.config.RequestMapName()
