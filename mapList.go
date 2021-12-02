@@ -82,3 +82,7 @@ func (l *mapList) realIdx(idx int) int {
 func trimSuffix(name string) string {
 	return strings.TrimSuffix(name, ".nm")
 }
+
+func (l *mapList) IsEmpty() bool {
+	return len(l.files) == 0
+}

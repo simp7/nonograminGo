@@ -191,6 +191,12 @@ func (cc *cli) selectMap() {
 
 func (cc *cli) showMapList() {
 
+	if cc.mapList.IsEmpty() {
+		cc.redraw(func() { cc.printStandard(cc.config.FileNotExist()) })
+		cc.pressKeyToContinue()
+		return
+	}
+
 	list := make([]string, len(cc.config.SelectHeader()))
 	copy(list, cc.config.SelectHeader())
 	list[0] += fmt.Sprintf("(%d/%d)", cc.mapList.CurrentPage(), cc.mapList.LastPage())
