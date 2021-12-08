@@ -17,6 +17,9 @@ func main() {
 	languages := local.Language(formatter.Json())
 
 	core := nonogram.New(db.New(maps, settings, languages), mapPrototype)
+	if core.Initialize() != nil {
+		panic("Can't initialize base files.")
+	}
 
 	rd := Controller(core)
 	rd.Start()
