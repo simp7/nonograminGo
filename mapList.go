@@ -39,17 +39,17 @@ func (l *mapList) Current() []string {
 func (l *mapList) Next() {
 	if l.unit*l.currentPage >= len(l.files) {
 		l.currentPage = 1
-	} else {
-		l.currentPage++
+		return
 	}
+	l.currentPage++
 }
 
 func (l *mapList) Prev() {
 	if l.currentPage == 1 {
-		l.currentPage = (len(l.files) - 1) / l.unit
-	} else {
-		l.currentPage--
+		l.currentPage = l.LastPage()
+		return
 	}
+	l.currentPage--
 }
 
 func (l *mapList) CurrentPage() int {
@@ -57,12 +57,12 @@ func (l *mapList) CurrentPage() int {
 }
 
 func (l *mapList) LastPage() int {
-	return len(l.files)/l.unit + 1
+	return (len(l.files)-1)/l.unit + 1
 }
 
 func (l *mapList) GetMapName(idx int) (string, bool) {
 
-	if idx >= len(l.files) {
+	if l.realIdx(idx) >= len(l.files) {
 		return "", false
 	}
 
@@ -81,4 +81,8 @@ func (l *mapList) realIdx(idx int) int {
 
 func trimSuffix(name string) string {
 	return strings.TrimSuffix(name, ".nm")
+}
+
+func (l *mapList) IsEmpty() bool {
+	return len(l.files) == 0
 }
