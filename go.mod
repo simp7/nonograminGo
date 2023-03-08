@@ -8,6 +8,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/simp7/nonogram v1.1.5
 	github.com/simp7/times v1.0.1
-	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
